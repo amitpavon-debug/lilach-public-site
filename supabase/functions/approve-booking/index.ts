@@ -1,87 +1,262 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { googleToken, localIso } from "../_shared_google.ts";
-import { escapeHtml, sendEmail, sendWhatsappTemplate, sha256Hex } from "../_shared_notifications.ts";
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "jsr:@supabase/supabase-js@2";
 
-function page(title: string, text: string, ok = true) {
-  return new Response(`<!doctype html><html lang="he" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title><body style="margin:0;background:#f7f2ed;font-family:Arial,sans-serif;color:#354033;display:grid;min-height:100vh;place-items:center"><main style="width:min(560px,calc(100% - 32px));background:white;border-radius:24px;padding:34px;box-shadow:0 16px 50px #0001;text-align:center"><div style="font-size:48px">${ok ? "✓" : "!"}</div><h1>${escapeHtml(title)}</h1><p style="line-height:1.7">${escapeHtml(text)}</p></main></body></html>`, { headers: { "Content-Type": "text/html; charset=utf-8" }, status: ok ? 200 : 400 });
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST,OPTIONS",
+};
+
+async function sha256(value: string) {
+  const encoded = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest("SHA-256", encoded);
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
 }
 
-serve(async (req) => {
+async function googleToken() {
+  const clientId = Deno.env.get("GOOGLE_CLIENT_ID") || "";
+  const clientSecret = Deno.env.get("GOOGLE_CLIENT_SECRET") || "";
+  const refreshToken = Deno.env.get("GOOGLE_REFRESH_TOKEN") || "";
+  if (!clientId || !clientSecret || !refreshToken) throw new Error("missing_google_secrets");
+
+  const body = new URLSearchParams({
+    client_id: clientId,
+    client_secret: clientSecret,
+    refresh_token: refreshToken,
+    grant_type: "refresh_token",
+  });
+
+  const response = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+  });
+
+  if (!response.ok) {
+    console.error("GOOGLE TOKEN ERROR:", await response.text());
+    throw new Error("google_token_failed");
+  }
+
+  const data = await response.json();
+  if (!data.access_token) throw new Error("google_access_token_missing");
+  return data.access_token;
+}
+
+function timeZoneOffsetMs(date: Date, timeZone: string) {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  });
+
+  const parts = formatter.formatToParts(date);
+  const values: Record<string, string> = {};
+  for (const part of parts) if (part.type !== "literal") values[part.type] = part.value;
+
+  const asUtc = Date.UTC(
+    Number(values.year),
+    Number(values.month) - 1,
+    Number(values.day),
+    Number(values.hour),
+    Number(values.minute),
+    Number(values.second),
+  );
+
+  return asUtc - date.getTime();
+}
+
+function israelDateTimeToUtc(dateValue: string, timeValue: string) {
+  const [year, month, day] = String(dateValue).split("-").map(Number);
+  const cleanTime = String(timeValue).slice(0, 5);
+  const [hour, minute] = cleanTime.split(":").map(Number);
+
+  if (!year || !month || !day || !Number.isFinite(hour) || !Number.isFinite(minute)) {
+    throw new Error("invalid_date_or_time");
+  }
+
+  const desiredUtc = Date.UTC(year, month - 1, day, hour, minute, 0);
+  let result = desiredUtc;
+
+  for (let i = 0; i < 3; i++) {
+    const offset = timeZoneOffsetMs(new Date(result), "Asia/Jerusalem");
+    const next = desiredUtc - offset;
+    if (Math.abs(next - result) < 1000) {
+      result = next;
+      break;
+    }
+    result = next;
+  }
+
+  return new Date(result);
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  if (req.method !== "POST") {
+    return Response.json({ error: "POST only" }, { status: 405, headers: corsHeaders });
+  }
+
   try {
-    const url = new URL(req.url);
-    const bookingId = url.searchParams.get("booking_id") || "";
-    const token = url.searchParams.get("token") || "";
-    if (!bookingId || !token) return page("קישור לא תקין", "חסרים פרטים בקישור האישור.", false);
+    const body = await req.json().catch(() => ({}));
+    const bookingId = String(body?.bookingId || "").trim();
+    const approvalToken = String(body?.approvalToken || "").trim();
 
-    const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-    const { data: booking, error } = await supabase.from("intake_bookings").select("*").eq("id", bookingId).single();
-    if (error || !booking) return page("הפגישה לא נמצאה", "לא הצלחנו למצוא את בקשת הפגישה.", false);
-    if (booking.status === "confirmed") return page("הפגישה כבר אושרה", "אין צורך לבצע פעולה נוספת.");
-    if (booking.payment_status !== "paid" || booking.status !== "awaiting_approval") return page("עדיין אי אפשר לאשר", "התשלום טרם אומת או שהבקשה אינה ממתינה לאישור.", false);
+    if (!bookingId || !approvalToken) {
+      return Response.json(
+        { error: "booking_id_and_approval_token_required" },
+        { status: 400, headers: corsHeaders },
+      );
+    }
 
-    const hash = await sha256Hex(token);
-    if (!booking.approval_token_hash || hash !== booking.approval_token_hash) return page("קישור לא תקין", "קישור האישור אינו תקף.", false);
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    if (!supabaseUrl || !serviceRoleKey) throw new Error("missing_supabase_server_credentials");
+
+    const supabase = createClient(supabaseUrl, serviceRoleKey);
+    const { data: booking, error: bookingError } = await supabase
+      .from("intake_bookings")
+      .select("id,booking_date,booking_time,first_name,last_name,phone,email,status,payment_status,approval_token_hash,google_event_id")
+      .eq("id", bookingId)
+      .maybeSingle();
+
+    if (bookingError) throw bookingError;
+    if (!booking) {
+      return Response.json({ error: "booking_not_found" }, { status: 404, headers: corsHeaders });
+    }
+
+    const receivedHash = await sha256(approvalToken);
+    if (!booking.approval_token_hash || receivedHash !== booking.approval_token_hash) {
+      return Response.json({ error: "invalid_approval_token" }, { status: 401, headers: corsHeaders });
+    }
+
+    if (booking.status === "confirmed" && booking.google_event_id) {
+      return Response.json(
+        {
+          ok: true,
+          alreadyConfirmed: true,
+          bookingId: booking.id,
+          status: "confirmed",
+          googleEventId: booking.google_event_id,
+        },
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    if (booking.payment_status !== "paid") {
+      return Response.json({ error: "payment_not_confirmed" }, { status: 409, headers: corsHeaders });
+    }
+
+    if (booking.status !== "awaiting_approval") {
+      return Response.json(
+        { error: "booking_not_awaiting_approval", status: booking.status },
+        { status: 409, headers: corsHeaders },
+      );
+    }
 
     const duration = Number(Deno.env.get("INTAKE_DURATION_MINUTES") || 50);
-    const googleAccessToken = await googleToken();
+    const start = israelDateTimeToUtc(booking.booking_date, booking.booking_time);
+    const end = new Date(start.getTime() + duration * 60 * 1000);
+    const accessToken = await googleToken();
     const calendarId = Deno.env.get("GOOGLE_CALENDAR_ID") || "primary";
-    const time = String(booking.booking_time).slice(0,5);
-    const start = new Date(localIso(booking.booking_date, time));
-    const end = new Date(start.getTime() + duration * 60000);
 
-    const fb = await fetch("https://www.googleapis.com/calendar/v3/freeBusy", {
+    const freeBusyResponse = await fetch("https://www.googleapis.com/calendar/v3/freeBusy", {
       method: "POST",
-      headers: { Authorization: `Bearer ${googleAccessToken}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ timeMin: start.toISOString(), timeMax: end.toISOString(), timeZone: "Asia/Jerusalem", items: [{ id: calendarId }] })
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        timeMin: start.toISOString(),
+        timeMax: end.toISOString(),
+        timeZone: "Asia/Jerusalem",
+        items: [{ id: calendarId }],
+      }),
     });
-    if (!fb.ok) throw new Error("freebusy_failed");
-    const fj = await fb.json();
-    if ((fj.calendars?.[calendarId]?.busy || []).length) {
-      return page("המועד כבר אינו פנוי", "המועד נתפס ביומן לפני האישור. יש ליצור קשר עם הפונה ולתאם מועד אחר.", false);
+
+    if (!freeBusyResponse.ok) {
+      console.error("GOOGLE FREEBUSY ERROR:", await freeBusyResponse.text());
+      throw new Error("google_freebusy_failed");
     }
 
-    const name = `${booking.first_name} ${booking.last_name}`;
-    const event = {
-      summary: `פגישת אינטק - ${name}`,
-      description: `טלפון: ${booking.phone}${booking.email ? `\nאימייל: ${booking.email}` : ""}\nסיבת פנייה: ${booking.reason}\nמקור הגעה: ${booking.referral_source}\nמדיניות 24 שעות: אושרה\nהתשלום אומת לפני אישור הפגישה`,
-      start: { dateTime: start.toISOString(), timeZone: "Asia/Jerusalem" },
-      end: { dateTime: end.toISOString(), timeZone: "Asia/Jerusalem" }
-    };
-    const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${googleAccessToken}`, "Content-Type": "application/json" },
-      body: JSON.stringify(event)
-    });
-    if (!r.ok) throw new Error(await r.text());
-    const created = await r.json();
+    const freeBusy = await freeBusyResponse.json();
+    const busy = freeBusy.calendars?.[calendarId]?.busy || [];
+    if (busy.length > 0) {
+      return Response.json({ error: "slot_taken_before_approval" }, { status: 409, headers: corsHeaders });
+    }
 
-    const { error: updateError } = await supabase.from("intake_bookings").update({
-      status: "confirmed",
-      approved_at: new Date().toISOString(),
-      google_event_id: created.id,
-      approval_token_hash: null,
-      updated_at: new Date().toISOString()
-    }).eq("id", bookingId);
+    const fullName = [booking.first_name, booking.last_name].filter(Boolean).join(" ");
+    const descriptionLines = [
+      "נקבע דרך אתר לילך פבון",
+      booking.phone ? `טלפון: ${booking.phone}` : "",
+      booking.email ? `אימייל: ${booking.email}` : "",
+      `Booking ID: ${booking.id}`,
+    ].filter(Boolean);
+
+    const eventResponse = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          summary: `פגישת היכרות - ${fullName || "מטופל/ת"}`,
+          description: descriptionLines.join("\n"),
+          start: { dateTime: start.toISOString(), timeZone: "Asia/Jerusalem" },
+          end: { dateTime: end.toISOString(), timeZone: "Asia/Jerusalem" },
+        }),
+      },
+    );
+
+    if (!eventResponse.ok) {
+      console.error("GOOGLE EVENT ERROR:", await eventResponse.text());
+      throw new Error("google_event_creation_failed");
+    }
+
+    const googleEvent = await eventResponse.json();
+    const nowIso = new Date().toISOString();
+
+    const { data: updated, error: updateError } = await supabase
+      .from("intake_bookings")
+      .update({
+        status: "confirmed",
+        approved_at: nowIso,
+        google_event_id: googleEvent.id,
+        updated_at: nowIso,
+      })
+      .eq("id", booking.id)
+      .eq("status", "awaiting_approval")
+      .select("id,status,payment_status,approved_at,google_event_id,booking_date,booking_time")
+      .single();
+
     if (updateError) throw updateError;
 
-    await sendWhatsappTemplate({
-      to: booking.phone,
-      templateName: Deno.env.get("WHATSAPP_CLIENT_CONFIRMED_TEMPLATE") || "client_booking_confirmed",
-      params: [booking.first_name, String(booking.booking_date), time, "הכישור 30, חולון"]
-    });
-
-    if (booking.email) {
-      await sendEmail({
-        to: booking.email,
-        subject: "פגישת האינטק והתשלום אושרו",
-        html: `<div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7"><h2>הפגישה אושרה</h2><p>שלום ${escapeHtml(booking.first_name)}, הפגישה והתשלום אושרו.</p><p><b>מועד:</b> ${escapeHtml(String(booking.booking_date))} · ${escapeHtml(time)}<br><b>כתובת:</b> הכישור 30, חולון</p></div>`
-      });
-    }
-
-    return page("הפגישה אושרה", `הפגישה של ${name} אושרה ונוספה ליומן. הודעת WhatsApp נשלחה לפונה.`);
-  } catch (e) {
-    console.error(e);
-    return page("לא הצלחנו לאשר", "אירעה שגיאה בזמן אישור הפגישה. יש לנסות שוב או לבדוק את הגדרות החיבור.", false);
+    return Response.json(
+      {
+        ok: true,
+        bookingId: updated.id,
+        status: updated.status,
+        paymentStatus: updated.payment_status,
+        date: updated.booking_date,
+        time: String(updated.booking_time || "").slice(0, 5),
+        approvedAt: updated.approved_at,
+        googleEventId: updated.google_event_id,
+      },
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  } catch (error) {
+    console.error("APPROVE BOOKING ERROR:", error);
+    return Response.json(
+      { error: error instanceof Error ? error.message : String(error) },
+      { status: 500, headers: corsHeaders },
+    );
   }
 });
