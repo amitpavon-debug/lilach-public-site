@@ -205,6 +205,7 @@
       reason:$("bookReason").value.trim(),
       referral:$("bookReferral").value.trim(),
       privacyConsent:Boolean($("bookPrivacyConsent")?.checked),
+      whatsappConsent:Boolean($("bookWhatsappConsent")?.checked),
       policyAccepted:Boolean($("bookPolicyAccepted")?.checked),
       policyText:'הנני מבינ/ה שלא ניתן לשנות תור בטווח 24 שעות מהמועד, כל שינוי בטווח זה יגרור תשלום של 150 ש"ח.'
     };
@@ -224,6 +225,10 @@
     }
     if(!payload.privacyConsent){
       msg(bm,"יש לאשר שמירת הפרטים לצורך תיאום וניהול הפגישה.");
+      return;
+    }
+    if(!payload.whatsappConsent){
+      msg(bm,"כדי להמשיך יש לאשר קבלת הודעות WhatsApp הקשורות לפגישה ולתזכורות.");
       return;
     }
     if(!payload.policyAccepted){
@@ -320,6 +325,7 @@
     $("slots").innerHTML='<p class="muted">בחרו יום להצגת השעות הפנויות.</p>';
     document.querySelectorAll('.date-btn,.slot-btn').forEach(x=>x.classList.remove('active'));
     if($("bookPrivacyConsent")) $("bookPrivacyConsent").checked=false;
+    if($("bookWhatsappConsent")) $("bookWhatsappConsent").checked=false;
     if($("bookPolicyAccepted")) $("bookPolicyAccepted").checked=false;
     location.hash="#booking";
   };
