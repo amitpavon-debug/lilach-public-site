@@ -16,8 +16,8 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { date, time, firstName, lastName, phone, email, reason, referral, privacyConsent, policyAccepted, returnUrl } = body;
-    if (!date || !time || !firstName || !lastName || !phone || !reason || !referral || !privacyConsent || !policyAccepted) {
+    const { date, time, firstName, lastName, phone, email, reason, referral, privacyConsent, whatsappConsent, policyAccepted, returnUrl } = body;
+    if (!date || !time || !firstName || !lastName || !phone || !reason || !referral || !privacyConsent || !whatsappConsent || !policyAccepted) {
       return Response.json({ error: "missing_required_fields" }, { status: 400, headers: corsHeaders });
     }
 
@@ -63,6 +63,7 @@ serve(async (req) => {
       reason,
       referral_source: referral,
       privacy_consent: true,
+      whatsapp_consent: true,
       policy_accepted: true,
       policy_text: POLICY_TEXT,
       hold_expires_at: expiresAt,
