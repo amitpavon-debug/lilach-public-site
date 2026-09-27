@@ -1,9 +1,9 @@
 // Public browser configuration for Lilach's website.
 // Do NOT place service-role keys, payment secrets, Resend secrets or WhatsApp tokens here.
 window.LILACH_SITE_CONFIG = {
-  // Supabase Edge Function URLs, for example:
-  // https://YOUR_PROJECT.supabase.co/functions/v1/calendar-availability
-  BOOKING_AVAILABILITY_URL: "",
+  // Supabase Edge Function URLs.
+  // Real availability is safe to expose publicly and can be used while the booking flow remains in demo mode.
+  BOOKING_AVAILABILITY_URL: "https://taafqwplvzcceoynhvve.supabase.co/functions/v1/calendar-availability",
   BOOKING_HOLD_URL: "",
   BOOKING_STATUS_URL: "",
 
@@ -21,6 +21,7 @@ window.LILACH_SITE_CONFIG = {
     beneficiary: ""
   },
 
-  // true = preview mode with fake availability, fake payment verification and fake Lilach approval.
+  // true = preview mode with fake payment verification and fake Lilach approval.
+  // Availability above is real even while demo mode is enabled.
   DEMO_BOOKING: true
 };
