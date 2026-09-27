@@ -14,6 +14,7 @@ create table if not exists public.intake_bookings (
   referral_source text not null,
   privacy_consent boolean not null default false,
   whatsapp_consent boolean not null default false,
+  whatsapp_opted_out_at timestamptz,
   policy_accepted boolean not null default false,
   policy_text text not null,
   hold_expires_at timestamptz,
