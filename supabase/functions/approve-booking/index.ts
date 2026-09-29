@@ -60,7 +60,7 @@ async function sendClientConfirmationEmail(booking: {
         <p style="margin:0"><b>כתובת:</b> הכישור 30, חולון</p>
       </div>
 
-      <p>התשלום התקבל והפגישה מאושרת.</p>
+      <p>הפגישה אושרה ונקבעה בהצלחה.</p>
       <div style="margin-top:24px;text-align:center;background:#ffffff">
         <img
           src="cid:lilach-signature"
@@ -242,8 +242,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    if (booking.payment_status !== "paid") {
-      return Response.json({ error: "payment_not_confirmed" }, { status: 409, headers: corsHeaders });
+    if (!["paid", "not_required"].includes(booking.payment_status)) {
+      return Response.json({ error: "booking_not_ready_for_approval" }, { status: 409, headers: corsHeaders });
     }
 
     if (booking.status !== "awaiting_approval") {
