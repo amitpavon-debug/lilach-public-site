@@ -4,6 +4,8 @@ import { EMAIL_SIGNATURE_3 } from "./email_signature_3.ts";
 import { EMAIL_SIGNATURE_4 } from "./email_signature_4.ts";
 import { EMAIL_SIGNATURE_5 } from "./email_signature_5.ts";
 import { EMAIL_SIGNATURE_6 } from "./email_signature_6.ts";
+import { EMAIL_SIGNATURE_7 } from "./email_signature_7.ts";
+import { EMAIL_SIGNATURE_8 } from "./email_signature_8.ts";
 
 export const EMAIL_SIGNATURE_BASE64 =
   EMAIL_SIGNATURE_1 +
@@ -11,4 +13,6 @@ export const EMAIL_SIGNATURE_BASE64 =
   EMAIL_SIGNATURE_3 +
   EMAIL_SIGNATURE_4 +
   EMAIL_SIGNATURE_5 +
-  EMAIL_SIGNATURE_6;
+  EMAIL_SIGNATURE_6 +
+  EMAIL_SIGNATURE_7 +
+  EMAIL_SIGNATURE_8;
