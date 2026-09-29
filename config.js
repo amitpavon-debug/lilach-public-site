@@ -27,25 +27,44 @@ window.LILACH_SITE_CONFIG = {
 };
 
 // Email is mandatory because the final booking confirmation is sent by email.
-// This adds client-side validation without exposing any secrets in the browser.
+// WhatsApp is intentionally paused for now.
 (() => {
   const emailInput = document.getElementById("bookEmail");
   const confirmButton = document.getElementById("confirmBooking");
   const message = document.getElementById("bookingMessage");
+  const whatsappInput = document.getElementById("bookWhatsappConsent");
 
-  if (!emailInput || !confirmButton) return;
+  if (emailInput) {
+    emailInput.required = true;
 
-  emailInput.required = true;
+    const emailLabel = emailInput.closest("label");
+    if (emailLabel && emailLabel.firstChild?.nodeType === Node.TEXT_NODE) {
+      emailLabel.firstChild.textContent = "אימייל *";
+    }
+  }
 
-  const emailLabel = emailInput.closest("label");
-  if (emailLabel && emailLabel.firstChild?.nodeType === Node.TEXT_NODE) {
-    emailLabel.firstChild.textContent = "אימייל *";
+  if (whatsappInput) {
+    whatsappInput.checked = false;
+    const whatsappLabel = whatsappInput.closest("label");
+    if (whatsappLabel) whatsappLabel.style.display = "none";
   }
 
   const requiredNote = document.querySelector(".booking-required-note");
   if (requiredNote) {
-    requiredNote.textContent = "* שם פרטי, שם משפחה, טלפון, אימייל, סיבת הפנייה, מקור ההגעה ושלושת האישורים הם חובה.";
+    requiredNote.textContent = "* שם פרטי, שם משפחה, טלפון, אימייל, סיבת הפנייה, מקור ההגעה ושני האישורים הם חובה.";
   }
+
+  const approvalParagraph = document.querySelector("#bookingApprovalStep > p");
+  if (approvalParagraph) {
+    approvalParagraph.textContent = "נשלח ללילך מייל עם פרטי הפגישה ובקשה לאישור. רק לאחר אישורה הפגישה תהיה סופית.";
+  }
+
+  const successParagraph = document.querySelector("#bookingSuccessStep > p");
+  if (successParagraph) {
+    successParagraph.textContent = "הפגישה אושרה על ידי לילך ונשלח לפונה מייל שהפגישה והתשלום אושרו.";
+  }
+
+  if (!emailInput || !confirmButton) return;
 
   confirmButton.addEventListener("click", (event) => {
     const email = emailInput.value.trim();
