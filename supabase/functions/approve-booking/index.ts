@@ -61,12 +61,12 @@ async function sendClientConfirmationEmail(booking: {
       </div>
 
       <p>התשלום התקבל והפגישה מאושרת.</p>
-      <div style="margin-top:24px;text-align:center;background:#ffffff;padding:10px 0">
+      <div style="margin-top:24px;text-align:center;background:#ffffff">
         <img
           src="cid:lilach-signature"
           alt="לילך פבון | טיפול רגשי | CBT | NLP"
           width="600"
-          height="230"
+          height="200"
           style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;background:#ffffff"
         />
       </div>
