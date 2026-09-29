@@ -15,6 +15,82 @@ async function sha256(value: string) {
     .join("");
 }
 
+function escapeHtml(value: unknown) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function formatDateHe(dateValue: string) {
+  const [year, month, day] = String(dateValue).split("-");
+  if (!year || !month || !day) return String(dateValue || "");
+  return `${day}/${month}/${year}`;
+}
+
+async function sendClientConfirmationEmail(booking: {
+  first_name?: string;
+  email?: string;
+  booking_date: string;
+  booking_time: string;
+}) {
+  const apiKey = Deno.env.get("RESEND_API_KEY") || "";
+  const email = String(booking.email || "").trim();
+
+  if (!apiKey || !email) {
+    return { sent: false, skipped: true };
+  }
+
+  const firstName = String(booking.first_name || "").trim();
+  const date = formatDateHe(booking.booking_date);
+  const time = String(booking.booking_time || "").slice(0, 5);
+
+  const html = `
+    <div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7;color:#263126;max-width:640px;margin:auto">
+      <h2 style="margin-bottom:8px">הפגישה שלך עם לילך פבון אושרה</h2>
+      <p>${firstName ? `שלום ${escapeHtml(firstName)},` : "שלום,"}</p>
+      <p>הפגישה שלך אושרה ונשמרה ביומן.</p>
+
+      <div style="background:#f7f5f2;border-radius:14px;padding:16px;margin:18px 0">
+        <p style="margin:0 0 8px"><b>תאריך:</b> ${escapeHtml(date)}</p>
+        <p style="margin:0 0 8px"><b>שעה:</b> ${escapeHtml(time)}</p>
+        <p style="margin:0"><b>כתובת:</b> הכישור 30, חולון</p>
+      </div>
+
+      <p>התשלום התקבל והפגישה מאושרת.</p>
+      <p style="font-size:13px;color:#687168;margin-top:24px">לילך פבון</p>
+    </div>
+  `;
+
+  try {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "לילך פבון <appointments@lilachpavon.co.il>",
+        to: [email],
+        subject: "הפגישה שלך עם לילך פבון אושרה",
+        html,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error("RESEND CLIENT CONFIRMATION ERROR:", response.status, await response.text());
+      return { sent: false, skipped: false };
+    }
+
+    return { sent: true, skipped: false };
+  } catch (error) {
+    console.error("RESEND CLIENT CONFIRMATION ERROR:", error);
+    return { sent: false, skipped: false };
+  }
+}
+
 async function googleToken() {
   const clientId = Deno.env.get("GOOGLE_CLIENT_ID") || "";
   const clientSecret = Deno.env.get("GOOGLE_CLIENT_SECRET") || "";
@@ -239,6 +315,13 @@ Deno.serve(async (req) => {
 
     if (updateError) throw updateError;
 
+    const emailResult = await sendClientConfirmationEmail({
+      first_name: booking.first_name,
+      email: booking.email,
+      booking_date: updated.booking_date,
+      booking_time: updated.booking_time,
+    });
+
     return Response.json(
       {
         ok: true,
@@ -249,6 +332,8 @@ Deno.serve(async (req) => {
         time: String(updated.booking_time || "").slice(0, 5),
         approvedAt: updated.approved_at,
         googleEventId: updated.google_event_id,
+        emailSent: emailResult.sent,
+        emailSkipped: emailResult.skipped,
       },
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
