@@ -48,9 +48,7 @@ async function createApprovalToken(bookingId: string, secret: string) {
 async function sendApprovalEmail(booking: any, approvalUrl: string) {
   const apiKey = Deno.env.get("RESEND_API_KEY") || "";
   const to = Deno.env.get("LILACH_NOTIFICATION_EMAIL") || "";
-  const from =
-    Deno.env.get("BOOKING_EMAIL_FROM") ||
-    "לילך פבון <appointments@lilachpavon.co.il>";
+  const from = "לילך פבון | טיפול רגשי <appointments@lilachpavon.co.il>";
 
   if (!apiKey || !to) {
     console.error("EMAIL CONFIG MISSING");
