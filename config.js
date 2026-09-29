@@ -25,3 +25,40 @@ window.LILACH_SITE_CONFIG = {
   // Availability above is real even while demo mode is enabled.
   DEMO_BOOKING: true
 };
+
+// Email is mandatory because the final booking confirmation is sent by email.
+// This adds client-side validation without exposing any secrets in the browser.
+(() => {
+  const emailInput = document.getElementById("bookEmail");
+  const confirmButton = document.getElementById("confirmBooking");
+  const message = document.getElementById("bookingMessage");
+
+  if (!emailInput || !confirmButton) return;
+
+  emailInput.required = true;
+
+  const emailLabel = emailInput.closest("label");
+  if (emailLabel && emailLabel.firstChild?.nodeType === Node.TEXT_NODE) {
+    emailLabel.firstChild.textContent = "אימייל *";
+  }
+
+  const requiredNote = document.querySelector(".booking-required-note");
+  if (requiredNote) {
+    requiredNote.textContent = "* שם פרטי, שם משפחה, טלפון, אימייל, סיבת הפנייה, מקור ההגעה ושלושת האישורים הם חובה.";
+  }
+
+  confirmButton.addEventListener("click", (event) => {
+    const email = emailInput.value.trim();
+    const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    if (!email || !validEmail) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (message) {
+        message.textContent = "נא להזין כתובת אימייל תקינה. אישור הפגישה יישלח לכתובת זו.";
+        message.className = "form-message err";
+      }
+      emailInput.focus();
+    }
+  }, true);
+})();
