@@ -61,13 +61,13 @@ async function sendClientConfirmationEmail(booking: {
       </div>
 
       <p>התשלום התקבל והפגישה מאושרת.</p>
-      <div style="margin-top:24px;text-align:center">
+      <div style="margin-top:24px;text-align:center;background:#ffffff;padding:10px 0">
         <img
           src="cid:lilach-signature"
           alt="לילך פבון | טיפול רגשי | CBT | NLP"
           width="600"
-          height="221"
-          style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0"
+          height="230"
+          style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;background:#ffffff"
         />
       </div>
     </div>
@@ -88,9 +88,9 @@ async function sendClientConfirmationEmail(booking: {
         attachments: [
           {
             content: EMAIL_SIGNATURE_BASE64,
-            filename: "lilach-signature.png",
+            filename: "lilach-signature.jpg",
             content_id: "lilach-signature",
-            content_type: "image/png",
+            content_type: "image/jpeg",
           },
         ],
       }),
