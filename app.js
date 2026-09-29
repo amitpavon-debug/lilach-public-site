@@ -149,7 +149,7 @@
     const expiry = booking.expiresAt
       ? ` המועד נשמר עד ${new Intl.DateTimeFormat("he-IL",{hour:"2-digit",minute:"2-digit"}).format(new Date(booking.expiresAt))}.`
       : " המועד נשמר זמנית בזמן השלמת התשלום.";
-    $("bookingPending").innerHTML=`<b>${booking.name}, המועד עדיין לא אושר.</b><span>${formatBookingDate(booking.date)} בשעה ${booking.time}.${expiry}<br>לאחר אימות התשלום תישלח ללילך בקשת אישור במייל וב-WhatsApp.</span>`;
+    $("bookingPending").innerHTML=`<b>${booking.name}, המועד עדיין לא אושר.</b><span>${formatBookingDate(booking.date)} בשעה ${booking.time}.${expiry}<br>לאחר אימות התשלום תישלח ללילך בקשת אישור במייל.</span>`;
 
     const cardUrl = booking.cardPaymentUrl || paymentLinkFromConfig(cfg.CARD_PAYMENT_URL, booking);
     const payboxUrl = booking.payboxUrl || paymentLinkFromConfig(cfg.PAYBOX_URL, booking);
@@ -171,7 +171,7 @@
     $("bookingSuccessStep").classList.add("hidden");
     $("bookingApprovalStep").classList.remove("hidden");
     $("bookingFormWrap").classList.remove("hidden");
-    $("bookingApprovalConfirmation").innerHTML=`<b>${booking.name||"הפגישה"} — התשלום אומת.</b><span>${formatBookingDate(booking.date)} בשעה ${booking.time}.<br>לילך קיבלה בקשת אישור במייל וב-WhatsApp.</span>`;
+    $("bookingApprovalConfirmation").innerHTML=`<b>${booking.name||"הפגישה"} — התשלום אומת.</b><span>${formatBookingDate(booking.date)} בשעה ${booking.time}.<br>לילך קיבלה בקשת אישור במייל.</span>`;
     if(cfg.DEMO_BOOKING){
       $("demoApproveBtn").classList.remove("hidden");
     }else{
@@ -187,7 +187,7 @@
     $("bookingApprovalStep").classList.add("hidden");
     $("bookingSuccessStep").classList.remove("hidden");
     $("bookingFormWrap").classList.remove("hidden");
-    $("bookingFinalConfirmation").innerHTML=`<b>${booking.name||"הפגישה"} — אושרה על ידי לילך.</b><span>${formatBookingDate(booking.date)} בשעה ${booking.time}.<br>נשלחה לפונה הודעת WhatsApp המאשרת שהפגישה והתשלום אושרו.</span>`;
+    $("bookingFinalConfirmation").innerHTML=`<b>${booking.name||"הפגישה"} — אושרה על ידי לילך.</b><span>${formatBookingDate(booking.date)} בשעה ${booking.time}.<br>נשלח לפונה מייל המאשר שהפגישה והתשלום אושרו.</span>`;
     $("bookingSuccessStep").scrollIntoView({behavior:"smooth",block:"nearest"});
   }
 
@@ -219,16 +219,16 @@
       msg(bm,"בחרו יום ושעה.");
       return;
     }
-    if(!payload.firstName||!payload.lastName||!payload.phone||!payload.reason||!payload.referral){
-      msg(bm,"נא למלא שם פרטי, שם משפחה, טלפון, סיבת פנייה ומאיפה שמעת/הגעת ללילך.");
+    if(!payload.firstName||!payload.lastName||!payload.phone||!payload.email||!payload.reason||!payload.referral){
+      msg(bm,"נא למלא שם פרטי, שם משפחה, טלפון, אימייל, סיבת פנייה ומאיפה שמעת/הגעת ללילך.");
+      return;
+    }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)){
+      msg(bm,"נא להזין כתובת אימייל תקינה. אישור הפגישה יישלח לכתובת זו.");
       return;
     }
     if(!payload.privacyConsent){
       msg(bm,"יש לאשר שמירת הפרטים לצורך תיאום וניהול הפגישה.");
-      return;
-    }
-    if(!payload.whatsappConsent){
-      msg(bm,"כדי להמשיך יש לאשר קבלת הודעות WhatsApp הקשורות לפגישה ולתזכורות.");
       return;
     }
     if(!payload.policyAccepted){
@@ -310,9 +310,9 @@
     const d=cfg.BANK_TRANSFER||{};
     const box=$("bankDetails");
     if(!d.bank&&!d.branch&&!d.account&&!d.beneficiary){
-      box.innerHTML="פרטי ההעברה עדיין לא הוגדרו. לאחר העברה בנקאית הפגישה תישאר בהמתנה עד לאימות התשלום. לאחר האימות תישלח ללילך בקשת אישור במייל וב-WhatsApp.";
+      box.innerHTML="פרטי ההעברה עדיין לא הוגדרו. לאחר העברה בנקאית הפגישה תישאר בהמתנה עד לאימות התשלום. לאחר האימות תישלח ללילך בקשת אישור במייל.";
     }else{
-      box.innerHTML=`<b>${d.beneficiary||"לילך פבון"}</b><br>בנק: ${d.bank||"—"}<br>סניף: ${d.branch||"—"}<br>חשבון: ${d.account||"—"}<br><small>לאחר אימות ההעברה לילך תקבל בקשת אישור במייל וב-WhatsApp.</small>`;
+      box.innerHTML=`<b>${d.beneficiary||"לילך פבון"}</b><br>בנק: ${d.bank||"—"}<br>סניף: ${d.branch||"—"}<br>חשבון: ${d.account||"—"}<br><small>לאחר אימות ההעברה לילך תקבל בקשת אישור במייל.</small>`;
     }
     box.classList.toggle("hidden");
   };
