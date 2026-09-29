@@ -8,6 +8,10 @@
       "destination": "/approval.html"
     },
     {
+      "source": "/cancel",
+      "destination": "/cancel.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
