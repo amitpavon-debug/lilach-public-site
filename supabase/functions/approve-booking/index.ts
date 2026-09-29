@@ -7,6 +7,8 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST,OPTIONS",
 };
 
+const EMAIL_SIGNATURE_URL = "https://taafqwplvzcceoynhvve.supabase.co/functions/v1/email-signature-image";
+
 async function sha256(value: string) {
   const encoded = new TextEncoder().encode(value);
   const digest = await crypto.subtle.digest("SHA-256", encoded);
@@ -60,7 +62,14 @@ async function sendClientConfirmationEmail(booking: {
       </div>
 
       <p>התשלום התקבל והפגישה מאושרת.</p>
-      <p style="font-size:13px;color:#687168;margin-top:24px">לילך פבון</p>
+      <div style="margin-top:24px;text-align:center">
+        <img
+          src="${EMAIL_SIGNATURE_URL}"
+          alt="לילך פבון | טיפול רגשי | CBT | NLP"
+          width="600"
+          style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0"
+        />
+      </div>
     </div>
   `;
 
