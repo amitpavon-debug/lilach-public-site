@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders, googleToken, localIso } from "../_shared_google.ts";
 
 serve(async (req) => {
@@ -43,21 +44,53 @@ serve(async (req) => {
     if (!fb.ok) throw new Error("freebusy failed");
     const j = await fb.json();
     const busy = j.calendars?.[calendarId]?.busy || [];
-    const slots: string[] = [];
 
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    if (!supabaseUrl || !serviceRoleKey) throw new Error("missing_supabase_credentials");
+
+    const supabase = createClient(supabaseUrl, serviceRoleKey);
+    const { data: bookings, error: bookingsError } = await supabase
+      .from("intake_bookings")
+      .select("booking_time,status,hold_expires_at")
+      .eq("booking_date", date)
+      .in("status", ["pending_payment", "awaiting_approval", "confirmed"]);
+
+    if (bookingsError) throw bookingsError;
+
+    const now = Date.now();
+    const blockedTimes = new Set<string>();
+    for (const booking of bookings || []) {
+      const time = String(booking.booking_time || "").slice(0, 5);
+      if (!time) continue;
+
+      if (booking.status === "awaiting_approval" || booking.status === "confirmed") {
+        blockedTimes.add(time);
+        continue;
+      }
+
+      if (booking.status === "pending_payment") {
+        const activeHold = !booking.hold_expires_at || new Date(booking.hold_expires_at).getTime() > now;
+        if (activeHold) blockedTimes.add(time);
+      }
+    }
+
+    const slots: string[] = [];
     for (let mins = startH * 60; mins + duration <= endH * 60; mins += 60) {
       const hh = String(Math.floor(mins / 60)).padStart(2, "0");
       const mm = String(mins % 60).padStart(2, "0");
-      const start = new Date(localIso(date, `${hh}:${mm}`));
+      const slotTime = `${hh}:${mm}`;
+      const start = new Date(localIso(date, slotTime));
       const end = new Date(start.getTime() + duration * 60000);
-      const overlap = busy.some((b: any) => new Date(b.start) < end && new Date(b.end) > start);
-      if (!overlap) slots.push(`${hh}:${mm}`);
+      const calendarOverlap = busy.some((b: any) => new Date(b.start) < end && new Date(b.end) > start);
+      if (!calendarOverlap && !blockedTimes.has(slotTime)) slots.push(slotTime);
     }
 
     return Response.json({ slots }, {
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   } catch (e) {
+    console.error("calendar-availability error:", e);
     return Response.json({ error: String(e) }, { status: 500, headers: corsHeaders });
   }
 });
