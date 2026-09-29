@@ -112,8 +112,7 @@ serve(async (req) => {
 
     if (
       !date || !time || !firstName || !lastName || !phone || !normalizedEmail ||
-      !reason || !referral || privacyConsent !== true || whatsappConsent !== true ||
-      policyAccepted !== true
+      !reason || !referral || privacyConsent !== true || policyAccepted !== true
     ) {
       return Response.json({ error: "missing_required_fields" }, { status: 400, headers: corsHeaders });
     }
@@ -215,7 +214,7 @@ serve(async (req) => {
         reason: String(reason).trim(),
         referral_source: String(referral).trim(),
         privacy_consent: true,
-        whatsapp_consent: true,
+        whatsapp_consent: Boolean(whatsappConsent),
         whatsapp_opted_out_at: null,
         policy_accepted: true,
         policy_text: POLICY_TEXT,
