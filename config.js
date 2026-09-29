@@ -54,6 +54,27 @@ window.LILACH_SITE_CONFIG = {
     requiredNote.textContent = "* שם פרטי, שם משפחה, טלפון, אימייל, סיבת הפנייה, מקור ההגעה ושני האישורים הם חובה.";
   }
 
+  const processArticles = document.querySelectorAll("#process .steps article");
+  if (processArticles.length >= 3) {
+    const paymentText = processArticles[1].querySelector("p");
+    if (paymentText) paymentText.textContent = "המועד נשמר זמנית בזמן התשלום. לאחר שהתשלום מאומת, לילך מקבלת מייל עם בקשה לאשר את הפגישה.";
+
+    const confirmTitle = processArticles[2].querySelector("h3");
+    const confirmText = processArticles[2].querySelector("p");
+    if (confirmTitle) confirmTitle.textContent = "לילך מאשרת והפונה מקבל/ת מייל";
+    if (confirmText) confirmText.textContent = "רק לאחר אישור לילך הפגישה מאושרת סופית, ונשלח לפונה מייל שהפגישה והתשלום אושרו.";
+  }
+
+  const bookingIntro = document.querySelector("#booking .booking-layout > div:first-child > p");
+  if (bookingIntro) {
+    bookingIntro.textContent = "בוחרים מועד, ממלאים פרטים וסיבת פנייה, מאשרים את מדיניות שינוי התור ומשלימים תשלום. לאחר אימות התשלום לילך מקבלת בקשת אישור במייל. רק לאחר אישורה נשלח לפונה מייל שהפגישה והתשלום אושרו.";
+  }
+
+  const paymentStepText = document.querySelector("#bookingPaymentStep .booking-step-head p");
+  if (paymentStepText) {
+    paymentStepText.textContent = "המועד נשמר עבורך זמנית. לאחר אימות התשלום תישלח ללילך בקשת אישור במייל.";
+  }
+
   const approvalParagraph = document.querySelector("#bookingApprovalStep > p");
   if (approvalParagraph) {
     approvalParagraph.textContent = "נשלח ללילך מייל עם פרטי הפגישה ובקשה לאישור. רק לאחר אישורה הפגישה תהיה סופית.";
