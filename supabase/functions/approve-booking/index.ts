@@ -49,7 +49,7 @@ async function sendClientConfirmationEmail(booking: {
 
   const html = `
     <div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7;color:#263126;max-width:640px;margin:auto">
-      <h2 style="margin-bottom:8px">הפגישה שלך עם לילך פבון אושרה</h2>
+      <h2 style="margin-bottom:8px">הפגישה שלך עם לילך אושרה</h2>
       <p>${firstName ? `שלום ${escapeHtml(firstName)},` : "שלום,"}</p>
       <p>הפגישה שלך אושרה ונשמרה ביומן.</p>
 
@@ -74,7 +74,7 @@ async function sendClientConfirmationEmail(booking: {
       body: JSON.stringify({
         from: "לילך פבון | טיפול רגשי <appointments@lilachpavon.co.il>",
         to: [email],
-        subject: "הפגישה שלך עם לילך פבון אושרה",
+        subject: "הפגישה שלך עם לילך אושרה",
         html,
       }),
     });
