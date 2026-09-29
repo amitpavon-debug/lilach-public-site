@@ -50,7 +50,7 @@ async function sendApprovalEmail(booking: any, approvalUrl: string) {
   const to = Deno.env.get("LILACH_NOTIFICATION_EMAIL") || "";
   const from =
     Deno.env.get("BOOKING_EMAIL_FROM") ||
-    "Lilach Website <onboarding@resend.dev>";
+    "לילך פבון <appointments@lilachpavon.co.il>";
 
   if (!apiKey || !to) {
     console.error("EMAIL CONFIG MISSING");
@@ -203,7 +203,7 @@ Deno.serve(async (req) => {
 
     const approvalPageBase =
       Deno.env.get("APPROVAL_SITE_URL") ||
-      "https://lilach-public-site.vercel.app/approval";
+      "https://www.lilachpavon.co.il/approval";
 
     const approvalUrl =
       `${approvalPageBase}` +
