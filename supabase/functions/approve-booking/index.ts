@@ -31,6 +31,80 @@ function formatDateHe(dateValue: string) {
   return `${day}/${month}/${year}`;
 }
 
+function timeZoneOffsetMs(date: Date, timeZone: string) {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  });
+
+  const parts = formatter.formatToParts(date);
+  const values: Record<string, string> = {};
+  for (const part of parts) if (part.type !== "literal") values[part.type] = part.value;
+
+  const asUtc = Date.UTC(
+    Number(values.year),
+    Number(values.month) - 1,
+    Number(values.day),
+    Number(values.hour),
+    Number(values.minute),
+    Number(values.second),
+  );
+
+  return asUtc - date.getTime();
+}
+
+function israelDateTimeToUtc(dateValue: string, timeValue: string) {
+  const [year, month, day] = String(dateValue).split("-").map(Number);
+  const cleanTime = String(timeValue).slice(0, 5);
+  const [hour, minute] = cleanTime.split(":").map(Number);
+
+  if (!year || !month || !day || !Number.isFinite(hour) || !Number.isFinite(minute)) {
+    throw new Error("invalid_date_or_time");
+  }
+
+  const desiredUtc = Date.UTC(year, month - 1, day, hour, minute, 0);
+  let result = desiredUtc;
+
+  for (let i = 0; i < 3; i++) {
+    const offset = timeZoneOffsetMs(new Date(result), "Asia/Jerusalem");
+    const next = desiredUtc - offset;
+    if (Math.abs(next - result) < 1000) {
+      result = next;
+      break;
+    }
+    result = next;
+  }
+
+  return new Date(result);
+}
+
+function googleCalendarDate(value: Date) {
+  return value.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+}
+
+function buildGoogleCalendarUrl(dateValue: string, timeValue: string) {
+  const duration = Number(Deno.env.get("INTAKE_DURATION_MINUTES") || 50);
+  const start = israelDateTimeToUtc(dateValue, timeValue);
+  const end = new Date(start.getTime() + duration * 60 * 1000);
+
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: "פגישה עם לילך פבון",
+    dates: `${googleCalendarDate(start)}/${googleCalendarDate(end)}`,
+    details: "פגישה שאושרה דרך אתר לילך פבון",
+    location: "הכישור 30, חולון",
+    ctz: "Asia/Jerusalem",
+  });
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
 async function sendClientConfirmationEmail(booking: {
   first_name?: string;
   email?: string;
@@ -47,6 +121,7 @@ async function sendClientConfirmationEmail(booking: {
   const firstName = String(booking.first_name || "").trim();
   const date = formatDateHe(booking.booking_date);
   const time = String(booking.booking_time || "").slice(0, 5);
+  const calendarUrl = buildGoogleCalendarUrl(booking.booking_date, booking.booking_time);
 
   const html = `
     <div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7;color:#263126;max-width:640px;margin:auto">
@@ -59,6 +134,11 @@ async function sendClientConfirmationEmail(booking: {
         <p style="margin:0 0 8px"><b>שעה:</b> ${escapeHtml(time)}</p>
         <p style="margin:0"><b>כתובת:</b> הכישור 30, חולון</p>
       </div>
+
+      <div style="text-align:center;margin:22px 0 8px">
+        <a href="${escapeHtml(calendarUrl)}" target="_blank" rel="noopener" style="display:inline-block;background:#5f7855;color:#ffffff;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:10px">הוספה ליומן Google</a>
+      </div>
+      <p style="text-align:center;margin:6px 0 20px;color:#667066;font-size:14px">לחיצה על הכפתור תפתח אירוע מוכן עם התאריך, השעה והכתובת.</p>
 
       <p>הפגישה אושרה ונקבעה בהצלחה.</p>
       <div style="margin-top:24px;text-align:center;background:#ffffff">
@@ -135,59 +215,6 @@ async function googleToken() {
   const data = await response.json();
   if (!data.access_token) throw new Error("google_access_token_missing");
   return data.access_token;
-}
-
-function timeZoneOffsetMs(date: Date, timeZone: string) {
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hourCycle: "h23",
-  });
-
-  const parts = formatter.formatToParts(date);
-  const values: Record<string, string> = {};
-  for (const part of parts) if (part.type !== "literal") values[part.type] = part.value;
-
-  const asUtc = Date.UTC(
-    Number(values.year),
-    Number(values.month) - 1,
-    Number(values.day),
-    Number(values.hour),
-    Number(values.minute),
-    Number(values.second),
-  );
-
-  return asUtc - date.getTime();
-}
-
-function israelDateTimeToUtc(dateValue: string, timeValue: string) {
-  const [year, month, day] = String(dateValue).split("-").map(Number);
-  const cleanTime = String(timeValue).slice(0, 5);
-  const [hour, minute] = cleanTime.split(":").map(Number);
-
-  if (!year || !month || !day || !Number.isFinite(hour) || !Number.isFinite(minute)) {
-    throw new Error("invalid_date_or_time");
-  }
-
-  const desiredUtc = Date.UTC(year, month - 1, day, hour, minute, 0);
-  let result = desiredUtc;
-
-  for (let i = 0; i < 3; i++) {
-    const offset = timeZoneOffsetMs(new Date(result), "Asia/Jerusalem");
-    const next = desiredUtc - offset;
-    if (Math.abs(next - result) < 1000) {
-      result = next;
-      break;
-    }
-    result = next;
-  }
-
-  return new Date(result);
 }
 
 Deno.serve(async (req) => {
