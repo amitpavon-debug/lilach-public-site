@@ -72,7 +72,7 @@ async function sendClientConfirmationEmail(booking: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "לילך פבון <appointments@lilachpavon.co.il>",
+        from: "לילך פבון | טיפול רגשי <appointments@lilachpavon.co.il>",
         to: [email],
         subject: "הפגישה שלך עם לילך פבון אושרה",
         html,
