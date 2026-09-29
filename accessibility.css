@@ -1,0 +1,71 @@
+/* Accessibility and low-risk performance enhancements. Loaded after styles.css. */
+:root{
+  --rose:#a85f64;
+  --muted:#66705f;
+}
+
+.skip-link{
+  position:fixed;
+  top:10px;
+  right:14px;
+  z-index:9999;
+  padding:12px 16px;
+  border-radius:10px;
+  background:#233329;
+  color:#fff;
+  font-weight:800;
+  box-shadow:0 6px 18px rgba(0,0,0,.2);
+  transform:translateY(-180%);
+  transition:transform .15s ease;
+}
+.skip-link:focus,
+.skip-link:focus-visible{
+  transform:translateY(0);
+}
+
+:where(a,button,input,textarea,select,[tabindex]):focus-visible{
+  outline:3px solid #1d6655 !important;
+  outline-offset:3px !important;
+}
+
+.trust-row{color:#65705e}
+.booking-top button{min-width:44px;min-height:44px}
+.date-btn,.slot-btn{min-height:44px}
+.booking-consent input[type="checkbox"]{min-width:20px;min-height:20px}
+.noscript-warning{
+  width:min(1180px,calc(100% - 36px));
+  margin:16px auto;
+  padding:12px 16px;
+  border-radius:12px;
+  background:#fff4df;
+  color:#603e08;
+  font-weight:700;
+}
+.anchor-target{
+  position:absolute;
+  inset-inline-start:0;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto !important}
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+    scroll-behavior:auto !important;
+  }
+}
+
+@media (forced-colors: active){
+  :where(a,button,input,textarea,select,[tabindex]):focus-visible{
+    outline:3px solid CanvasText !important;
+  }
+}
+
+@media (prefers-contrast: more){
+  :root{--muted:#4f5949}
+  .info-card,.steps article,.booking-card,.training-card,.privacy-box{border-width:2px}
+}

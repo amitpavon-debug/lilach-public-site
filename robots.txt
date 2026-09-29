@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /approval
+Disallow: /cancel
+
+Sitemap: https://www.lilachpavon.co.il/sitemap.xml
