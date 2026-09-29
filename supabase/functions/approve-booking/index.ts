@@ -1,13 +1,12 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { EMAIL_SIGNATURE_BASE64 } from "./email_signature.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST,OPTIONS",
 };
-
-const EMAIL_SIGNATURE_URL = "https://taafqwplvzcceoynhvve.supabase.co/functions/v1/email-signature-image";
 
 async function sha256(value: string) {
   const encoded = new TextEncoder().encode(value);
@@ -62,12 +61,13 @@ async function sendClientConfirmationEmail(booking: {
       </div>
 
       <p>התשלום התקבל והפגישה מאושרת.</p>
-      <div style="margin-top:24px;text-align:center">
+      <div style="margin-top:24px;text-align:center;background:#ffffff">
         <img
-          src="${EMAIL_SIGNATURE_URL}"
+          src="cid:lilach-signature"
           alt="לילך פבון | טיפול רגשי | CBT | NLP"
           width="600"
-          style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0"
+          height="200"
+          style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;background:#ffffff"
         />
       </div>
     </div>
@@ -85,6 +85,14 @@ async function sendClientConfirmationEmail(booking: {
         to: [email],
         subject: "הפגישה שלך עם לילך אושרה",
         html,
+        attachments: [
+          {
+            content: EMAIL_SIGNATURE_BASE64,
+            filename: "lilach-signature.jpg",
+            content_id: "lilach-signature",
+            content_type: "image/jpeg",
+          },
+        ],
       }),
     });
 
