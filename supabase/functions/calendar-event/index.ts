@@ -74,6 +74,23 @@ function israelDateTimeToUtc(dateValue: string, timeValue: string) {
   return new Date(result);
 }
 
+function localIcs(value: Date) {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Jerusalem",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  });
+  const parts = formatter.formatToParts(value);
+  const values: Record<string, string> = {};
+  for (const part of parts) if (part.type !== "literal") values[part.type] = part.value;
+  return `${values.year}${values.month}${values.day}T${values.hour}${values.minute}${values.second}`;
+}
+
 function icsUtc(value: Date) {
   return value.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
 }
@@ -81,10 +98,10 @@ function icsUtc(value: Date) {
 function escapeIcs(value: string) {
   return String(value)
     .replaceAll("\\", "\\\\")
-    .replaceAll("\r\n", "\\n")
-    .replaceAll("\n", "\\n")
     .replaceAll(",", "\\,")
-    .replaceAll(";", "\\;");
+    .replaceAll(";", "\\;")
+    .replaceAll("\r", " ")
+    .replaceAll("\n", " ");
 }
 
 Deno.serve(async (req) => {
@@ -122,14 +139,7 @@ Deno.serve(async (req) => {
     const cancelPageBase = Deno.env.get("CANCELLATION_SITE_URL") || "https://www.lilachpavon.co.il/cancel";
     const cancelUrl = `${cancelPageBase}?bookingId=${encodeURIComponent(booking.id)}&token=${encodeURIComponent(token)}`;
 
-    const description = [
-      "פגישה עם לילך פבון",
-      "",
-      "לביטול הפגישה:",
-      cancelUrl,
-      "",
-      "ביטול או שינוי בפחות מ־24 שעות מהמועד כרוך בתשלום של 150 ₪ בהתאם למדיניות הביטולים.",
-    ].join("\n");
+    const description = `לביטול הפגישה: ${cancelUrl} | ביטול או שינוי בפחות מ־24 שעות מהמועד כרוך בתשלום של 150 ₪ בהתאם למדיניות הביטולים.`;
 
     const lines = [
       "BEGIN:VCALENDAR",
@@ -137,11 +147,12 @@ Deno.serve(async (req) => {
       "PRODID:-//Lilach Pavon//Booking//HE",
       "CALSCALE:GREGORIAN",
       "METHOD:PUBLISH",
+      "X-WR-TIMEZONE:Asia/Jerusalem",
       "BEGIN:VEVENT",
       `UID:${booking.id}@lilachpavon.co.il`,
       `DTSTAMP:${icsUtc(new Date())}`,
-      `DTSTART:${icsUtc(start)}`,
-      `DTEND:${icsUtc(end)}`,
+      `DTSTART;TZID=Asia/Jerusalem:${localIcs(start)}`,
+      `DTEND;TZID=Asia/Jerusalem:${localIcs(end)}`,
       `SUMMARY:${escapeIcs("פגישה עם לילך פבון")}`,
       `LOCATION:${escapeIcs("הכישור 30, חולון")}`,
       `DESCRIPTION:${escapeIcs(description)}`,
@@ -151,11 +162,12 @@ Deno.serve(async (req) => {
       "",
     ];
 
-    return new Response(lines.join("\r\n"), {
+    const ics = lines.join("\r\n");
+    return new Response(ics, {
       status: 200,
       headers: {
         ...corsHeaders,
-        "Content-Type": "text/calendar; charset=utf-8; method=PUBLISH",
+        "Content-Type": "text/calendar; charset=UTF-8; method=PUBLISH",
         "Content-Disposition": 'inline; filename="lilach-appointment.ics"',
         "Cache-Control": "private, no-store, max-age=0",
       },
