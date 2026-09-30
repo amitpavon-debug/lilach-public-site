@@ -28,10 +28,16 @@
   outline-offset:3px !important;
 }
 
-.trust-row{color:#65705e}
+:where(button,.btn,.header-cta,.date-btn,.slot-btn){
+  min-height:44px;
+}
+
 .booking-top button{min-width:44px;min-height:44px}
-.date-btn,.slot-btn{min-height:44px}
-.booking-consent input[type="checkbox"]{min-width:20px;min-height:20px}
+.date-btn,.slot-btn{min-width:44px;min-height:44px}
+.booking-consent input[type="checkbox"]{min-width:22px;min-height:22px;flex:0 0 auto}
+.booking-consent a{text-decoration:underline;text-underline-offset:2px}
+.trust-row{color:#65705e}
+
 .noscript-warning{
   width:min(1180px,calc(100% - 36px));
   margin:16px auto;
@@ -63,9 +69,17 @@
   :where(a,button,input,textarea,select,[tabindex]):focus-visible{
     outline:3px solid CanvasText !important;
   }
+  :where(button,.btn,.header-cta,.date-btn,.slot-btn){
+    border:1px solid ButtonText !important;
+  }
+  .date-btn.active,.slot-btn.active{
+    outline:3px solid Highlight !important;
+    outline-offset:2px !important;
+  }
 }
 
 @media (prefers-contrast: more){
   :root{--muted:#4f5949}
   .info-card,.steps article,.booking-card,.training-card,.privacy-box{border-width:2px}
+  a{text-decoration-thickness:2px}
 }
