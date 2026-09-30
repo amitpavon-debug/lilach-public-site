@@ -55,63 +55,62 @@
   if (returningClient && reasonField && referralField) {
     const returningText = returningClient.closest("label")?.querySelector("span");
     if (returningText) {
-      returningText.innerHTML = '<strong>כבר נפגשתי בעבר עם לילך</strong><br><small>אם כבר נפגשת בעבר עם לילך, יש לסמן כאן — אין צורך לציין שוב את סיבת הפנייה או מאיפה הגעת ללילך.</small>';
-    }
-
-    let returningOption = Array.from(referralField.options).find((option) => option.value === returningValue);
-    if (!returningOption) {
-      returningOption = document.createElement("option");
-      returningOption.value = returningValue;
-      returningOption.textContent = returningValue;
-      returningOption.hidden = true;
-      referralField.appendChild(returningOption);
+      returningText.innerHTML = '<strong>כבר נפגשתי בעבר עם לילך</strong><br><small>אם כבר נפגשת בעבר עם לילך, יש לסמן כאן — אין צורך לציין שוב את סיבת הפנייה. מקור ההגעה יסומן אוטומטית כ״אחר״.</small>';
     }
 
     const intro = document.querySelector("#bookingDetailsStep .booking-step-head p");
     if (intro) {
-      intro.innerHTML = 'בפנייה ראשונה יש למלא <strong>סיבת פנייה</strong> וגם <strong>מאיפה שמעת/הגעת ללילך</strong>. אם כבר נפגשת בעבר עם לילך, ניתן לסמן זאת ואין צורך למלא את שני השדות.';
+      intro.innerHTML = 'בפנייה ראשונה יש למלא <strong>סיבת פנייה</strong> וגם <strong>מאיפה שמעת/הגעת ללילך</strong>. אם כבר נפגשת בעבר עם לילך, ניתן לסמן זאת — אין צורך למלא סיבת פנייה ומקור ההגעה יסומן אוטומטית כ״אחר״.';
     }
 
     const requiredNote = document.querySelector(".booking-required-note");
     if (requiredNote) {
-      requiredNote.textContent = "* בפנייה ראשונה סיבת הפנייה ומקור ההגעה הם חובה. אם כבר נפגשת בעבר עם לילך, אין צורך למלא אותם.";
+      requiredNote.textContent = "* בפנייה ראשונה סיבת הפנייה ומקור ההגעה הם חובה. אם כבר נפגשת בעבר עם לילך, אין צורך למלא סיבת פנייה ומקור ההגעה יסומן אוטומטית כאחר.";
     }
 
     const syncReturningFields = () => {
       const isReturning = returningClient.checked;
 
-      reasonField.disabled = isReturning;
-      referralField.disabled = isReturning;
-      reasonField.required = !isReturning;
-      referralField.required = !isReturning;
-      reasonField.setAttribute("aria-required", String(!isReturning));
-      referralField.setAttribute("aria-required", String(!isReturning));
-      reasonField.setAttribute("aria-disabled", String(isReturning));
-      referralField.setAttribute("aria-disabled", String(isReturning));
-
       if (isReturning) {
-        reasonField.value = "";
-        referralField.value = returningValue;
+        reasonField.value = returningValue;
+        reasonField.disabled = true;
+        reasonField.required = false;
+        reasonField.setAttribute("aria-required", "false");
+        reasonField.setAttribute("aria-disabled", "true");
         reasonField.placeholder = "אין צורך לציין סיבה מחדש";
+
+        referralField.disabled = false;
+        referralField.required = false;
+        referralField.value = "אחר";
+        referralField.setAttribute("aria-required", "false");
+        referralField.setAttribute("aria-disabled", "false");
       } else {
+        reasonField.disabled = false;
+        reasonField.required = true;
+        reasonField.setAttribute("aria-required", "true");
+        reasonField.setAttribute("aria-disabled", "false");
         if (reasonField.value === returningValue) reasonField.value = "";
-        if (referralField.value === returningValue) referralField.value = "";
         reasonField.placeholder = "בכמה מילים, מה מביא אותך לפנות עכשיו?";
+
+        referralField.disabled = false;
+        referralField.required = true;
+        referralField.setAttribute("aria-required", "true");
+        referralField.setAttribute("aria-disabled", "false");
+        if (referralField.value === "אחר") referralField.value = "";
       }
     };
 
-    returningClient.addEventListener("change", syncReturningFields);
+    returningClient.addEventListener("change", () => {
+      queueMicrotask(syncReturningFields);
+    });
 
-    // Compatibility layer for browsers that still have an older cached app.js.
-    // The older validation requires both fields to contain a value even when
-    // the returning-client option is checked, so populate them immediately
-    // before its click handler reads the form.
     const confirmBooking = byId("confirmBooking");
     if (confirmBooking) {
       confirmBooking.addEventListener("click", () => {
         if (!returningClient.checked) return;
         reasonField.value = returningValue;
-        referralField.value = returningValue;
+        referralField.disabled = false;
+        referralField.value = "אחר";
       }, true);
     }
 
