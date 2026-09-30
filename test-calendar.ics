@@ -1,0 +1,15 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Lilach Pavon//Calendar Test//HE
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:test-mobile-calendar-20261002@lilachpavon.co.il
+DTSTAMP:20260930T120000Z
+DTSTART:20261002T070000Z
+DTEND:20261002T075000Z
+SUMMARY:פגישת בדיקה עם לילך פבון
+LOCATION:הכישור 30\, חולון
+DESCRIPTION:אירוע בדיקה בלבד.\n\nבפגישה אמיתית יופיע כאן קישור לביטול הפגישה.\n\nביטול או שינוי בפחות מ־24 שעות מהמועד כרוך בתשלום של 150 ₪ בהתאם למדיניות הביטולים.
+END:VEVENT
+END:VCALENDAR
