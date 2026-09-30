@@ -1,0 +1,26 @@
+{
+  "name": "לילך פבון | טיפול רגשי",
+  "short_name": "לילך פבון",
+  "description": "האתר של לילך פבון – מידע וקביעת פגישת אינטייק.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "dir": "rtl",
+  "lang": "he-IL",
+  "background_color": "#f7f2ed",
+  "theme_color": "#f7f2ed",
+  "icons": [
+    {
+      "src": "https://lilach-assistant.vercel.app/icons/lilach-logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://lilach-assistant.vercel.app/icons/lilach-logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
