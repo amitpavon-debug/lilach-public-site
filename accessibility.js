@@ -7,7 +7,7 @@
 
     const bookingIntro = booking.querySelector(".booking-layout > div:first-child > p");
     if (bookingIntro) {
-      bookingIntro.textContent = "בוחרים מועד, ממלאים פרטים וסיבת פנייה ומאשרים את מדיניות שינוי התור ולהמתין לאישור.";
+      bookingIntro.textContent = "בוחרים מועד, ממלאים פרטים וסיבת פנייה ומאשרים את מדיניות שינוי התור וממתינים לאישור.";
     }
 
     booking.querySelectorAll(".privacy-box").forEach((box) => {
