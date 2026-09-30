@@ -96,6 +96,7 @@
             <li>תואר בעבודה סוציאלית- מכללת אשקלון.</li>
             <li>לימודי CBT פסיכותרפיה קוגניטיבית התנהגותית – ד"ר אדרס איתי החוג לפסיכולוגיה- אוניברסיטת חיפה.</li>
             <li>לימודי NLP- מכללת קגן, רמת גן.</li>
+            <li>לימודי NLP מאסטר - מכללת תוצאות.</li>
             <li>לימודי מיינדפולנס למטפלים- רותי הדר.</li>
           </ul>
         </div>
@@ -114,28 +115,28 @@
 
     <section id="booking" class="soft-section" aria-labelledby="booking-title">
       <div class="section-shell booking-layout">
-        <div><span class="eyebrow">קביעת פגישת איינטק</span><h2 id="booking-title">כל התהליך במקום אחד</h2><p>בוחרים מועד, ממלאים פרטים וסיבת פנייה ומאשרים את מדיניות שינוי התור. לאחר שליחת הבקשה לילך מקבלת מייל לאישור. רק לאחר אישורה נשלח לפונה מייל המאשר את הפגישה.</p><div class="privacy-box"><b>שמירה על פרטיות</b><p>הפרטים הרגישים נמסרים רק כחלק מתהליך קביעת הפגישה ומשמשים לצורך טיפול בפנייה, תיאום וניהול הפגישה.</p></div><div id="bookingState" class="booking-state" role="status" aria-live="polite" aria-atomic="true"></div></div>
-        <div class="booking-card" aria-label="בחירת מועד ומילוי פרטים">
-          <div class="booking-top"><button id="prevDays" type="button" aria-label="הצגת ימים קודמים">‹</button><strong id="bookingRange">מועדים קרובים</strong><button id="nextDays" type="button" aria-label="הצגת ימים הבאים">›</button></div>
-          <div id="dateStrip" class="date-strip" role="group" aria-label="בחירת תאריך"></div>
-          <div id="slots" class="slots" role="group" aria-label="בחירת שעה"><p class="muted">בחרו יום להצגת השעות הפנויות.</p></div>
+        <div><span class="eyebrow">קביעת פגישת איינטק</span><h2 id="booking-title">כל התהליך במקום אחד</h2><p>בוחרים מועד, ממלאים פרטים וסיבת פנייה ומאשרים את מדיניות שינוי התור. לאחר שליחת הבקשה לילך מקבלת מייל לאישור. רק לאחר אישורה נשלח לפונה מייל המאשר את הפגישה.</p><div class="privacy-box"><b>שמירה על פרטיות</b><p>הפרטים הרגישים נמסרים רק כחלק מתהליך קביעת הפגישה ומשמשים לצורך טיפול בפנייה, תיאום וניהול הפגישה.</p></div><div id="bookingState" class="booking-state"></div></div>
+        <div class="booking-card">
+          <div class="booking-top"><button id="prevDays" aria-label="ימים קודמים">‹</button><strong id="bookingRange">מועדים קרובים</strong><button id="nextDays" aria-label="ימים הבאים">›</button></div>
+          <div id="dateStrip" class="date-strip"></div>
+          <div id="slots" class="slots"><p class="muted">בחרו יום להצגת השעות הפנויות.</p></div>
           <div id="bookingFormWrap" class="booking-form-wrap hidden">
             <div id="bookingDetailsStep">
               <div class="booking-step-head">
-                <span aria-hidden="true">שלב 2</span>
+                <span>שלב 2</span>
                 <div><h3>פרטים לאישור הפגישה</h3><p>כדי לקבוע פגישת איינטק יש למלא גם <strong>סיבת פנייה</strong> וגם <strong>מאיפה שמעת/הגעת ללילך</strong>.</p></div>
               </div>
               <div class="two-cols">
-                <label class="booking-field">שם פרטי *<input id="bookFirstName" autocomplete="given-name" required aria-required="true"></label>
-                <label class="booking-field">שם משפחה *<input id="bookLastName" autocomplete="family-name" required aria-required="true"></label>
+                <label class="booking-field">שם פרטי *<input id="bookFirstName" autocomplete="given-name"></label>
+                <label class="booking-field">שם משפחה *<input id="bookLastName" autocomplete="family-name"></label>
               </div>
               <div class="two-cols">
-                <label class="booking-field">טלפון *<input id="bookPhone" type="tel" inputmode="tel" autocomplete="tel" required aria-required="true"></label>
-                <label class="booking-field">אימייל *<input id="bookEmail" type="email" autocomplete="email" required aria-required="true"></label>
+                <label class="booking-field">טלפון *<input id="bookPhone" inputmode="tel" autocomplete="tel"></label>
+                <label class="booking-field">אימייל<input id="bookEmail" type="email" autocomplete="email"></label>
               </div>
-              <label class="booking-field booking-highlight">סיבת הפנייה *<textarea id="bookReason" rows="4" placeholder="בכמה מילים, מה מביא אותך לפנות עכשיו?" required aria-required="true"></textarea></label>
+              <label class="booking-field booking-highlight">סיבת הפנייה *<textarea id="bookReason" rows="4" placeholder="בכמה מילים, מה מביא אותך לפנות עכשיו?"></textarea></label>
               <label class="booking-field booking-highlight">מאיפה שמעת / הגעת ללילך? *
-                <select id="bookReferral" required aria-required="true">
+                <select id="bookReferral" aria-label="מאיפה שמעת על לילך">
                   <option value="">בחירה</option>
                   <option value="המלצה">המלצה</option>
                   <option value="אינסטגרם">אינסטגרם</option>
@@ -146,42 +147,25 @@
                   <option value="אחר">אחר</option>
                 </select>
               </label>
-              <label class="booking-consent"><input id="bookPrivacyConsent" type="checkbox" required><span>אני מאשר/ת שמירת הפרטים לצורך תיאום הפגישה, ניהולה ויצירת קשר בקשר לפנייה.</span></label>
-              <label class="booking-consent booking-policy"><input id="bookPolicyAccepted" type="checkbox" required><span><strong>הנני מבינ/ה שלא ניתן לשנות תור בטווח 24 שעות מהמועד, כל שינוי בטווח זה יגרור תשלום של 150 ש"ח.</strong></span></label>
-              <p class="booking-required-note">* שם פרטי, שם משפחה, טלפון, אימייל, סיבת הפנייה, מקור ההגעה ושני האישורים הם חובה.</p>
-              <button id="confirmBooking" class="btn primary full" type="button">שליחת בקשה לאישור</button>
-              <p id="bookingMessage" class="form-message" role="status" aria-live="polite" aria-atomic="true"></p>
-            </div>
-
-            <div id="bookingPaymentStep" class="booking-payment-step hidden">
-              <div class="booking-step-head payment-step-head">
-                <span aria-hidden="true">שלב 3</span>
-                <div><h3>שלב התשלום אינו פעיל כרגע</h3><p>כרגע ניתן לשלוח בקשת פגישה ללא תשלום מראש.</p></div>
-              </div>
-              <div id="bookingPending" class="booking-confirmation" role="status" aria-live="polite"></div>
-              <div class="booking-pay-grid">
-                <a id="cardPayBtn" class="booking-pay-option disabled" href="#" aria-disabled="true" tabindex="-1"><span aria-hidden="true">💳</span><b>כרטיס אשראי</b><small>לא פעיל כרגע</small></a>
-                <a id="payboxBtn" class="booking-pay-option disabled" href="#" aria-disabled="true" tabindex="-1"><span aria-hidden="true">📱</span><b>PayBox</b><small>לא פעיל כרגע</small></a>
-                <button id="bankBtn" class="booking-pay-option" type="button" disabled><span aria-hidden="true">🏦</span><b>העברה בנקאית</b><small>לא פעיל כרגע</small></button>
-              </div>
-              <div id="bankDetails" class="bank-details hidden"></div>
-              <p class="payment-security-note">שלב התשלום יופעל בעתיד, אם יהיה צורך בכך.</p>
-              <button id="demoPaidBtn" class="btn ghost full hidden" type="button">הדמיית תשלום מוצלח</button>
+              <label class="booking-consent"><input id="bookPrivacyConsent" type="checkbox"><span>אני מאשר/ת שמירת הפרטים לצורך תיאום הפגישה, ניהולה ויצירת קשר בקשר לפנייה.</span></label>
+              <label class="booking-consent booking-policy"><input id="bookPolicyAccepted" type="checkbox"><span><strong>הנני מבינ/ה שלא ניתן לשנות תור בטווח 24 שעות מהמועד, כל שינוי בטווח זה יגרור תשלום של 150 ש"ח.</strong></span></label>
+              <p class="booking-required-note">* שם פרטי, שם משפחה, טלפון, סיבת הפנייה, מקור ההגעה ושני האישורים הם חובה.</p>
+              <button id="confirmBooking" class="btn primary full">שליחת בקשה לאישור</button>
+              <p id="bookingMessage" class="form-message"></p>
             </div>
 
             <div id="bookingApprovalStep" class="booking-approval-step hidden">
-              <div class="booking-wait-mark" aria-hidden="true">⏳</div>
-              <h3 tabindex="-1">ממתינים לאישור לילך</h3>
-              <div id="bookingApprovalConfirmation" class="booking-confirmation" role="status" aria-live="polite" aria-atomic="true"></div>
-              <p>הבקשה נשלחה ללילך במייל. רק לאחר אישורה הפגישה תהיה סופית.</p>
-              <button id="demoApproveBtn" class="btn ghost full hidden" type="button">הדמיית אישור לילך</button>
+              <div class="booking-wait-mark">⏳</div>
+              <h3>הבקשה נשלחה — ממתינים לאישור לילך</h3>
+              <div id="bookingApprovalConfirmation" class="booking-confirmation"></div>
+              <p>נשלח ללילך מייל עם פרטי הפגישה ובקשה לאישור. רק לאחר אישורה הפגישה תהיה סופית.</p>
             </div>
 
             <div id="bookingSuccessStep" class="booking-success-step hidden">
-              <div class="booking-success-mark" aria-hidden="true">✓</div>
-              <h3 tabindex="-1">הפגישה אושרה בהצלחה</h3>
-              <div id="bookingFinalConfirmation" class="booking-confirmation" role="status" aria-live="polite" aria-atomic="true"></div>
-              <p>הפגישה אושרה על ידי לילך ונשלח לפונה מייל אישור עם פרטי הפגישה.</p>
+              <div class="booking-success-mark">✓</div>
+              <h3>הפגישה אושרה בהצלחה</h3>
+              <div id="bookingFinalConfirmation" class="booking-confirmation"></div>
+              <p>הפגישה אושרה על ידי לילך ונשלח לפונה מייל אישור.</p>
               <button id="newBookingBtn" class="btn ghost full" type="button">קביעת פגישה נוספת</button>
             </div>
           </div>
@@ -189,15 +173,11 @@
         </div>
       </div>
     </section>
+
+
   </main>
 
-  <footer>
-    <div class="footer-inner">
-      <div><b>לילך פבון</b><span>CBT · NLP · טיפול רגשי</span><span class="footer-address">הכישור 30, חולון</span></div>
-      <div class="footer-links"><a href="#booking">קביעת פגישת איינטק</a><a href="/accessibility">הצהרת נגישות</a></div>
-      <small>© <span id="year"></span> לילך פבון. כל הזכויות שמורות.</small>
-    </div>
-  </footer>
+  <footer><div class="footer-inner"><div><b>לילך פבון</b><span>CBT · NLP · טיפול רגשי</span><span class="footer-address">הכישור 30, חולון</span></div><div class="footer-links"><a href="#booking">קביעת פגישת איינטק</a><a href="/accessibility">הצהרת נגישות</a></div><small>© <span id="year"></span> לילך פבון. כל הזכויות שמורות.</small></div></footer>
 
   <script src="./config.js"></script>
   <script src="./app.js"></script>
