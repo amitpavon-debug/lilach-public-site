@@ -2,6 +2,13 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "outputDirectory": ".",
+  "redirects": [
+    {
+      "source": "/assets/lilach-logo.jpg",
+      "destination": "https://taafqwplvzcceoynhvve.supabase.co/functions/v1/site-logo-image",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/approval",
