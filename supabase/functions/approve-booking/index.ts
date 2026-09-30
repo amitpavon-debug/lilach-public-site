@@ -17,6 +17,16 @@ function encodeHtmlUrl(value: string) {
     .replaceAll("'", "&#039;");
 }
 
+function arrayBufferToBase64(buffer: ArrayBuffer) {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, Math.min(i + chunkSize, bytes.length)));
+  }
+  return btoa(binary);
+}
+
 globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   try {
     const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
@@ -55,6 +65,30 @@ globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
           const helpParagraph = `<p style="text-align:center;margin:6px 0 18px;color:#667066;font-size:14px">${newHelp}</p>`;
           const googleFallback = `${helpParagraph}\n      <div style="text-align:center;margin:0 0 18px"><a href="${encodeHtmlUrl(googleCalendarUrl)}" target="_blank" rel="noopener" style="color:#5f7855;text-decoration:underline;font-size:14px">הוספה ל-Google Calendar</a></div>`;
           html = html.replace(helpParagraph, googleFallback);
+
+          try {
+            const icsResponse = await originalFetch(mobileCalendarUrl, {
+              method: "GET",
+              headers: { Accept: "text/calendar" },
+            });
+            if (icsResponse.ok) {
+              const icsBase64 = arrayBufferToBase64(await icsResponse.arrayBuffer());
+              const existingAttachments = Array.isArray(payload.attachments) ? payload.attachments : [];
+              const withoutOldCalendar = existingAttachments.filter((attachment: any) => attachment?.filename !== "lilach-appointment.ics");
+              payload.attachments = [
+                ...withoutOldCalendar,
+                {
+                  content: icsBase64,
+                  filename: "lilach-appointment.ics",
+                  content_type: "text/calendar; charset=utf-8",
+                },
+              ];
+            } else {
+              console.error("CALENDAR ATTACHMENT FETCH ERROR:", icsResponse.status, await icsResponse.text());
+            }
+          } catch (calendarError) {
+            console.error("CALENDAR ATTACHMENT ERROR:", calendarError);
+          }
 
           payload.html = html;
           init = { ...init, body: JSON.stringify(payload) };
