@@ -94,12 +94,26 @@
         referralField.value = returningValue;
         reasonField.placeholder = "אין צורך לציין סיבה מחדש";
       } else {
+        if (reasonField.value === returningValue) reasonField.value = "";
         if (referralField.value === returningValue) referralField.value = "";
         reasonField.placeholder = "בכמה מילים, מה מביא אותך לפנות עכשיו?";
       }
     };
 
     returningClient.addEventListener("change", syncReturningFields);
+
+    // Compatibility layer for browsers that still have an older cached app.js.
+    // The older validation requires both fields to contain a value even when
+    // the returning-client option is checked, so populate them immediately
+    // before its click handler reads the form.
+    const confirmBooking = byId("confirmBooking");
+    if (confirmBooking) {
+      confirmBooking.addEventListener("click", () => {
+        if (!returningClient.checked) return;
+        reasonField.value = returningValue;
+        referralField.value = returningValue;
+      }, true);
+    }
 
     const newBookingButton = byId("newBookingBtn");
     if (newBookingButton) {
