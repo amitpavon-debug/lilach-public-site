@@ -31,7 +31,7 @@
         booking.querySelector(".booking-layout > div:first-child")?.appendChild(ageNote);
       }
     }
-    ageNote.innerHTML = "<strong>לתשומת לב:</strong> קביעת הפגישה באתר מיועדת למי שמלאו להם 18 שנים.";
+    ageNote.innerHTML = "<strong>לתשומת לב:</strong> קביעת הפגישה באתר מיועדת למי שמלאו לו 18 שנים.";
   };
 
   syncBookingStaticContent();
