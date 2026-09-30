@@ -1,6 +1,111 @@
 (() => {
   const byId = (id) => document.getElementById(id);
 
+  const setupHomeScreenInstall = () => {
+    const isStandalone = window.matchMedia?.("(display-mode: standalone)")?.matches || window.navigator.standalone === true;
+    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent || "");
+    const isAndroid = /android/i.test(navigator.userAgent || "");
+
+    const ensureHeadLink = (rel, href, extra = {}) => {
+      let link = document.querySelector(`link[rel="${rel}"]`);
+      if (!link) {
+        link = document.createElement("link");
+        link.rel = rel;
+        document.head.appendChild(link);
+      }
+      link.href = href;
+      Object.entries(extra).forEach(([key, value]) => link.setAttribute(key, value));
+      return link;
+    };
+
+    const ensureMeta = (name, content) => {
+      let meta = document.querySelector(`meta[name="${name}"]`);
+      if (!meta) {
+        meta = document.createElement("meta");
+        meta.name = name;
+        document.head.appendChild(meta);
+      }
+      meta.content = content;
+    };
+
+    ensureHeadLink("manifest", "/manifest.json");
+    ensureHeadLink("apple-touch-icon", "https://lilach-assistant.vercel.app/icons/lilach-logo-192.png", { sizes: "192x192" });
+    ensureMeta("apple-mobile-web-app-capable", "yes");
+    ensureMeta("apple-mobile-web-app-status-bar-style", "default");
+    ensureMeta("apple-mobile-web-app-title", "לילך פבון");
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch((error) => {
+          console.error("PUBLIC SITE SERVICE WORKER ERROR:", error);
+        });
+      });
+    }
+
+    if (isStandalone || (!isIos && !isAndroid)) return;
+
+    let deferredInstallPrompt = null;
+    let installButton = null;
+
+    const ensureInstallButton = () => {
+      if (installButton || isStandalone) return installButton;
+      const footerLinks = document.querySelector(".footer-links");
+      if (!footerLinks) return null;
+
+      installButton = document.createElement("button");
+      installButton.type = "button";
+      installButton.textContent = "הוספה למסך הבית";
+      installButton.setAttribute("aria-label", "הוספת האתר של לילך פבון למסך הבית");
+      Object.assign(installButton.style, {
+        appearance: "none",
+        border: "0",
+        background: "transparent",
+        padding: "0",
+        margin: "0",
+        color: "inherit",
+        font: "inherit",
+        cursor: "pointer",
+        textDecoration: "underline",
+        textUnderlineOffset: "3px"
+      });
+
+      installButton.addEventListener("click", async () => {
+        if (deferredInstallPrompt) {
+          deferredInstallPrompt.prompt();
+          await deferredInstallPrompt.userChoice.catch(() => null);
+          deferredInstallPrompt = null;
+          return;
+        }
+
+        if (isIos) {
+          alert("באייפון: יש לפתוח את האתר ב-Safari, ללחוץ על כפתור השיתוף ואז לבחור ‘הוספה למסך הבית’. האייקון שיופיע יהיה של לילך פבון.");
+          return;
+        }
+
+        alert("בתפריט הדפדפן בחרו ‘התקנת אפליקציה’ או ‘הוספה למסך הבית’.");
+      });
+
+      footerLinks.appendChild(installButton);
+      return installButton;
+    };
+
+    if (isIos) ensureInstallButton();
+
+    window.addEventListener("beforeinstallprompt", (event) => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      ensureInstallButton();
+    });
+
+    window.addEventListener("appinstalled", () => {
+      deferredInstallPrompt = null;
+      installButton?.remove();
+      installButton = null;
+    });
+  };
+
+  setupHomeScreenInstall();
+
   const syncBookingStaticContent = () => {
     const booking = byId("booking");
     if (!booking) return;
