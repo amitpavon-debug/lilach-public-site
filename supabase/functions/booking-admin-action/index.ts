@@ -7,6 +7,10 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST,OPTIONS",
 };
 
+const SIGNATURE_URL = "https://taafqwplvzcceoynhvve.supabase.co/functions/v1/email-signature-image";
+const NO_REPLY_NOTE = `<p style="margin-top:22px;color:#667066;font-size:13px;text-align:center">לתשומת לבך: הודעה זו נשלחה ממערכת אוטומטית, ואין אפשרות להשיב להודעה זו במייל.</p>`;
+const SIGNATURE_HTML = `<div style="margin-top:24px;text-align:center;background:#ffffff"><img src="${SIGNATURE_URL}" alt="לילך פבון | טיפול רגשי | CBT | NLP" width="600" height="200" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;background:#ffffff" /></div>`;
+
 function escapeHtml(value: unknown) {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -147,9 +151,7 @@ Deno.serve(async (req) => {
         .select("id")
         .maybeSingle();
       if (updateError) throw updateError;
-      if (!updated) {
-        return Response.json({ error: "booking_state_changed" }, { status: 409, headers: corsHeaders });
-      }
+      if (!updated) return Response.json({ error: "booking_state_changed" }, { status: 409, headers: corsHeaders });
 
       const clientHtml = `
         <div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7;color:#263126;max-width:640px;margin:auto">
@@ -163,43 +165,28 @@ Deno.serve(async (req) => {
           <div style="text-align:center;margin:24px 0">
             <a href="${siteBookingUrl}" style="display:inline-block;background:#5f7855;color:#fff;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:10px">בחירת מועד חדש</a>
           </div>
-        </div>
-      `;
+          ${NO_REPLY_NOTE}
+          ${SIGNATURE_HTML}
+        </div>`;
 
-      const emailResult = await sendEmail(
-        String(booking.email || "").trim(),
-        "עדכון לגבי בקשת הפגישה עם לילך",
-        clientHtml,
-      );
-
-      return Response.json({
-        ok: true,
-        status: "rejected",
-        clientEmailSent: emailResult.sent,
-        clientEmailSkipped: emailResult.skipped,
-      }, { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      const emailResult = await sendEmail(String(booking.email || "").trim(), "עדכון לגבי בקשת הפגישה עם לילך", clientHtml);
+      return Response.json({ ok: true, status: "rejected", clientEmailSent: emailResult.sent, clientEmailSkipped: emailResult.skipped }, { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     if (booking.status === "cancelled_by_lilach") {
       return Response.json({ ok: true, alreadyCancelled: true, status: "cancelled_by_lilach" }, { headers: corsHeaders });
     }
     if (booking.status !== "confirmed") {
-      return Response.json(
-        { error: "booking_not_confirmed", status: booking.status },
-        { status: 409, headers: corsHeaders },
-      );
+      return Response.json({ error: "booking_not_confirmed", status: booking.status }, { status: 409, headers: corsHeaders });
     }
 
     if (booking.google_event_id) {
       const accessToken = await googleToken();
       const calendarId = Deno.env.get("GOOGLE_CALENDAR_ID") || "primary";
-      const deleteResponse = await fetch(
-        `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(booking.google_event_id)}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${accessToken}` },
-        },
-      );
+      const deleteResponse = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(booking.google_event_id)}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
       if (![204, 404, 410].includes(deleteResponse.status)) {
         console.error("GOOGLE EVENT DELETE ERROR:", deleteResponse.status, await deleteResponse.text());
         throw new Error("google_event_delete_failed");
@@ -215,9 +202,7 @@ Deno.serve(async (req) => {
       .select("id")
       .maybeSingle();
     if (updateError) throw updateError;
-    if (!updated) {
-      return Response.json({ error: "booking_state_changed" }, { status: 409, headers: corsHeaders });
-    }
+    if (!updated) return Response.json({ error: "booking_state_changed" }, { status: 409, headers: corsHeaders });
 
     const clientHtml = `
       <div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7;color:#263126;max-width:640px;margin:auto">
@@ -232,26 +217,14 @@ Deno.serve(async (req) => {
         <div style="text-align:center;margin:24px 0">
           <a href="${siteBookingUrl}" style="display:inline-block;background:#5f7855;color:#fff;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:10px">בחירת מועד חדש</a>
         </div>
-      </div>
-    `;
+        ${NO_REPLY_NOTE}
+        ${SIGNATURE_HTML}
+      </div>`;
 
-    const emailResult = await sendEmail(
-      String(booking.email || "").trim(),
-      "הפגישה עם לילך בוטלה",
-      clientHtml,
-    );
-
-    return Response.json({
-      ok: true,
-      status: "cancelled_by_lilach",
-      clientEmailSent: emailResult.sent,
-      clientEmailSkipped: emailResult.skipped,
-    }, { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    const emailResult = await sendEmail(String(booking.email || "").trim(), "הפגישה עם לילך בוטלה", clientHtml);
+    return Response.json({ ok: true, status: "cancelled_by_lilach", clientEmailSent: emailResult.sent, clientEmailSkipped: emailResult.skipped }, { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (error) {
     console.error("BOOKING ADMIN ACTION ERROR:", error);
-    return Response.json(
-      { error: error instanceof Error ? error.message : String(error) },
-      { status: 500, headers: corsHeaders },
-    );
+    return Response.json({ error: error instanceof Error ? error.message : String(error) }, { status: 500, headers: corsHeaders });
   }
 });
