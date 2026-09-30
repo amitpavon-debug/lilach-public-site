@@ -11,6 +11,10 @@
   ],
   "rewrites": [
     {
+      "source": "/refresh-site",
+      "destination": "/index.html"
+    },
+    {
       "source": "/approval",
       "destination": "/approval.html"
     },
@@ -36,6 +40,25 @@
     }
   ],
   "headers": [
+    {
+      "source": "/refresh-site",
+      "headers": [
+        { "key": "Clear-Site-Data", "value": "\"cache\"" },
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+      ]
+    },
+    {
+      "source": "/app.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+      ]
+    },
+    {
+      "source": "/accessibility.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+      ]
+    },
     {
       "source": "/(.*)",
       "headers": [
