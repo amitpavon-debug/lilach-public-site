@@ -16,6 +16,32 @@ window.LILACH_SITE_CONFIG = {
   DEMO_BOOKING: false
 };
 
+// Compatibility shim for the legacy booking script: the payment UI is intentionally
+// removed from the live page, but app.js still references these elements internally.
+// Hidden placeholders prevent those legacy references from interrupting date/slot loading.
+(() => {
+  const ids = [
+    ["bookingPaymentStep", "div"],
+    ["bookingPending", "div"],
+    ["bankDetails", "div"],
+    ["cardPayBtn", "a"],
+    ["payboxBtn", "a"],
+    ["bankBtn", "button"],
+    ["demoPaidBtn", "button"],
+    ["demoApproveBtn", "button"]
+  ];
+  const host = document.createElement("div");
+  host.hidden = true;
+  host.setAttribute("aria-hidden", "true");
+  for (const [id, tag] of ids) {
+    if (document.getElementById(id)) continue;
+    const el = document.createElement(tag);
+    el.id = id;
+    host.appendChild(el);
+  }
+  document.body.appendChild(host);
+})();
+
 // Temporary live flow: booking requests are sent for Lilach's approval without payment.
 // Email is mandatory; WhatsApp confirmations are intentionally paused.
 (() => {
