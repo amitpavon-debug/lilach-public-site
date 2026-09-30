@@ -47,6 +47,71 @@
     field.setAttribute("aria-required", "true");
   }
 
+  const returningClient = byId("bookReturningClient");
+  const reasonField = byId("bookReason");
+  const referralField = byId("bookReferral");
+  const returningValue = "כבר נפגשתי בעבר עם לילך";
+
+  if (returningClient && reasonField && referralField) {
+    const returningText = returningClient.closest("label")?.querySelector("span");
+    if (returningText) {
+      returningText.innerHTML = '<strong>כבר נפגשתי בעבר עם לילך</strong><br><small>אם כבר נפגשת בעבר עם לילך, יש לסמן כאן — אין צורך לציין שוב את סיבת הפנייה או מאיפה הגעת ללילך.</small>';
+    }
+
+    let returningOption = Array.from(referralField.options).find((option) => option.value === returningValue);
+    if (!returningOption) {
+      returningOption = document.createElement("option");
+      returningOption.value = returningValue;
+      returningOption.textContent = returningValue;
+      returningOption.hidden = true;
+      referralField.appendChild(returningOption);
+    }
+
+    const intro = document.querySelector("#bookingDetailsStep .booking-step-head p");
+    if (intro) {
+      intro.innerHTML = 'בפנייה ראשונה יש למלא <strong>סיבת פנייה</strong> וגם <strong>מאיפה שמעת/הגעת ללילך</strong>. אם כבר נפגשת בעבר עם לילך, ניתן לסמן זאת ואין צורך למלא את שני השדות.';
+    }
+
+    const requiredNote = document.querySelector(".booking-required-note");
+    if (requiredNote) {
+      requiredNote.textContent = "* בפנייה ראשונה סיבת הפנייה ומקור ההגעה הם חובה. אם כבר נפגשת בעבר עם לילך, אין צורך למלא אותם.";
+    }
+
+    const syncReturningFields = () => {
+      const isReturning = returningClient.checked;
+
+      reasonField.disabled = isReturning;
+      referralField.disabled = isReturning;
+      reasonField.required = !isReturning;
+      referralField.required = !isReturning;
+      reasonField.setAttribute("aria-required", String(!isReturning));
+      referralField.setAttribute("aria-required", String(!isReturning));
+      reasonField.setAttribute("aria-disabled", String(isReturning));
+      referralField.setAttribute("aria-disabled", String(isReturning));
+
+      if (isReturning) {
+        reasonField.value = "";
+        referralField.value = returningValue;
+        reasonField.placeholder = "אין צורך לציין סיבה מחדש";
+      } else {
+        if (referralField.value === returningValue) referralField.value = "";
+        reasonField.placeholder = "בכמה מילים, מה מביא אותך לפנות עכשיו?";
+      }
+    };
+
+    returningClient.addEventListener("change", syncReturningFields);
+
+    const newBookingButton = byId("newBookingBtn");
+    if (newBookingButton) {
+      newBookingButton.addEventListener("click", () => {
+        returningClient.checked = false;
+        requestAnimationFrame(syncReturningFields);
+      });
+    }
+
+    syncReturningFields();
+  }
+
   const bookingForm = byId("bookingFormWrap");
   if (bookingForm) {
     bookingForm.setAttribute("role", "region");
