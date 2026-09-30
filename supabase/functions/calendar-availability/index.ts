@@ -70,12 +70,12 @@ serve(async (req) => {
         .from("booking_availability_weekly")
         .select("start_time,end_time,sort_order,enabled")
         .eq("weekday", weekday)
-        .eq("enabled", true)
         .order("sort_order", { ascending: true });
       if (weeklyError) throw weeklyError;
 
       if ((weeklyRows || []).length) {
         windows = (weeklyRows || [])
+          .filter((row: any) => row.enabled !== false)
           .map((row: any) => ({ start: timeToHour(row.start_time), end: timeToHour(row.end_time) }))
           .filter((window: any) => window.start !== null && window.end !== null && window.end > window.start) as WorkWindow[];
       } else {
