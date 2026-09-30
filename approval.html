@@ -4,16 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <title>אישור תור | לילך פבון</title>
+  <title>ניהול תור | לילך פבון</title>
   <style>
-    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:#f5f3ef;color:#2f2f2f;font-family:Arial,sans-serif}.wrap{width:min(640px,calc(100% - 28px));margin:34px auto}.card{background:#fff;border-radius:24px;padding:30px;box-shadow:0 10px 34px rgba(0,0,0,.08)}h1{margin:0 0 8px;font-size:28px}.sub{margin:0 0 22px;color:#687168;line-height:1.6}.row{padding:12px 0;border-bottom:1px solid #ececec;line-height:1.55}.label{font-weight:700}button{width:100%;margin-top:24px;padding:15px 18px;border:0;border-radius:14px;background:#2f6f63;color:#fff;font-size:18px;font-weight:700;cursor:pointer}button:disabled{opacity:.55;cursor:default}.message{margin-top:20px;padding:14px;border-radius:12px;line-height:1.6;text-align:center}.error{background:#fff1f0;color:#a21d17}.success{background:#e9f8ee;color:#16723a}.loading{text-align:center;padding:28px 0;color:#687168}.hidden{display:none!important}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:#f5f3ef;color:#2f2f2f;font-family:Arial,sans-serif}.wrap{width:min(640px,calc(100% - 28px));margin:34px auto}.card{background:#fff;border-radius:24px;padding:30px;box-shadow:0 10px 34px rgba(0,0,0,.08)}h1{margin:0 0 8px;font-size:28px}.sub{margin:0 0 22px;color:#687168;line-height:1.6}.row{padding:12px 0;border-bottom:1px solid #ececec;line-height:1.55}.label{font-weight:700}.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}button{width:100%;padding:15px 18px;border:0;border-radius:14px;color:#fff;font-size:18px;font-weight:700;cursor:pointer}button:disabled{opacity:.55;cursor:default}.approve{background:#2f6f63}.reject{background:#9b3d36}.cancel{background:#9b3d36;margin-top:24px}.secondary{background:#687168}.message{margin-top:20px;padding:14px;border-radius:12px;line-height:1.6;text-align:center}.error{background:#fff1f0;color:#a21d17}.success{background:#e9f8ee;color:#16723a}.warning{background:#fff4df;color:#7a5312}.loading{text-align:center;padding:28px 0;color:#687168}.hidden{display:none!important}@media(max-width:520px){.actions{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
   <main class="wrap">
     <section class="card">
-      <h1>אישור תור חדש</h1>
-      <p class="sub">העמוד מיועד לאישור בקשת פגישה שנשלחה דרך האתר.</p>
+      <h1>ניהול בקשת פגישה</h1>
+      <p class="sub">כאן ניתן לאשר או לדחות בקשה חדשה, ולאחר אישור גם לבטל פגישה קיימת.</p>
       <div id="loading" class="loading">טוען את פרטי התור...</div>
       <div id="errorBox" class="message error hidden"></div>
       <div id="content" class="hidden">
@@ -21,8 +21,14 @@
         <div class="row"><span class="label">תאריך:</span> <span id="date"></span></div>
         <div class="row"><span class="label">שעה:</span> <span id="time"></span></div>
         <div class="row"><span class="label">טלפון:</span> <span id="phone"></span></div>
-        <button id="approveButton" type="button">אישור התור</button>
-        <div id="resultMessage" class="message hidden"></div>
+
+        <div id="pendingActions" class="actions hidden">
+          <button id="approveButton" class="approve" type="button">אישור התור</button>
+          <button id="rejectButton" class="reject" type="button">דחיית הבקשה</button>
+        </div>
+
+        <button id="cancelButton" class="cancel hidden" type="button">ביטול פגישה מאושרת</button>
+        <div id="resultMessage" class="message hidden" role="status" aria-live="polite"></div>
       </div>
     </section>
   </main>

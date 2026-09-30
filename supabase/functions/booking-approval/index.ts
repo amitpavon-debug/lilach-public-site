@@ -27,10 +27,7 @@ Deno.serve(async (req) => {
     const approvalToken = String(body?.approvalToken || "").trim();
 
     if (!bookingId || !approvalToken) {
-      return Response.json(
-        { error: "booking_id_and_approval_token_required" },
-        { status: 400, headers: corsHeaders },
-      );
+      return Response.json({ error: "booking_id_and_approval_token_required" }, { status: 400, headers: corsHeaders });
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
@@ -45,45 +42,29 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (error) throw error;
-    if (!booking) {
-      return Response.json({ error: "booking_not_found" }, { status: 404, headers: corsHeaders });
-    }
+    if (!booking) return Response.json({ error: "booking_not_found" }, { status: 404, headers: corsHeaders });
 
     const receivedHash = await sha256(approvalToken);
     if (!booking.approval_token_hash || receivedHash !== booking.approval_token_hash) {
       return Response.json({ error: "invalid_approval_token" }, { status: 401, headers: corsHeaders });
     }
 
-    if (booking.payment_status !== "paid") {
-      return Response.json({ error: "payment_not_confirmed" }, { status: 409, headers: corsHeaders });
-    }
-
-    if (!["awaiting_approval", "confirmed"].includes(booking.status)) {
-      return Response.json(
-        { error: "booking_not_awaiting_approval", status: booking.status },
-        { status: 409, headers: corsHeaders },
-      );
-    }
-
-    return Response.json(
-      {
-        ok: true,
-        bookingId: booking.id,
-        name: [booking.first_name, booking.last_name].filter(Boolean).join(" "),
-        phone: booking.phone || "",
-        date: booking.booking_date,
-        time: String(booking.booking_time || "").slice(0, 5),
-        status: booking.status,
-        paymentStatus: booking.payment_status,
+    return Response.json({
+      ok: true,
+      bookingId: booking.id,
+      name: [booking.first_name, booking.last_name].filter(Boolean).join(" "),
+      phone: booking.phone || "",
+      date: booking.booking_date,
+      time: String(booking.booking_time || "").slice(0, 5),
+      status: booking.status,
+      paymentStatus: booking.payment_status,
+    }, {
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
       },
-      {
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json",
-          "Cache-Control": "no-store",
-        },
-      },
-    );
+    });
   } catch (error) {
     console.error("BOOKING APPROVAL DETAILS ERROR:", error);
     return Response.json(
