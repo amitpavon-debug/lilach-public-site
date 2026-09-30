@@ -87,8 +87,23 @@ function page(title: string, message: string, ok = true) {
   </body></html>`;
 }
 
+function confirmationPage(actionUrl: string, fullName: string, dateHe: string, time: string) {
+  const greeting = fullName ? `${escapeHtml(fullName)}, ` : "";
+  const content = `
+    <p style="margin-top:0">${greeting}נא לאשר שהגעתך לפגישה בתאריך <b>${escapeHtml(dateHe)}</b> בשעה <b>${escapeHtml(time)}</b>.</p>
+    <form method="post" action="${escapeHtml(actionUrl)}" style="margin:22px 0 4px">
+      <button type="submit" style="border:0;background:#5f7855;color:#fff;font-size:17px;font-weight:700;padding:13px 24px;border-radius:11px;cursor:pointer">כן, אני מגיע/ה</button>
+    </form>
+    <p style="margin:14px 0 0;font-size:13px;color:#667066">האישור יישמר רק לאחר לחיצה על הכפתור.</p>`;
+  return page("אישור הגעה לפגישה", content, true);
+}
+
 Deno.serve(async (req) => {
   try {
+    if (!["GET", "POST"].includes(req.method)) {
+      return new Response("Method not allowed", { status: 405, headers: { Allow: "GET, POST" } });
+    }
+
     const url = new URL(req.url);
     const bookingId = String(url.searchParams.get("bookingId") || "").trim();
     const token = String(url.searchParams.get("token") || "").trim();
@@ -127,6 +142,13 @@ Deno.serve(async (req) => {
 
     if (booking.attendance_status === "confirmed") {
       return new Response(page("הגעתך כבר אושרה", `האישור לפגישה בתאריך <b>${escapeHtml(dateHe)}</b> בשעה <b>${escapeHtml(time)}</b> כבר התקבל. תודה.`), { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" } });
+    }
+
+    if (req.method === "GET") {
+      const actionUrl = `${url.origin}${url.pathname}?bookingId=${encodeURIComponent(bookingId)}&token=${encodeURIComponent(token)}`;
+      return new Response(confirmationPage(actionUrl, fullName, dateHe, time), {
+        headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" },
+      });
     }
 
     const nowIso = new Date().toISOString();
