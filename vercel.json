@@ -33,10 +33,6 @@
     {
       "source": "/cancellations",
       "destination": "/cancellations.html"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
     }
   ],
   "headers": [
