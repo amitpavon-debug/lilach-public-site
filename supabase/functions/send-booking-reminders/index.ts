@@ -159,6 +159,17 @@ Deno.serve(async (req) => {
     if (!supabaseUrl || !serviceRoleKey) throw new Error("missing_supabase_server_credentials");
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
+    const requestSecret = String(req.headers.get("x-reminder-secret") || "");
+    const { data: secretRow, error: secretError } = await supabase
+      .from("automation_secrets")
+      .select("secret")
+      .eq("name", "booking_reminders")
+      .maybeSingle();
+    if (secretError) throw secretError;
+    if (!secretRow?.secret || !requestSecret || requestSecret !== secretRow.secret) {
+      return Response.json({ error: "unauthorized" }, { status: 401, headers: { "Cache-Control": "no-store" } });
+    }
+
     const { data: bookings, error } = await supabase
       .from("intake_bookings")
       .select("id,booking_date,booking_time,first_name,email,status,reminder_sent_at,reminder_24h_sent_at,attendance_status,attendance_responded_at")
@@ -193,10 +204,9 @@ Deno.serve(async (req) => {
 
         const noAttendanceResponse = booking.attendance_status !== "confirmed" && !booking.attendance_responded_at;
         if (
-          booking.reminder_sent_at &&
           !booking.reminder_24h_sent_at &&
           noAttendanceResponse &&
-          minsUntil >= 1450 && minsUntil <= 1470
+          minsUntil >= 1430 && minsUntil <= 1450
         ) {
           const sent = await sendReminder(booking, "24h");
           if (sent) {
