@@ -15,8 +15,12 @@
       if (title === "לפני קביעת הפגישה") box.remove();
     });
 
-    let ageNote = booking.querySelector(".booking-age-note");
-    if (!ageNote) {
+    let ageNote = booking.querySelector(".booking-age-note") ||
+      booking.querySelector(".booking-layout > div:first-child > .booking-required-note");
+
+    if (ageNote) {
+      ageNote.classList.add("booking-age-note");
+    } else {
       ageNote = document.createElement("p");
       ageNote.className = "booking-required-note booking-age-note";
       const privacyBox = Array.from(booking.querySelectorAll(".privacy-box"))
