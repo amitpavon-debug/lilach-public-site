@@ -1,0 +1,1 @@
+update public.intake_bookings set attendance_status = 'pending' where status = 'confirmed' and (attendance_status is null or attendance_status = '');
