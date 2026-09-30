@@ -10,8 +10,9 @@
   <style>
     *{box-sizing:border-box}
     body{margin:0;background:#fffaf7;color:#384238;font-family:Arial,sans-serif;line-height:1.75}
-    a{color:#245c4e}
+    a{color:#245c4e;text-decoration-thickness:1.5px;text-underline-offset:2px}
     a:focus-visible,button:focus-visible{outline:3px solid #1d6655;outline-offset:3px}
+    .skip{position:fixed;top:10px;right:12px;z-index:10;background:#233329;color:#fff;padding:10px 14px;border-radius:10px;transform:translateY(-180%);font-weight:700}.skip:focus{transform:translateY(0)}
     .wrap{width:min(820px,calc(100% - 32px));margin:38px auto}
     .card{background:#fff;border:1px solid #dfe5dc;border-radius:22px;padding:clamp(22px,5vw,42px);box-shadow:0 16px 50px rgba(73,82,66,.08)}
     h1,h2{color:#4f5d48}
@@ -22,36 +23,47 @@
     .legal-nav{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px;font-size:14px}
     .note{background:#eef3ec;border-radius:14px;padding:14px 16px}
     .contact{background:#f7eeee;border-radius:14px;padding:16px}
-    small{color:#66705f}
+    .pending{background:#fff4df;border-radius:14px;padding:14px 16px;color:#67450a}
+    small{color:#596455}
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+    @media(forced-colors:active){.card,.note,.contact,.pending{border:1px solid CanvasText}}
   </style>
 </head>
 <body>
-  <main class="wrap">
+  <a class="skip" href="#main-content">דלג לתוכן הראשי</a>
+  <main id="main-content" class="wrap">
     <a class="back" href="/">חזרה לאתר</a>
     <nav class="legal-nav" aria-label="מסמכים משפטיים"><a href="/privacy">מדיניות פרטיות</a><a href="/terms">תנאי שימוש</a><a href="/cancellations">מדיניות ביטולים</a></nav>
     <article class="card">
       <h1>הצהרת נגישות</h1>
-      <p>אנו רואים חשיבות בהנגשת האתר ובמתן אפשרות נוחה ככל האפשר לשימוש בו עבור אנשים עם מוגבלויות, לרבות משתמשי מקלדת, קוראי מסך ואמצעי הגדלה.</p>
+      <p>אנו רואים חשיבות בהנגשת האתר ובמתן אפשרות נוחה ככל האפשר לשימוש בו עבור אנשים עם מוגבלויות, לרבות משתמשי מקלדת, קוראי מסך, אמצעי הגדלה ואנשים הרגישים לתנועה ואנימציות.</p>
+      <p>האתר תוכנן ונבדק במטרה להתאים ככל האפשר לעקרונות תקן ישראלי 5568 ולהנחיות WCAG ברמת AA. בדיקות אוטומטיות אינן מחליפות בדיקה אנושית, ולכן אנו ממשיכים לבדוק ולשפר את הנגישות בעת הצורך.</p>
 
       <h2>התאמות שבוצעו באתר</h2>
       <ul>
         <li>מבנה סמנטי וכותרות המסייעים להתמצאות בקוראי מסך.</li>
         <li>אפשרות ניווט והפעלה באמצעות מקלדת ורכיבי מיקוד ברורים.</li>
         <li>קישור "דלג לתוכן הראשי" בתחילת העמוד.</li>
-        <li>תוויות לשדות טופס והודעות דינמיות המונגשות לקוראי מסך.</li>
+        <li>תוויות לשדות טופס, סימון שדות חובה והודעות דינמיות המונגשות לקוראי מסך.</li>
+        <li>מצב בחירה נגיש לתאריכים ולשעות במערכת קביעת הפגישות.</li>
         <li>התאמת ניגודיות טקסטים ורכיבים אינטראקטיביים.</li>
+        <li>אזורי לחיצה מוגדלים לכפתורים ולבחירת מועדים.</li>
         <li>התחשבות בהגדרת Reduced Motion של מערכת ההפעלה להפחתת אנימציות.</li>
+        <li>תמיכה משופרת במצב ניגודיות גבוהה של מערכת ההפעלה.</li>
         <li>תצוגה רספונסיבית המתאימה למחשב, טאבלט וטלפון נייד.</li>
         <li>טקסט חלופי לתמונות משמעותיות והסתרת תמונות דקורטיביות מטכנולוגיות מסייעות.</li>
+        <li>עמודי אישור וביטול פגישה הכוללים הודעות סטטוס ושגיאה הניתנות לזיהוי על ידי קוראי מסך.</li>
       </ul>
 
+      <h2>שימוש במקלדת</h2>
+      <p>ניתן לעבור בין קישורים, כפתורים ושדות באמצעות מקש Tab, לחזור לאחור באמצעות Shift+Tab ולהפעיל קישורים וכפתורים באמצעות Enter או Space בהתאם לסוג הרכיב. כאשר רכיב מקבל מיקוד מוצגת סביבו מסגרת ברורה.</p>
+
       <h2>הסדרי נגישות פיזיים</h2>
-      <p>לקבלת מידע מעודכן על הסדרי הנגישות הפיזיים בקליניקה, לרבות חניה, דרך נגישה, כניסה, מעלית ושירותים, ניתן לפנות מראש בדוא"ל. נשמח לבדוק את ההתאמה הנדרשת לפני ההגעה ולמסור מידע מדויק בהתאם לצורך.</p>
+      <div class="pending">הקליניקה נמצאת ב־Worker Tower, הכישור 30, חולון. פרטי הנגישות הפיזית המדויקים של הדרך מהכניסה לבניין ועד הקליניקה עצמה נמצאים בבדיקה. עד להשלמת האימות, מומלץ ליצור קשר מראש לצורך קבלת מידע עדכני על חניה, כניסה, מעלית, שירותים נגישים והגעה לקליניקה.</div>
 
       <h2>בדיקות ושיפור מתמשך</h2>
-      <p>האתר נבדק גם בכלים אוטומטיים, אך בדיקות אוטומטיות אינן יכולות לזהות כל בעיית נגישות. אנו ממשיכים לשפר את האתר ככל שמתגלים פערים.</p>
-      <div class="note">אם נתקלתם ברכיב שאינו נגיש, בתוכן שאינו ברור או בקושי בביצוע פעולה באתר, נשמח לקבל דיווח כדי שנוכל לבדוק ולתקן.</div>
+      <p>האתר נבדק גם בכלים אוטומטיים, אך כלים כאלה אינם יכולים לזהות כל בעיית נגישות. אם מתגלה פער, אנו פועלים לבדוק ולתקן אותו ככל האפשר.</p>
+      <div class="note">אם נתקלתם ברכיב שאינו נגיש, בתוכן שאינו ברור או בקושי בביצוע פעולה באתר, נשמח לקבל דיווח. כדאי לציין באיזה עמוד נתקלתם בבעיה, מה ניסיתם לבצע, באיזה דפדפן או מכשיר השתמשתם ואם נעשה שימוש בטכנולוגיה מסייעת.</div>
 
       <h2>יצירת קשר בנושא נגישות</h2>
       <div class="contact">
