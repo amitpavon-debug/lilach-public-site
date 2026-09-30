@@ -1,6 +1,37 @@
 (() => {
   const byId = (id) => document.getElementById(id);
 
+  const syncBookingStaticContent = () => {
+    const booking = byId("booking");
+    if (!booking) return;
+
+    const bookingIntro = booking.querySelector(".booking-layout > div:first-child > p");
+    if (bookingIntro) {
+      bookingIntro.textContent = "בוחרים מועד, ממלאים פרטים וסיבת פנייה ומאשרים את מדיניות שינוי התור ולהמתין לאישור.";
+    }
+
+    booking.querySelectorAll(".privacy-box").forEach((box) => {
+      const title = box.querySelector("b")?.textContent?.trim() || "";
+      if (title === "לפני קביעת הפגישה") box.remove();
+    });
+
+    let ageNote = booking.querySelector(".booking-age-note");
+    if (!ageNote) {
+      ageNote = document.createElement("p");
+      ageNote.className = "booking-required-note booking-age-note";
+      const privacyBox = Array.from(booking.querySelectorAll(".privacy-box"))
+        .find((box) => (box.querySelector("b")?.textContent || "").includes("שמירה על פרטיות"));
+      if (privacyBox) {
+        privacyBox.insertAdjacentElement("afterend", ageNote);
+      } else {
+        booking.querySelector(".booking-layout > div:first-child")?.appendChild(ageNote);
+      }
+    }
+    ageNote.innerHTML = "<strong>לתשומת לב:</strong> קביעת הפגישה באתר מיועדת למי שמלאו להם 18 שנים.";
+  };
+
+  syncBookingStaticContent();
+
   const liveIds = [
     "bookingState",
     "bookingMessage",
@@ -63,7 +94,7 @@
       intro.innerHTML = 'בפנייה ראשונה יש למלא <strong>סיבת פנייה</strong> וגם <strong>מאיפה שמעת/הגעת ללילך</strong>. אם כבר נפגשת בעבר עם לילך, ניתן לסמן זאת — אין צורך למלא סיבת פנייה ומקור ההגעה יסומן אוטומטית כ״אחר״.';
     }
 
-    const requiredNote = document.querySelector(".booking-required-note");
+    const requiredNote = document.querySelector("#bookingDetailsStep .booking-required-note");
     if (requiredNote) {
       requiredNote.textContent = "* בפנייה ראשונה סיבת הפנייה ומקור ההגעה הם חובה. אם כבר נפגשת בעבר עם לילך, אין צורך למלא סיבת פנייה ומקור ההגעה יסומן אוטומטית כאחר.";
     }
