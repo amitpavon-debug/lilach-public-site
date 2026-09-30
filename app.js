@@ -112,6 +112,32 @@
   };
   renderDates();
 
+  function setupReturningClientOption(){
+    const reasonField=$("bookReason");
+    if(!reasonField || $("bookReturningClient")) return;
+    const reasonWrapper=reasonField.closest(".booking-field");
+    if(!reasonWrapper) return;
+
+    const returningLabel=document.createElement("label");
+    returningLabel.className="booking-consent";
+    returningLabel.innerHTML='<input id="bookReturningClient" type="checkbox"><span><strong>כבר נפגשתי בעבר עם לילך</strong><br><small>אין צורך לפרט שוב את סיבת הפנייה.</small></span>';
+    reasonWrapper.insertAdjacentElement("afterend", returningLabel);
+
+    const returningCheckbox=$("bookReturningClient");
+    const syncReturningState=()=>{
+      const isReturning=Boolean(returningCheckbox?.checked);
+      reasonField.disabled=isReturning;
+      reasonField.setAttribute("aria-disabled", isReturning ? "true" : "false");
+      reasonField.placeholder=isReturning
+        ? "אין צורך לציין סיבה מחדש"
+        : "בכמה מילים, מה מביא אותך לפנות עכשיו?";
+      if(isReturning) reasonField.value="";
+    };
+    returningCheckbox.addEventListener("change", syncReturningState);
+    syncReturningState();
+  }
+  setupReturningClientOption();
+
   if(cfg.VCITA_FALLBACK_URL && !cfg.BOOKING_HOLD_URL && !cfg.DEMO_BOOKING){
     const a=$("vcitaFallback");
     a.href=cfg.VCITA_FALLBACK_URL;
@@ -194,6 +220,7 @@
   function bookingPayload(){
     const firstName=$("bookFirstName").value.trim();
     const lastName=$("bookLastName").value.trim();
+    const returningClient=Boolean($("bookReturningClient")?.checked);
     return {
       date:selectedDate,
       time:selectedTime,
@@ -202,7 +229,8 @@
       name:`${firstName} ${lastName}`.trim(),
       phone:$("bookPhone").value.trim(),
       email:$("bookEmail").value.trim(),
-      reason:$("bookReason").value.trim(),
+      reason:returningClient ? "כבר נפגשתי בעבר עם לילך" : $("bookReason").value.trim(),
+      returningClient,
       referral:$("bookReferral").value.trim(),
       privacyConsent:Boolean($("bookPrivacyConsent")?.checked),
       whatsappConsent:Boolean($("bookWhatsappConsent")?.checked),
@@ -220,7 +248,7 @@
       return;
     }
     if(!payload.firstName||!payload.lastName||!payload.phone||!payload.email||!payload.reason||!payload.referral){
-      msg(bm,"נא למלא שם פרטי, שם משפחה, טלפון, אימייל, סיבת פנייה ומאיפה שמעת/הגעת ללילך.");
+      msg(bm,"נא למלא שם פרטי, שם משפחה, טלפון, אימייל, סיבת פנייה ומאיפה שמעת/הגעת ללילך. אם כבר נפגשת בעבר עם לילך, ניתן לסמן זאת במקום למלא סיבת פנייה.");
       return;
     }
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)){
@@ -327,6 +355,12 @@
     if($("bookPrivacyConsent")) $("bookPrivacyConsent").checked=false;
     if($("bookWhatsappConsent")) $("bookWhatsappConsent").checked=false;
     if($("bookPolicyAccepted")) $("bookPolicyAccepted").checked=false;
+    if($("bookReturningClient")) $("bookReturningClient").checked=false;
+    if($("bookReason")){
+      $("bookReason").disabled=false;
+      $("bookReason").setAttribute("aria-disabled","false");
+      $("bookReason").placeholder="בכמה מילים, מה מביא אותך לפנות עכשיו?";
+    }
     location.hash="#booking";
   };
 
