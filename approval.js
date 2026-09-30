@@ -121,6 +121,7 @@
       }
 
       approveButton.textContent = "התור אושר";
+      setBusy(false);
       pendingActions.classList.add("hidden");
       cancelButton.classList.remove("hidden");
       showResult("התור אושר בהצלחה, נוסף ליומן Google ונשלח ללקוח מייל אישור.", "success");
