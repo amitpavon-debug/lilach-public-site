@@ -82,12 +82,5 @@
   focusStepWhenShown("bookingApprovalStep");
   focusStepWhenShown("bookingSuccessStep");
 
-  const trainingList = document.querySelector(".training-card ul");
-  if (trainingList && ![...trainingList.querySelectorAll("li")].some((li) => li.textContent?.includes("NLP מאסטר"))) {
-    const item = document.createElement("li");
-    item.textContent = "לימודי NLP מאסטר - מכללת תוצאות.";
-    trainingList.appendChild(item);
-  }
-
   syncChoiceState();
 })();
