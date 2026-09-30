@@ -1,0 +1,2 @@
+alter table public.intake_bookings add column if not exists reminder_sent_at timestamptz;
+create index if not exists intake_bookings_reminder_due_idx on public.intake_bookings (status, reminder_sent_at, booking_date, booking_time);
