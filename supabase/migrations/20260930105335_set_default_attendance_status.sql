@@ -1,0 +1,1 @@
+alter table public.intake_bookings alter column attendance_status set default 'pending';
