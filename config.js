@@ -16,6 +16,15 @@ window.LILACH_SITE_CONFIG = {
   DEMO_BOOKING: false
 };
 
+// Keep the displayed years of experience current automatically.
+(() => {
+  const experienceText = document.querySelector(".experience-badge strong");
+  if (!experienceText) return;
+  const START_YEAR = 2013;
+  const years = Math.max(0, new Date().getFullYear() - START_YEAR);
+  experienceText.textContent = `${years} שנות ניסיון בתחום הטיפול.`;
+})();
+
 // Compatibility shim for the legacy booking script: the payment UI is intentionally
 // removed from the live page, but app.js still references these elements internally.
 // Hidden placeholders prevent those legacy references from interrupting date/slot loading.
