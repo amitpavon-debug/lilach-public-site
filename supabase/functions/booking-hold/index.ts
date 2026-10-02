@@ -48,7 +48,34 @@ async function createApprovalToken(bookingId: string, secret: string) {
 async function googleToken() {
   const clientId = Deno.env.get("GOOGLE_CLIENT_ID") || "";
   const clientSecret = Deno.env.get("GOOGLE_CLIENT_SECRET") || "";
-  const refreshToken = Deno.env.get("GOOGLE_REFRESH_TOKEN") || "";
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+
+  let refreshToken = "";
+  if (supabaseUrl && serviceRoleKey) {
+    try {
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/google_connections?id=eq.lilach&select=refresh_token`,
+        {
+          headers: {
+            apikey: serviceRoleKey,
+            Authorization: `Bearer ${serviceRoleKey}`,
+            Accept: "application/json",
+          },
+        },
+      );
+      if (response.ok) {
+        const rows = await response.json();
+        refreshToken = String(rows?.[0]?.refresh_token || "").trim();
+      } else {
+        console.error("GOOGLE CONNECTION READ ERROR:", response.status, await response.text());
+      }
+    } catch (error) {
+      console.error("GOOGLE CONNECTION READ ERROR:", error);
+    }
+  }
+
+  if (!refreshToken) refreshToken = Deno.env.get("GOOGLE_REFRESH_TOKEN") || "";
   if (!clientId || !clientSecret || !refreshToken) throw new Error("missing_google_credentials");
 
   const body = new URLSearchParams({
@@ -64,7 +91,7 @@ async function googleToken() {
     body,
   });
   if (!response.ok) {
-    console.error("Google token error:", await response.text());
+    console.error("Google token error:", response.status, await response.text());
     throw new Error("google_token_failed");
   }
   const json = await response.json();
