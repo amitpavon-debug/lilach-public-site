@@ -88,7 +88,8 @@
 /* Floating accessibility toolbar */
 .a11y-widget{
   position:fixed;
-  right:18px;
+  left:18px;
+  right:auto;
   bottom:18px;
   z-index:10050;
   direction:rtl;
@@ -110,20 +111,13 @@
 .a11y-title-wrap svg{
   width:34px;
   height:34px;
-  fill:none;
-  stroke:currentColor;
-  stroke-width:3.2;
-  stroke-linecap:round;
-  stroke-linejoin:round;
-}
-.a11y-trigger svg circle,
-.a11y-title-wrap svg circle{
   fill:currentColor;
   stroke:none;
 }
 .a11y-panel{
   position:absolute;
-  right:0;
+  left:0;
+  right:auto;
   bottom:78px;
   width:min(390px,calc(100vw - 28px));
   max-height:min(690px,calc(100vh - 120px));
@@ -316,9 +310,9 @@ html.a11y-high-contrast body input::placeholder,
 html.a11y-high-contrast body textarea::placeholder{color:#ddd!important}
 
 @media(max-width:620px){
-  .a11y-widget{right:12px;bottom:12px}
+  .a11y-widget{left:12px;right:auto;bottom:12px}
   .a11y-trigger{width:58px;height:58px}
-  .a11y-panel{right:0;bottom:70px;width:min(360px,calc(100vw - 24px));border-radius:20px}
+  .a11y-panel{left:0;right:auto;bottom:70px;width:min(360px,calc(100vw - 24px));border-radius:20px}
   .a11y-panel-head{border-radius:20px 20px 0 0}
   .a11y-panel-body{padding:18px}
   .a11y-options{gap:9px}
