@@ -62,11 +62,51 @@ function israelDateTimeToUtc(dateValue: string, timeValue: string) {
 async function googleToken() {
   const clientId = Deno.env.get("GOOGLE_CLIENT_ID") || "";
   const clientSecret = Deno.env.get("GOOGLE_CLIENT_SECRET") || "";
-  const refreshToken = Deno.env.get("GOOGLE_REFRESH_TOKEN") || "";
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+
+  let refreshToken = "";
+  if (supabaseUrl && serviceRoleKey) {
+    try {
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/google_connections?id=eq.lilach&select=refresh_token`,
+        {
+          headers: {
+            apikey: serviceRoleKey,
+            Authorization: `Bearer ${serviceRoleKey}`,
+            Accept: "application/json",
+          },
+        },
+      );
+      if (response.ok) {
+        const rows = await response.json();
+        refreshToken = String(rows?.[0]?.refresh_token || "").trim();
+      } else {
+        console.error("GOOGLE CONNECTION READ ERROR:", response.status, await response.text());
+      }
+    } catch (error) {
+      console.error("GOOGLE CONNECTION READ ERROR:", error);
+    }
+  }
+
+  if (!refreshToken) refreshToken = Deno.env.get("GOOGLE_REFRESH_TOKEN") || "";
   if (!clientId || !clientSecret || !refreshToken) throw new Error("missing_google_secrets");
-  const body = new URLSearchParams({ client_id: clientId, client_secret: clientSecret, refresh_token: refreshToken, grant_type: "refresh_token" });
-  const response = await fetch("https://oauth2.googleapis.com/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
-  if (!response.ok) { console.error("GOOGLE TOKEN ERROR:", await response.text()); throw new Error("google_token_failed"); }
+
+  const body = new URLSearchParams({
+    client_id: clientId,
+    client_secret: clientSecret,
+    refresh_token: refreshToken,
+    grant_type: "refresh_token",
+  });
+  const response = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+  });
+  if (!response.ok) {
+    console.error("GOOGLE TOKEN ERROR:", response.status, await response.text());
+    throw new Error("google_token_failed");
+  }
   const data = await response.json();
   if (!data.access_token) throw new Error("google_access_token_missing");
   return data.access_token;
