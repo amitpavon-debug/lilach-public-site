@@ -375,17 +375,15 @@
     widget.className = "a11y-widget";
     widget.innerHTML = `
       <button class="a11y-trigger" type="button" aria-label="פתיחת תפריט נגישות" aria-haspopup="dialog" aria-expanded="false">
-        <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-          <circle cx="24" cy="8.5" r="4.5"></circle>
-          <path d="M10 16.5h28M24 14v26M24 23l-10 17M24 23l10 17"></path>
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm8.5 0C17.9 6.7 14.83 7 12 7S6.1 6.7 3.5 6L3 8c1.86.5 4 .83 6 1v13h2v-6h2v6h2V9c2-.17 4.14-.5 6-1l-.5-2Z"></path>
         </svg>
       </button>
       <section class="a11y-panel" role="dialog" aria-labelledby="a11y-panel-title" hidden>
         <div class="a11y-panel-head">
           <div class="a11y-title-wrap">
-            <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-              <circle cx="24" cy="8.5" r="4.5"></circle>
-              <path d="M10 16.5h28M24 14v26M24 23l-10 17M24 23l10 17"></path>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 6a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm8.5 0C17.9 6.7 14.83 7 12 7S6.1 6.7 3.5 6L3 8c1.86.5 4 .83 6 1v13h2v-6h2v6h2V9c2-.17 4.14-.5 6-1l-.5-2Z"></path>
             </svg>
             <strong id="a11y-panel-title">נגישות</strong>
           </div>
