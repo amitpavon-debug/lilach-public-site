@@ -6,20 +6,64 @@ export const corsHeaders = {
 
 const TIME_ZONE = "Asia/Jerusalem";
 
+export async function getGoogleRefreshToken() {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+
+  if (supabaseUrl && serviceRoleKey) {
+    try {
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/google_connections?id=eq.lilach&select=refresh_token`,
+        {
+          headers: {
+            apikey: serviceRoleKey,
+            Authorization: `Bearer ${serviceRoleKey}`,
+            Accept: "application/json",
+          },
+        },
+      );
+      if (response.ok) {
+        const rows = await response.json();
+        const storedToken = String(rows?.[0]?.refresh_token || "").trim();
+        if (storedToken) return storedToken;
+      } else {
+        console.error("GOOGLE CONNECTION READ ERROR:", response.status, await response.text());
+      }
+    } catch (error) {
+      console.error("GOOGLE CONNECTION READ ERROR:", error);
+    }
+  }
+
+  const fallbackToken = Deno.env.get("GOOGLE_REFRESH_TOKEN") || "";
+  if (!fallbackToken) throw new Error("google_refresh_token_missing");
+  return fallbackToken;
+}
+
 export async function googleToken() {
+  const clientId = Deno.env.get("GOOGLE_CLIENT_ID") || "";
+  const clientSecret = Deno.env.get("GOOGLE_CLIENT_SECRET") || "";
+  const refreshToken = await getGoogleRefreshToken();
+  if (!clientId || !clientSecret || !refreshToken) throw new Error("missing_google_credentials");
+
   const body = new URLSearchParams({
-    client_id: Deno.env.get("GOOGLE_CLIENT_ID") || "",
-    client_secret: Deno.env.get("GOOGLE_CLIENT_SECRET") || "",
-    refresh_token: Deno.env.get("GOOGLE_REFRESH_TOKEN") || "",
-    grant_type: "refresh_token"
+    client_id: clientId,
+    client_secret: clientSecret,
+    refresh_token: refreshToken,
+    grant_type: "refresh_token",
   });
+
   const r = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body
+    body,
   });
-  if (!r.ok) throw new Error("google token failed");
-  return (await r.json()).access_token;
+  if (!r.ok) {
+    console.error("GOOGLE TOKEN ERROR:", r.status, await r.text());
+    throw new Error("google_token_failed");
+  }
+  const json = await r.json();
+  if (!json.access_token) throw new Error("google_access_token_missing");
+  return json.access_token;
 }
 
 function timeZoneOffsetMinutes(instant: Date) {
