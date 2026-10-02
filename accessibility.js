@@ -350,4 +350,212 @@
   focusStepWhenShown("bookingSuccessStep");
 
   syncChoiceState();
+  const setupAccessibilityWidget = () => {
+    const STORAGE_KEY = "lilach-accessibility-preferences-v1";
+    const defaults = {
+      textScale: 100,
+      highContrast: false,
+      highlightLinks: false,
+      readableFont: false,
+      pauseAnimations: false,
+    };
+
+    const readPreferences = () => {
+      try {
+        return { ...defaults, ...JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}") };
+      } catch (_) {
+        return { ...defaults };
+      }
+    };
+
+    let preferences = readPreferences();
+    const textTargets = "h1,h2,h3,h4,p,li,a,button,label,input,textarea,select,span,small,strong,b,em";
+
+    const widget = document.createElement("div");
+    widget.className = "a11y-widget";
+    widget.innerHTML = `
+      <button class="a11y-trigger" type="button" aria-label="פתיחת תפריט נגישות" aria-haspopup="dialog" aria-expanded="false">
+        <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+          <circle cx="24" cy="8.5" r="4.5"></circle>
+          <path d="M10 16.5h28M24 14v26M24 23l-10 17M24 23l10 17"></path>
+        </svg>
+      </button>
+      <section class="a11y-panel" role="dialog" aria-labelledby="a11y-panel-title" hidden>
+        <div class="a11y-panel-head">
+          <div class="a11y-title-wrap">
+            <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+              <circle cx="24" cy="8.5" r="4.5"></circle>
+              <path d="M10 16.5h28M24 14v26M24 23l-10 17M24 23l10 17"></path>
+            </svg>
+            <strong id="a11y-panel-title">נגישות</strong>
+          </div>
+          <button class="a11y-close" type="button" aria-label="סגירת תפריט נגישות">×</button>
+        </div>
+
+        <div class="a11y-panel-body">
+          <div class="a11y-text-control">
+            <span class="a11y-label">גודל טקסט</span>
+            <div class="a11y-text-row">
+              <button type="button" data-a11y-action="decrease-text" aria-label="הקטנת טקסט">−</button>
+              <strong class="a11y-scale-value" aria-live="polite">100%</strong>
+              <button type="button" data-a11y-action="increase-text" aria-label="הגדלת טקסט">+</button>
+            </div>
+          </div>
+
+          <span class="a11y-label">התאמות תצוגה</span>
+          <div class="a11y-options">
+            <button type="button" data-a11y-toggle="highContrast" aria-pressed="false">
+              <span class="a11y-option-icon" aria-hidden="true">◐</span>
+              <span>ניגודיות גבוהה</span>
+            </button>
+            <button type="button" data-a11y-toggle="highlightLinks" aria-pressed="false">
+              <span class="a11y-option-icon" aria-hidden="true">🔗</span>
+              <span>הדגשת קישורים</span>
+            </button>
+            <button type="button" data-a11y-toggle="pauseAnimations" aria-pressed="false">
+              <span class="a11y-option-icon" aria-hidden="true">Ⅱ</span>
+              <span>עצירת אנימציות</span>
+            </button>
+            <button type="button" data-a11y-toggle="readableFont" aria-pressed="false">
+              <span class="a11y-option-icon a11y-letter-icon" aria-hidden="true">A</span>
+              <span>גופן קריא</span>
+            </button>
+          </div>
+
+          <button class="a11y-reset" type="button" data-a11y-action="reset">
+            <span aria-hidden="true">↻</span>
+            <span>איפוס הכל</span>
+          </button>
+
+          <a class="a11y-statement-link" href="/accessibility">להצהרת הנגישות המלאה</a>
+        </div>
+      </section>
+    `;
+    document.body.appendChild(widget);
+
+    const trigger = widget.querySelector(".a11y-trigger");
+    const panel = widget.querySelector(".a11y-panel");
+    const closeButton = widget.querySelector(".a11y-close");
+    const scaleValue = widget.querySelector(".a11y-scale-value");
+
+    const savePreferences = () => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
+      } catch (_) {}
+    };
+
+    const restoreTextSizes = () => {
+      document.querySelectorAll("[data-a11y-base-font-size]").forEach((element) => {
+        const original = element.getAttribute("data-a11y-original-inline-font-size") || "";
+        if (original) element.style.fontSize = original;
+        else element.style.removeProperty("font-size");
+        element.removeAttribute("data-a11y-base-font-size");
+        element.removeAttribute("data-a11y-original-inline-font-size");
+      });
+    };
+
+    const applyTextScale = () => {
+      const scale = Math.max(80, Math.min(140, Number(preferences.textScale) || 100));
+      preferences.textScale = scale;
+      if (scale === 100) {
+        restoreTextSizes();
+      } else {
+        document.querySelectorAll(textTargets).forEach((element) => {
+          if (element.closest(".a11y-widget")) return;
+          if (!element.hasAttribute("data-a11y-base-font-size")) {
+            element.setAttribute("data-a11y-base-font-size", String(parseFloat(getComputedStyle(element).fontSize) || 16));
+            element.setAttribute("data-a11y-original-inline-font-size", element.style.fontSize || "");
+          }
+          const base = Number(element.getAttribute("data-a11y-base-font-size")) || 16;
+          element.style.fontSize = String(Math.round(base * scale) / 100) + "px";
+        });
+      }
+      scaleValue.textContent = String(scale) + "%";
+    };
+
+    const applyPreferences = () => {
+      const root = document.documentElement;
+      root.classList.toggle("a11y-high-contrast", Boolean(preferences.highContrast));
+      root.classList.toggle("a11y-highlight-links", Boolean(preferences.highlightLinks));
+      root.classList.toggle("a11y-readable-font", Boolean(preferences.readableFont));
+      root.classList.toggle("a11y-pause-animations", Boolean(preferences.pauseAnimations));
+
+      widget.querySelectorAll("[data-a11y-toggle]").forEach((button) => {
+        const key = button.getAttribute("data-a11y-toggle");
+        const active = Boolean(preferences[key]);
+        button.setAttribute("aria-pressed", String(active));
+        button.classList.toggle("is-active", active);
+      });
+
+      applyTextScale();
+      savePreferences();
+    };
+
+    const openPanel = () => {
+      panel.hidden = false;
+      trigger.setAttribute("aria-expanded", "true");
+      requestAnimationFrame(() => closeButton.focus());
+    };
+
+    const closePanel = () => {
+      panel.hidden = true;
+      trigger.setAttribute("aria-expanded", "false");
+      trigger.focus();
+    };
+
+    trigger.addEventListener("click", () => {
+      if (panel.hidden) openPanel();
+      else closePanel();
+    });
+    closeButton.addEventListener("click", closePanel);
+
+    widget.addEventListener("click", (event) => {
+      const toggle = event.target.closest("[data-a11y-toggle]");
+      if (toggle) {
+        const key = toggle.getAttribute("data-a11y-toggle");
+        preferences[key] = !preferences[key];
+        applyPreferences();
+        return;
+      }
+
+      const actionButton = event.target.closest("[data-a11y-action]");
+      const action = actionButton ? actionButton.getAttribute("data-a11y-action") : "";
+      if (!action) return;
+
+      if (action === "increase-text") {
+        preferences.textScale = Math.min(140, preferences.textScale + 10);
+        applyPreferences();
+      } else if (action === "decrease-text") {
+        preferences.textScale = Math.max(80, preferences.textScale - 10);
+        applyPreferences();
+      } else if (action === "reset") {
+        restoreTextSizes();
+        preferences = { ...defaults };
+        applyPreferences();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !panel.hidden) closePanel();
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!panel.hidden && !widget.contains(event.target)) {
+        panel.hidden = true;
+        trigger.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    const dynamicContentObserver = new MutationObserver((mutations) => {
+      if (preferences.textScale === 100) return;
+      if (!mutations.some((mutation) => mutation.addedNodes.length)) return;
+      requestAnimationFrame(applyTextScale);
+    });
+    dynamicContentObserver.observe(document.body, { childList: true, subtree: true });
+
+    applyPreferences();
+  };
+
+  setupAccessibilityWidget();
+
 })();
