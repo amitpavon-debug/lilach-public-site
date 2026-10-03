@@ -165,6 +165,8 @@ window.LILACH_SITE_CONFIG = {
     const referral = document.getElementById("bookReferral")?.value.trim() || "";
     const privacyConsent = Boolean(document.getElementById("bookPrivacyConsent")?.checked);
     const policyAccepted = Boolean(document.getElementById("bookPolicyAccepted")?.checked);
+    const meetingMode = document.querySelector('input[name="meetingMode"]:checked')?.value || "clinic";
+    const meetingModeLabel = meetingMode === "zoom" ? "אונליין (Zoom)" : "בקליניקה";
 
     if (!date || !time) {
       showMessage("בחרו יום ושעה.");
@@ -206,7 +208,8 @@ window.LILACH_SITE_CONFIG = {
           referral,
           privacyConsent: true,
           whatsappConsent: false,
-          policyAccepted: true
+          policyAccepted: true,
+          meetingMode
         })
       });
 
@@ -226,7 +229,7 @@ window.LILACH_SITE_CONFIG = {
 
       const confirmation = document.getElementById("bookingApprovalConfirmation");
       if (confirmation) {
-        confirmation.innerHTML = `<b>${firstName} ${lastName} — בקשת הפגישה נשלחה.</b><span>${formatDateHe(date)} בשעה ${time}.<br>לילך קיבלה מייל עם בקשת האישור. לאחר אישורה יישלח אליך מייל אישור.</span>`;
+        confirmation.innerHTML = `<b>${firstName} ${lastName} — בקשת הפגישה נשלחה.</b><span>${formatDateHe(date)} בשעה ${time} · ${meetingModeLabel}.<br>לילך קיבלה מייל עם בקשת האישור. לאחר אישורה יישלח אליך מייל אישור.</span>`;
       }
 
       showMessage("בקשת הפגישה נשלחה ללילך לאישור.", true);
