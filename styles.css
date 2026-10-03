@@ -109,3 +109,111 @@
   .price-card{padding:22px}
   .price-card-desc{min-height:0}
 }
+
+
+/* Treatment process */
+.process-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:18px;
+}
+.process-card{
+  background:rgba(255,255,255,.9);
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:26px;
+  box-shadow:0 14px 40px rgba(73,82,66,.06);
+}
+.process-number{
+  width:46px;
+  height:46px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:var(--sage-dark);
+  color:#fff;
+  font-family:Rubik,sans-serif;
+  font-size:20px;
+  font-weight:800;
+  margin-bottom:16px;
+}
+.process-card h3{
+  margin:0 0 9px;
+  color:var(--sage-dark);
+  font-family:Rubik,sans-serif;
+  font-size:22px;
+}
+.process-card p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.75;
+}
+
+/* Meeting type selector */
+.meeting-mode-fieldset{
+  margin:0 0 22px;
+  padding:0;
+  border:0;
+}
+.meeting-mode-fieldset legend{
+  width:100%;
+  margin-bottom:10px;
+  color:var(--sage-dark);
+  font-weight:800;
+  font-size:16px;
+}
+.meeting-mode-options{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.meeting-mode-option{
+  position:relative;
+  cursor:pointer;
+}
+.meeting-mode-option input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+.meeting-mode-card{
+  min-height:78px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:4px;
+  padding:14px 15px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#fbfcfa;
+  color:var(--sage-dark);
+  transition:.18s ease;
+}
+.meeting-mode-card b{font-size:15px}
+.meeting-mode-card small{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.45;
+}
+.meeting-mode-option input:checked + .meeting-mode-card{
+  background:var(--sage-soft);
+  border-color:#7b876f;
+  box-shadow:inset 0 0 0 1px #7b876f;
+}
+.meeting-mode-option input:focus-visible + .meeting-mode-card{
+  outline:3px solid #1d6655;
+  outline-offset:3px;
+}
+.price-mode-note{
+  margin:10px 0 0!important;
+  color:var(--sage)!important;
+  font-size:13px!important;
+  font-weight:700;
+}
+
+@media(max-width:760px){
+  .process-grid{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+  .meeting-mode-options{grid-template-columns:1fr}
+}
