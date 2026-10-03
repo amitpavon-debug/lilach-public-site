@@ -103,4 +103,4 @@ globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   return originalFetch(input, init);
 };
 
-await import("https://raw.githubusercontent.com/amitpavon-debug/lilach-public-site/60a4a3631b9a9d478c967c83b33ef3e3bc66504e/supabase/functions/approve-booking/base.ts");
+await import("https://raw.githubusercontent.com/amitpavon-debug/lilach-public-site/28a1555832ebef36a00faa801cc948629956798d/supabase/functions/approve-booking/base.ts");
