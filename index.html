@@ -57,7 +57,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Rubik:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Rubik:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
-  <link rel="stylesheet" href="./styles.css?v=20261003-1140" />
+  <link rel="stylesheet" href="./styles.css?v=20261003-1205" />
   <link rel="stylesheet" href="./accessibility.css?v=20261003-0013" />
 </head>
 <body>
@@ -69,7 +69,7 @@
       <span><b>לילך פבון</b><small>CBT · NLP · טיפול רגשי</small></span>
     </a>
     <nav class="desktop-nav" aria-label="ניווט ראשי">
-      <a href="#about">אודות</a><a href="#help">תחומי הטיפול</a><a href="#pricing">מחירים</a><a href="#booking">קביעת אינטייק</a>
+      <a href="#about">אודות</a><a href="#help">תחומי הטיפול</a><a href="#process">איך נראה התהליך</a><a href="#pricing">מחירים</a><a href="#booking">קביעת אינטייק</a>
     </nav>
     <a class="header-cta" href="#booking">לקביעת פגישת אינטייק</a>
   </header>
@@ -143,6 +143,34 @@
     </section>
 
 
+
+    <section id="process" class="soft-section" aria-labelledby="process-title">
+      <div class="section-shell">
+        <div class="section-head">
+          <span class="eyebrow">איך נראה התהליך</span>
+          <h2 id="process-title">שלושה שלבים פשוטים וברורים</h2>
+          <p>המטרה היא להבין מה נכון עבורך, לבנות כיוון מותאם ולעבוד בצורה מעשית בקצב שמתאים לך.</p>
+        </div>
+        <div class="process-grid">
+          <article class="process-card">
+            <span class="process-number" aria-hidden="true">1</span>
+            <h3>פגישת אינטייק והיכרות</h3>
+            <p>מכירים, מבינים מה מביא אותך לטיפול ומה היית רוצה לשנות או להשיג.</p>
+          </article>
+          <article class="process-card">
+            <span class="process-number" aria-hidden="true">2</span>
+            <h3>בניית כיוון טיפולי מותאם</h3>
+            <p>מגדירים מטרות ובוחרים את הכלים המתאימים מתוך CBT, NLP ומיינדפולנס.</p>
+          </article>
+          <article class="process-card">
+            <span class="process-number" aria-hidden="true">3</span>
+            <h3>עבודה מעשית והתקדמות</h3>
+            <p>ממשיכים במפגשים בקצב שמתאים לך, בקליניקה בחולון או אונליין ב-Zoom, עם התאמות לאורך הדרך.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
     <section id="pricing" class="pricing-section" aria-labelledby="pricing-title">
       <div class="section-shell">
         <div class="section-head">
@@ -155,7 +183,7 @@
           <article class="price-card">
             <div class="price-card-icon" aria-hidden="true">♡</div>
             <h3>פגישת אינטייק ראשונית</h3>
-            <p class="price-card-desc">פגישה ראשונית למטופל/ת חדש/ה לצורך היכרות, הבנת הצורך והתאמת המשך התהליך.</p>
+            <p class="price-card-desc">פגישה ראשונית למטופל/ת חדש/ה לצורך היכרות, הבנת הצורך והתאמת המשך התהליך.</p><p class="price-mode-note">בקליניקה בחולון או אונליין ב-Zoom</p>
             <div class="price-card-meta">
               <span><strong>60</strong> דקות</span>
               <span class="price-divider" aria-hidden="true"></span>
@@ -167,7 +195,7 @@
           <article class="price-card">
             <div class="price-card-icon" aria-hidden="true">🌿</div>
             <h3>טיפול רגשי</h3>
-            <p class="price-card-desc">פגישה טיפולית אישית בהתאם לצורך ולמטרות שנקבעו בתהליך.</p>
+            <p class="price-card-desc">פגישה טיפולית אישית בהתאם לצורך ולמטרות שנקבעו בתהליך.</p><p class="price-mode-note">בקליניקה בחולון או אונליין ב-Zoom</p>
             <div class="price-card-meta">
               <span><strong>50</strong> דקות</span>
               <span class="price-divider" aria-hidden="true"></span>
@@ -189,6 +217,25 @@
           <div id="bookingState" class="booking-state"></div>
         </div>
         <div class="booking-card">
+          <fieldset class="meeting-mode-fieldset">
+            <legend>איך תרצו לקיים את הפגישה?</legend>
+            <div class="meeting-mode-options">
+              <label class="meeting-mode-option">
+                <input type="radio" name="meetingMode" value="clinic" checked>
+                <span class="meeting-mode-card">
+                  <b>בקליניקה</b>
+                  <small>הכישור 30, חולון</small>
+                </span>
+              </label>
+              <label class="meeting-mode-option">
+                <input type="radio" name="meetingMode" value="zoom">
+                <span class="meeting-mode-card">
+                  <b>אונליין (Zoom)</b>
+                  <small>קישור יישלח לאחר אישור הפגישה</small>
+                </span>
+              </label>
+            </div>
+          </fieldset>
           <div class="booking-top"><button id="prevDays" aria-label="ימים קודמים">‹</button><strong id="bookingRange">מועדים קרובים</strong><button id="nextDays" aria-label="ימים הבאים">›</button></div>
           <div id="dateStrip" class="date-strip"></div>
           <div id="slots" class="slots"><p class="muted">בחרו יום להצגת השעות הפנויות.</p></div>
@@ -251,7 +298,7 @@
   <footer><div class="footer-inner"><div><b>לילך פבון</b><span>CBT · NLP · טיפול רגשי</span><span class="footer-address">📍 הכישור 30, חולון · <a href="https://www.google.com/maps/search/?api=1&query=%D7%94%D7%9B%D7%99%D7%A9%D7%95%D7%A8+30%2C+%D7%97%D7%95%D7%9C%D7%95%D7%9F" target="_blank" rel="noopener" aria-label="פתיחת הכתובת הכישור 30 חולון ב-Google Maps">Google Maps</a> | <a href="https://www.waze.com/ul?q=%D7%94%D7%9B%D7%99%D7%A9%D7%95%D7%A8%2030%2C%20%D7%97%D7%95%D7%9C%D7%95%D7%9F&navigate=yes" target="_blank" rel="noopener" aria-label="פתיחת הכתובת הכישור 30 חולון ב-Waze">Waze</a></span></div><div class="footer-links"><a href="#booking">קביעת פגישת אינטייק</a><a href="/privacy">מדיניות פרטיות</a><a href="/terms">תנאי שימוש</a><a href="/cancellations">מדיניות ביטולים</a><a href="/accessibility">הצהרת נגישות</a></div><small>© <span id="year"></span> לילך פבון. כל הזכויות שמורות.</small></div></footer>
 
   <script src="./config.js?v=20260930-1415"></script>
-  <script src="./app.js?v=20260930-1415"></script>
+  <script src="./app.js?v=20261003-1205"></script>
   <script src="./accessibility.js?v=20261003-0013"></script>
 </body>
 </html>
