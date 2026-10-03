@@ -30,3 +30,82 @@
 
 /* V7: booking-only lead capture, policy consent, and Lilach approval flow */
 .booking-consent{display:flex;align-items:flex-start;gap:10px;margin:10px 0;padding:12px 13px;border:1px solid var(--line);border-radius:14px;background:#fbfcfa;color:var(--muted);font-size:13px;line-height:1.55;cursor:pointer}.booking-consent input{width:auto!important;margin:3px 0 0!important;flex:0 0 auto}.booking-consent strong{color:var(--sage-dark)}.booking-policy{background:#fff8f5;border-color:rgba(201,144,144,.35)}.booking-approval-step{text-align:center;padding:8px 2px 2px}.booking-wait-mark{width:62px;height:62px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;background:#fff3df;color:#8d641f;font-size:28px;border:1px solid rgba(141,100,31,.18)}.booking-approval-step h3{font-size:24px;margin:0 0 14px;color:var(--sage-dark)}.booking-approval-step>p{color:var(--muted);font-size:13px;line-height:1.6;margin:12px 0 18px}.footer-address{margin-top:5px;color:#f2eadf!important;font-size:13px!important;font-weight:700}.booking-layout .privacy-box{margin-top:20px}.hero-actions .btn.primary{min-width:210px}
+
+
+/* Pricing section */
+.pricing-section{
+  background:linear-gradient(180deg,#fff 0,#fbfaf7 100%);
+  border-top:1px solid rgba(123,135,111,.12);
+}
+.pricing-grid{
+  width:min(900px,100%);
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:22px;
+}
+.price-card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:26px;
+  padding:28px;
+  box-shadow:0 16px 44px rgba(73,82,66,.07);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+}
+.price-card-icon{
+  width:54px;
+  height:54px;
+  display:grid;
+  place-items:center;
+  border-radius:18px;
+  background:linear-gradient(135deg,var(--sage-soft),var(--rose-soft));
+  font-size:25px;
+  margin-bottom:14px;
+}
+.price-card h3{
+  margin:0 0 10px;
+  color:var(--sage-dark);
+  font-family:Rubik,sans-serif;
+  font-size:24px;
+}
+.price-card-desc{
+  margin:0;
+  color:var(--muted);
+  line-height:1.7;
+  min-height:58px;
+  max-width:330px;
+}
+.price-card-meta{
+  width:100%;
+  margin:22px 0 20px;
+  padding:17px 18px;
+  border-radius:17px;
+  background:#f7f9f5;
+  border:1px solid rgba(123,135,111,.16);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+  color:var(--sage-dark);
+  font-size:16px;
+}
+.price-card-meta strong{font-size:22px}
+.price-amount strong{font-size:28px}
+.price-divider{
+  width:1px;
+  height:34px;
+  background:rgba(123,135,111,.25);
+}
+.price-cta{
+  width:100%;
+  max-width:300px;
+  margin-top:auto;
+}
+@media(max-width:700px){
+  .pricing-grid{grid-template-columns:1fr;gap:14px}
+  .price-card{padding:22px}
+  .price-card-desc{min-height:0}
+}
