@@ -92,6 +92,7 @@
       document.getElementById("name").textContent = data.name || "";
       document.getElementById("date").textContent = data.date || "";
       document.getElementById("time").textContent = data.time || "";
+      document.getElementById("meetingMode").textContent = data.meetingMode === "zoom" ? "אונליין (Zoom)" : "בקליניקה";
       document.getElementById("phone").textContent = data.phone || "";
 
       loading.classList.add("hidden");
