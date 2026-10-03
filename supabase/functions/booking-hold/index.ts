@@ -172,7 +172,7 @@ async function sendApprovalEmail(booking: any, approvalUrl: string) {
       ${isZoom ? `
       <div style="background:#eef3ec;border-radius:14px;padding:16px;margin:18px 0">
         <p style="margin:0 0 12px"><b>פגישת Zoom:</b> הקישור למטופל/ת יישלח סמוך למועד הפגישה.</p>
-        <a href="https://zoom.us/join" target="_blank" rel="noopener" style="display:inline-block;background:#2f6f63;color:#fff;text-decoration:none;font-weight:700;padding:11px 18px;border-radius:10px">פתיחת Zoom</a>
+        <a href="https://www.lilachpavon.co.il/open-zoom" target="_blank" rel="noopener" style="display:inline-block;background:#2f6f63;color:#fff;text-decoration:none;font-weight:700;padding:11px 18px;border-radius:10px">פתיחת אפליקציית Zoom</a>
       </div>` : ""}
       <div style="background:#f7f5f2;border-radius:14px;padding:16px;margin:18px 0">
         <b>סיבת הפנייה</b><br>${escapeHtml(booking.reason || "")}
