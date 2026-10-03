@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>פתיחת Zoom | לילך פבון</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f5f3ef;color:#2f2f2f;font-family:Arial,sans-serif;line-height:1.6;padding:20px}
+    .card{width:min(520px,100%);background:#fff;border-radius:24px;padding:30px;box-shadow:0 12px 38px rgba(0,0,0,.09);text-align:center}
+    h1{margin:0 0 10px;font-size:28px;color:#43523f}
+    .sub{margin:0 0 22px;color:#657066}
+    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:13px 22px;border-radius:14px;background:#4f5d48;color:#fff;text-decoration:none;font-weight:800;font-size:17px}
+    .fallback{display:block;margin-top:18px;color:#4f5d48;text-decoration:underline;font-weight:700}
+    .note{margin:18px 0 0;color:#6c746d;font-size:13px}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>פותחים את Zoom</h1>
+    <p class="sub">המערכת מנסה לפתוח את אפליקציית Zoom המותקנת במכשיר.</p>
+    <a id="openZoom" class="btn" href="#">פתיחת אפליקציית Zoom</a>
+    <a class="fallback" href="https://zoom.us/join" target="_blank" rel="noopener">אם Zoom לא נפתח — מעבר ל-Zoom בדפדפן</a>
+    <p class="note">ייתכן שהדפדפן יבקש אישור לפתיחת האפליקציה בפעם הראשונה.</p>
+  </main>
+  <script>
+    (() => {
+      const button = document.getElementById("openZoom");
+      const ua = navigator.userAgent || "";
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(ua);
+      const scheme = isMobile ? "zoomus://" : "zoommtg://zoom.us/start";
+      button.href = scheme;
+      setTimeout(() => {
+        try { window.location.href = scheme; } catch (_) {}
+      }, 120);
+    })();
+  </script>
+</body>
+</html>
