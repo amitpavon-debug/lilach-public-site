@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, serviceRoleKey);
     const { data: booking, error } = await supabase
       .from("intake_bookings")
-      .select("id,booking_date,booking_time,first_name,last_name,phone,status,payment_status,approval_token_hash")
+      .select("id,booking_date,booking_time,first_name,last_name,phone,status,payment_status,approval_token_hash,meeting_mode")
       .eq("id", bookingId)
       .maybeSingle();
 
@@ -54,6 +54,7 @@ Deno.serve(async (req) => {
       bookingId: booking.id,
       name: [booking.first_name, booking.last_name].filter(Boolean).join(" "),
       phone: booking.phone || "",
+      meetingMode: booking.meeting_mode || "clinic",
       date: booking.booking_date,
       time: String(booking.booking_time || "").slice(0, 5),
       status: booking.status,
