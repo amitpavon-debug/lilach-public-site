@@ -42,9 +42,10 @@ globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
           const cancelUrl = decodeHtmlUrl(cancelMatch[1]);
 
           const googleParsed = new URL(calendarUrl);
+          const existingDetails = googleParsed.searchParams.get("details") || "פגישה שאושרה דרך אתר לילך פבון";
           googleParsed.searchParams.set(
             "details",
-            `פגישה שאושרה דרך אתר לילך פבון\n\nביטול הפגישה:\n${cancelUrl}\n\nביטול או שינוי בפחות מ־24 שעות מהמועד כרוך בתשלום של 150 ₪ בהתאם למדיניות הביטולים.`,
+            `${existingDetails}\n\nביטול הפגישה:\n${cancelUrl}\n\nביטול או שינוי בפחות מ־24 שעות מהמועד כרוך בתשלום של 150 ₪ בהתאם למדיניות הביטולים.`,
           );
           const googleCalendarUrl = googleParsed.toString();
 
