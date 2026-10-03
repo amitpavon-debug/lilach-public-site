@@ -80,7 +80,7 @@ function buildGoogleCalendarUrl(dateValue: string, timeValue: string, meetingMod
   const isZoom = meetingMode === "zoom";
   const zoomUrl = Deno.env.get("ZOOM_MEETING_URL") || "";
   const details = isZoom
-    ? (zoomUrl ? `פגישה אונליין ב-Zoom: ${zoomUrl}` : "פגישה אונליין ב-Zoom. קישור יישלח בנפרד.")
+    ? "פגישה אונליין ב-Zoom. קישור ל-Zoom יישלח סמוך למועד הפגישה."
     : "פגישה שאושרה דרך אתר לילך פבון";
   const params = new URLSearchParams({
     action: "TEMPLATE",
@@ -130,7 +130,7 @@ async function sendClientConfirmationEmail(booking: {
         <p style="margin:0 0 8px"><b>שעה:</b> ${escapeHtml(time)}</p>
         <p style="margin:0 0 8px"><b>אופן הפגישה:</b> ${escapeHtml(meetingModeLabel)}</p>
         ${isZoom
-          ? `<p style="margin:0"><b>Zoom:</b> ${zoomUrl ? `<a href="${escapeHtml(zoomUrl)}" target="_blank" rel="noopener">כניסה לפגישה</a>` : "הקישור יישלח אליך בנפרד"}</p>`
+          ? `<p style="margin:0"><b>Zoom:</b> קישור ל-Zoom יישלח סמוך למועד הפגישה</p>`
           : `<p style="margin:0"><b>כתובת:</b> הכישור 30, חולון</p>`}
       </div>
 
