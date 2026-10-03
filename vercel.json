@@ -19,6 +19,10 @@
       "destination": "/approval.html"
     },
     {
+      "source": "/open-zoom",
+      "destination": "/open-zoom.html"
+    },
+    {
       "source": "/cancel",
       "destination": "/cancel.html"
     },
