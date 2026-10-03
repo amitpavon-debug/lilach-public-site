@@ -10,7 +10,7 @@ serve(async (req) => {
 
   const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
   const { data, error } = await supabase.from("intake_bookings")
-    .select("id,first_name,last_name,email,booking_date,booking_time,status,payment_status")
+    .select("id,first_name,last_name,email,booking_date,booking_time,status,payment_status,meeting_mode")
     .eq("id", bookingId).maybeSingle();
   if (error || !data) return Response.json({ error: "not_found" }, { status: 404, headers: corsHeaders });
 
@@ -20,6 +20,7 @@ serve(async (req) => {
     name: `${data.first_name} ${data.last_name}`,
     email: data.email || "",
     date: data.booking_date,
-    time: String(data.booking_time).slice(0, 5)
+    time: String(data.booking_time).slice(0, 5),
+    meetingMode: data.meeting_mode || "clinic"
   }, { headers: { ...corsHeaders, "Content-Type": "application/json" } });
 });
