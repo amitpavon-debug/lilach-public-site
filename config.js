@@ -229,7 +229,7 @@ window.LILACH_SITE_CONFIG = {
 
       const confirmation = document.getElementById("bookingApprovalConfirmation");
       if (confirmation) {
-        confirmation.innerHTML = `<b>${firstName} ${lastName} — בקשת הפגישה נשלחה.</b><span>${formatDateHe(date)} בשעה ${time} · ${meetingModeLabel}.<br>לילך קיבלה מייל עם בקשת האישור. לאחר אישורה יישלח אליך מייל אישור.</span>`;
+        confirmation.innerHTML = `<b>${firstName} ${lastName} — בקשת הפגישה נשלחה.</b><span>${formatDateHe(date)} בשעה ${time} · ${meetingModeLabel}.<br>${meetingMode === "zoom" ? "קישור ל-Zoom יישלח סמוך למועד הפגישה.<br>" : ""}לילך קיבלה מייל עם בקשת האישור. לאחר אישורה יישלח אליך מייל אישור.</span>`;
       }
 
       showMessage("בקשת הפגישה נשלחה ללילך לאישור.", true);
