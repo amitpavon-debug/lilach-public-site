@@ -95,6 +95,8 @@ async function sendReminder(booking: any, type: "48h" | "24h") {
   const firstName = String(booking.first_name || "").trim();
   const dateHe = formatDateHe(booking.booking_date);
   const time = String(booking.booking_time || "").slice(0, 5);
+  const isZoom = booking.meeting_mode === "zoom";
+  const zoomUrl = Deno.env.get("ZOOM_MEETING_URL") || "";
   const isFollowUp = type === "24h";
 
   const subject = isFollowUp
@@ -114,7 +116,10 @@ async function sendReminder(booking: any, type: "48h" | "24h") {
       <div style="background:#f7f5f2;border-radius:14px;padding:16px;margin:18px 0">
         <p style="margin:0 0 8px"><b>תאריך:</b> ${escapeHtml(dateHe)}</p>
         <p style="margin:0 0 8px"><b>שעה:</b> ${escapeHtml(time)}</p>
-        <p style="margin:0"><b>כתובת:</b> הכישור 30, חולון</p>
+        <p style="margin:0 0 8px"><b>אופן הפגישה:</b> ${isZoom ? "אונליין (Zoom)" : "בקליניקה"}</p>
+        ${isZoom
+          ? `<p style="margin:0"><b>Zoom:</b> ${zoomUrl ? `<a href="${escapeHtml(zoomUrl)}" target="_blank" rel="noopener">כניסה לפגישה</a>` : "קישור יישלח אליך בנפרד"}</p>`
+          : `<p style="margin:0"><b>כתובת:</b> הכישור 30, חולון</p>`}
       </div>
 
       <div style="text-align:center;margin:24px 0 10px">
@@ -172,7 +177,7 @@ Deno.serve(async (req) => {
 
     const { data: bookings, error } = await supabase
       .from("intake_bookings")
-      .select("id,booking_date,booking_time,first_name,email,status,reminder_sent_at,reminder_24h_sent_at,attendance_status,attendance_responded_at")
+      .select("id,booking_date,booking_time,first_name,email,status,reminder_sent_at,reminder_24h_sent_at,attendance_status,attendance_responded_at,meeting_mode")
       .eq("status", "confirmed")
       .not("email", "is", null)
       .limit(300);
