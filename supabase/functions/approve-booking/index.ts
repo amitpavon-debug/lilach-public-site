@@ -58,8 +58,8 @@ globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
             .replace("הוספה ליומן Google", "הוספה ליומן בטלפון");
           html = html.replace(calendarMatch[0], mobileButton);
 
-          const oldHelp = "לחיצה על הכפתור תפתח אירוע מוכן עם התאריך, השעה והכתובת.";
-          const newHelp = "לחיצה על הכפתור תפתח אירוע מוכן באפליקציית היומן של הטלפון, עם התאריך, השעה, הכתובת וקישור לביטול.";
+          const oldHelp = "לחיצה על הכפתור תפתח אירוע מוכן עם פרטי הפגישה.";
+          const newHelp = "לחיצה על הכפתור תפתח אירוע מוכן באפליקציית היומן של הטלפון, עם פרטי הפגישה וקישור לביטול.";
           html = html.replace(oldHelp, newHelp);
 
           const helpParagraph = `<p style="text-align:center;margin:6px 0 18px;color:#667066;font-size:14px">${newHelp}</p>`;
@@ -102,4 +102,4 @@ globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   return originalFetch(input, init);
 };
 
-await import("https://raw.githubusercontent.com/amitpavon-debug/lilach-public-site/82e8f1ef2b9628ac7efe3909cb1a8f6158ce0e00/supabase/functions/approve-booking/base.ts");
+await import("https://raw.githubusercontent.com/amitpavon-debug/lilach-public-site/60a4a3631b9a9d478c967c83b33ef3e3bc66504e/supabase/functions/approve-booking/base.ts");
