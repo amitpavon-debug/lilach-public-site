@@ -155,6 +155,7 @@ async function sendApprovalEmail(booking: any, approvalUrl: string) {
 
   const name = [booking.first_name, booking.last_name].filter(Boolean).join(" ");
   const time = String(booking.booking_time || "").slice(0, 5);
+  const meetingModeLabel = booking.meeting_mode === "zoom" ? "אונליין (Zoom)" : "בקליניקה";
   const html = `
     <div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7;color:#263126;max-width:640px;margin:auto">
       <h2 style="margin-bottom:8px">בקשת תור חדשה — נדרש אישור</h2>
@@ -164,6 +165,7 @@ async function sendApprovalEmail(booking: any, approvalUrl: string) {
         <p style="margin:0 0 8px"><b>מועד:</b> ${escapeHtml(booking.booking_date)} · ${escapeHtml(time)}</p>
         <p style="margin:0 0 8px"><b>טלפון:</b> ${escapeHtml(booking.phone || "")}</p>
         <p style="margin:0 0 8px"><b>אימייל:</b> ${escapeHtml(booking.email || "")}</p>
+        <p style="margin:0 0 8px"><b>אופן הפגישה:</b> ${escapeHtml(meetingModeLabel)}</p>
         <p style="margin:0"><b>מקור הפנייה:</b> ${escapeHtml(booking.referral_source || "לא נמסר")}</p>
       </div>
       <div style="background:#f7f5f2;border-radius:14px;padding:16px;margin:18px 0">
@@ -207,8 +209,10 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const {
       date, time, firstName, lastName, phone, email, reason, referral,
-      privacyConsent, whatsappConsent, policyAccepted,
+      privacyConsent, whatsappConsent, policyAccepted, meetingMode,
     } = body;
+
+    const normalizedMeetingMode = String(meetingMode || "clinic").trim().toLowerCase();
 
     const normalizedEmail = String(email || "").trim().toLowerCase();
     if (
@@ -216,6 +220,9 @@ Deno.serve(async (req) => {
       !reason || !referral || privacyConsent !== true || policyAccepted !== true
     ) {
       return Response.json({ error: "missing_required_fields" }, { status: 400, headers: corsHeaders });
+    }
+    if (!["clinic", "zoom"].includes(normalizedMeetingMode)) {
+      return Response.json({ error: "invalid_meeting_mode" }, { status: 400, headers: corsHeaders });
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       return Response.json({ error: "invalid_email" }, { status: 400, headers: corsHeaders });
@@ -302,6 +309,7 @@ Deno.serve(async (req) => {
         email: normalizedEmail,
         reason: String(reason).trim(),
         referral_source: String(referral).trim(),
+        meeting_mode: normalizedMeetingMode,
         privacy_consent: true,
         whatsapp_consent: Boolean(whatsappConsent),
         whatsapp_opted_out_at: null,
@@ -311,7 +319,7 @@ Deno.serve(async (req) => {
         payment_status: "not_required",
         status: "awaiting_approval",
       })
-      .select("id,booking_date,booking_time,first_name,last_name,phone,email,reason,referral_source,status,payment_status")
+      .select("id,booking_date,booking_time,first_name,last_name,phone,email,reason,referral_source,meeting_mode,status,payment_status")
       .single();
 
     if (insertError) {
@@ -339,6 +347,7 @@ Deno.serve(async (req) => {
       bookingId: inserted.id,
       status: inserted.status,
       paymentStatus: inserted.payment_status,
+      meetingMode: inserted.meeting_mode,
       emailSent: emailResult.sent,
       emailSkipped: emailResult.skipped,
     }, {
