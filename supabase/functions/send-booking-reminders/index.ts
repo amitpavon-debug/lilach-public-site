@@ -118,7 +118,7 @@ async function sendReminder(booking: any, type: "48h" | "24h") {
         <p style="margin:0 0 8px"><b>שעה:</b> ${escapeHtml(time)}</p>
         <p style="margin:0 0 8px"><b>אופן הפגישה:</b> ${isZoom ? "אונליין (Zoom)" : "בקליניקה"}</p>
         ${isZoom
-          ? `<p style="margin:0"><b>Zoom:</b> ${zoomUrl ? `<a href="${escapeHtml(zoomUrl)}" target="_blank" rel="noopener">כניסה לפגישה</a>` : "קישור יישלח אליך בנפרד"}</p>`
+          ? `<p style="margin:0"><b>Zoom:</b> ${zoomUrl ? `<a href="${escapeHtml(zoomUrl)}" target="_blank" rel="noopener">כניסה לפגישה</a>` : "קישור ל-Zoom יישלח סמוך למועד הפגישה"}</p>`
           : `<p style="margin:0"><b>כתובת:</b> הכישור 30, חולון</p>`}
       </div>
 
