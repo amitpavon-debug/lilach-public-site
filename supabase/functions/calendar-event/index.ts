@@ -126,7 +126,7 @@ Deno.serve(async (req) => {
 
     const { data: booking, error } = await supabase
       .from("intake_bookings")
-      .select("id,booking_date,booking_time,status")
+      .select("id,booking_date,booking_time,status,meeting_mode")
       .eq("id", bookingId)
       .maybeSingle();
     if (error) throw error;
@@ -139,7 +139,11 @@ Deno.serve(async (req) => {
     const cancelPageBase = Deno.env.get("CANCELLATION_SITE_URL") || "https://www.lilachpavon.co.il/cancel";
     const cancelUrl = `${cancelPageBase}?bookingId=${encodeURIComponent(booking.id)}&token=${encodeURIComponent(token)}`;
 
-    const description = `לביטול הפגישה: ${cancelUrl} | ביטול או שינוי בפחות מ־24 שעות מהמועד כרוך בתשלום של 150 ₪ בהתאם למדיניות הביטולים.`;
+    const isZoom = booking.meeting_mode === "zoom";
+    const zoomUrl = Deno.env.get("ZOOM_MEETING_URL") || "";
+    const description = isZoom
+      ? `${zoomUrl ? `קישור Zoom: ${zoomUrl} | ` : "פגישה אונליין ב-Zoom | "}לביטול הפגישה: ${cancelUrl} | ביטול או שינוי בפחות מ־24 שעות מהמועד כרוך בתשלום של 150 ₪ בהתאם למדיניות הביטולים.`
+      : `לביטול הפגישה: ${cancelUrl} | ביטול או שינוי בפחות מ־24 שעות מהמועד כרוך בתשלום של 150 ₪ בהתאם למדיניות הביטולים.`;
 
     const lines = [
       "BEGIN:VCALENDAR",
@@ -154,7 +158,7 @@ Deno.serve(async (req) => {
       `DTSTART;TZID=Asia/Jerusalem:${localIcs(start)}`,
       `DTEND;TZID=Asia/Jerusalem:${localIcs(end)}`,
       `SUMMARY:${escapeIcs("פגישה עם לילך פבון")}`,
-      `LOCATION:${escapeIcs("הכישור 30, חולון")}`,
+      `LOCATION:${escapeIcs(isZoom ? "אונליין (Zoom)" : "הכישור 30, חולון")}`,
       `DESCRIPTION:${escapeIcs(description)}`,
       `URL:${cancelUrl}`,
       "END:VEVENT",
