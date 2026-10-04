@@ -157,6 +157,9 @@ async function sendApprovalEmail(booking: any, approvalUrl: string) {
   const time = String(booking.booking_time || "").slice(0, 5);
   const isZoom = booking.meeting_mode === "zoom";
   const meetingModeLabel = isZoom ? "אונליין (Zoom)" : "בקליניקה";
+  const appointmentType = booking.appointment_type === "therapy" ? "therapy" : "intake";
+  const appointmentTypeLabel = appointmentType === "therapy" ? "טיפול רגשי" : "פגישת אינטייק ראשונית";
+  const durationMinutes = appointmentType === "therapy" ? 50 : 60;
   const html = `
     <div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7;color:#263126;max-width:640px;margin:auto">
       <h2 style="margin-bottom:8px">בקשת תור חדשה — נדרש אישור</h2>
@@ -166,6 +169,7 @@ async function sendApprovalEmail(booking: any, approvalUrl: string) {
         <p style="margin:0 0 8px"><b>מועד:</b> ${escapeHtml(booking.booking_date)} · ${escapeHtml(time)}</p>
         <p style="margin:0 0 8px"><b>טלפון:</b> ${escapeHtml(booking.phone || "")}</p>
         <p style="margin:0 0 8px"><b>אימייל:</b> ${escapeHtml(booking.email || "")}</p>
+        <p style="margin:0 0 8px"><b>סוג הפגישה:</b> ${escapeHtml(appointmentTypeLabel)} — ${durationMinutes} דקות</p>
         <p style="margin:0 0 8px"><b>אופן הפגישה:</b> ${escapeHtml(meetingModeLabel)}</p>
         <p style="margin:0"><b>מקור הפנייה:</b> ${escapeHtml(booking.referral_source || "לא נמסר")}</p>
       </div>
@@ -215,20 +219,29 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const {
       date, time, firstName, lastName, phone, email, reason, referral,
-      privacyConsent, whatsappConsent, policyAccepted, meetingMode,
+      privacyConsent, whatsappConsent, policyAccepted, meetingMode, appointmentType,
     } = body;
 
     const normalizedMeetingMode = String(meetingMode || "clinic").trim().toLowerCase();
+    const normalizedAppointmentType = String(appointmentType || "intake").trim().toLowerCase();
+    const isTherapy = normalizedAppointmentType === "therapy";
+    const returningMarker = "כבר נפגשתי בעבר עם לילך";
+    const normalizedReason = String(reason || "").trim() || (isTherapy ? returningMarker : "");
+    const normalizedReferral = String(referral || "").trim() || (isTherapy ? returningMarker : "");
 
     const normalizedEmail = String(email || "").trim().toLowerCase();
     if (
       !date || !time || !firstName || !lastName || !phone || !normalizedEmail ||
-      !reason || !referral || privacyConsent !== true || policyAccepted !== true
+      (!isTherapy && (!normalizedReason || !normalizedReferral)) ||
+      privacyConsent !== true || policyAccepted !== true
     ) {
       return Response.json({ error: "missing_required_fields" }, { status: 400, headers: corsHeaders });
     }
     if (!["clinic", "zoom"].includes(normalizedMeetingMode)) {
       return Response.json({ error: "invalid_meeting_mode" }, { status: 400, headers: corsHeaders });
+    }
+    if (!["intake", "therapy"].includes(normalizedAppointmentType)) {
+      return Response.json({ error: "invalid_appointment_type" }, { status: 400, headers: corsHeaders });
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       return Response.json({ error: "invalid_email" }, { status: 400, headers: corsHeaders });
@@ -240,7 +253,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: "invalid_time" }, { status: 400, headers: corsHeaders });
     }
 
-    const durationMinutes = Number(Deno.env.get("INTAKE_DURATION_MINUTES") || "50");
+    const durationMinutes = normalizedAppointmentType === "therapy" ? 50 : 60;
     const accessToken = await googleToken();
     const calendarId = Deno.env.get("GOOGLE_CALENDAR_ID") || "primary";
     const start = israelDateTimeToUtc(String(date), String(time));
@@ -313,9 +326,10 @@ Deno.serve(async (req) => {
         last_name: String(lastName).trim(),
         phone: String(phone).trim(),
         email: normalizedEmail,
-        reason: String(reason).trim(),
-        referral_source: String(referral).trim(),
+        reason: normalizedReason,
+        referral_source: normalizedReferral,
         meeting_mode: normalizedMeetingMode,
+        appointment_type: normalizedAppointmentType,
         privacy_consent: true,
         whatsapp_consent: Boolean(whatsappConsent),
         whatsapp_opted_out_at: null,
@@ -325,7 +339,7 @@ Deno.serve(async (req) => {
         payment_status: "not_required",
         status: "awaiting_approval",
       })
-      .select("id,booking_date,booking_time,first_name,last_name,phone,email,reason,referral_source,meeting_mode,status,payment_status")
+      .select("id,booking_date,booking_time,first_name,last_name,phone,email,reason,referral_source,meeting_mode,appointment_type,status,payment_status")
       .single();
 
     if (insertError) {
@@ -354,6 +368,8 @@ Deno.serve(async (req) => {
       status: inserted.status,
       paymentStatus: inserted.payment_status,
       meetingMode: inserted.meeting_mode,
+      appointmentType: inserted.appointment_type,
+      durationMinutes,
       emailSent: emailResult.sent,
       emailSkipped: emailResult.skipped,
     }, {
