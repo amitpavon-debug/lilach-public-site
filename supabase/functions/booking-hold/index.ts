@@ -362,6 +362,13 @@ Deno.serve(async (req) => {
 
     const emailResult = await sendApprovalEmail(inserted, approvalUrl);
 
+    try {
+      const { error: analyticsError } = await supabase.rpc("increment_site_analytics", { p_event_type: "booking_request" });
+      if (analyticsError) console.error("BOOKING REQUEST ANALYTICS ERROR:", analyticsError);
+    } catch (analyticsError) {
+      console.error("BOOKING REQUEST ANALYTICS ERROR:", analyticsError);
+    }
+
     return Response.json({
       ok: true,
       bookingId: inserted.id,
