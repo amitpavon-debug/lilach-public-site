@@ -84,7 +84,7 @@
         <h1 id="hero-title">מקום בטוח לעצור,<br><em>לנשום ולהתחיל שינוי</em></h1>
         <p>לפעמים כל מה שצריך הוא מרחב שקט, מקצועי ולא שיפוטי — כדי להבין מה עובר עליך, להתחבר לכוחות שלך ולמצוא דרך חדשה קדימה.</p>
         <div class="hero-actions">
-          <a class="btn primary" href="#booking">לקביעת פגישת אינטייק</a>
+          <a class="btn primary" href="#booking" data-booking-type="intake">לקביעת פגישת אינטייק</a>
           <p class="hero-intake-note">פעם ראשונה אצלי? <a href="#pricing">לחצו כאן</a></p>
         </div>
         <div class="trust-row" aria-label="עקרונות השירות"><span>פרטיות ודיסקרטיות</span><span>ליווי אישי</span><span>CBT + NLP</span></div>
@@ -190,7 +190,7 @@
               <span class="price-divider" aria-hidden="true"></span>
               <span class="price-amount"><strong>400</strong> ₪</span>
             </div>
-            <a class="btn primary price-cta" href="#booking">לקביעת פגישת אינטייק</a>
+            <a class="btn primary price-cta" href="#booking" data-booking-type="intake">לקביעת פגישת אינטייק</a>
           </article>
 
           <article class="price-card">
@@ -202,7 +202,7 @@
               <span class="price-divider" aria-hidden="true"></span>
               <span class="price-amount"><strong>400</strong> ₪</span>
             </div>
-            <a class="btn ghost price-cta" href="#booking">לקביעת פגישה</a>
+            <a class="btn ghost price-cta" href="#booking" data-booking-type="therapy">לקביעת פגישה</a>
           </article>
         </div>
       </div>
@@ -218,6 +218,25 @@
           <div id="bookingState" class="booking-state"></div>
         </div>
         <div class="booking-card">
+          <fieldset class="meeting-mode-fieldset appointment-type-fieldset">
+            <legend>איזו פגישה תרצו לקבוע?</legend>
+            <div class="meeting-mode-options">
+              <label class="meeting-mode-option">
+                <input type="radio" name="appointmentType" value="intake" checked>
+                <span class="meeting-mode-card">
+                  <b>פגישת אינטייק ראשונית</b>
+                  <small>60 דקות</small>
+                </span>
+              </label>
+              <label class="meeting-mode-option">
+                <input type="radio" name="appointmentType" value="therapy">
+                <span class="meeting-mode-card">
+                  <b>טיפול רגשי</b>
+                  <small>50 דקות</small>
+                </span>
+              </label>
+            </div>
+          </fieldset>
           <fieldset class="meeting-mode-fieldset">
             <legend>איך תרצו לקיים את הפגישה?</legend>
             <div class="meeting-mode-options">
@@ -296,10 +315,10 @@
 
   </main>
 
-  <footer><div class="footer-inner"><div><b>לילך פבון</b><span>CBT · NLP · טיפול רגשי</span><span class="footer-address">📍 הכישור 30, חולון · <a href="https://www.google.com/maps/search/?api=1&query=%D7%94%D7%9B%D7%99%D7%A9%D7%95%D7%A8+30%2C+%D7%97%D7%95%D7%9C%D7%95%D7%9F" target="_blank" rel="noopener" aria-label="פתיחת הכתובת הכישור 30 חולון ב-Google Maps">Google Maps</a> | <a href="https://www.waze.com/ul?q=%D7%94%D7%9B%D7%99%D7%A9%D7%95%D7%A8%2030%2C%20%D7%97%D7%95%D7%9C%D7%95%D7%9F&navigate=yes" target="_blank" rel="noopener" aria-label="פתיחת הכתובת הכישור 30 חולון ב-Waze">Waze</a></span></div><div class="footer-links"><a href="#booking">קביעת פגישת אינטייק</a><a href="/privacy">מדיניות פרטיות</a><a href="/terms">תנאי שימוש</a><a href="/cancellations">מדיניות ביטולים</a><a href="/accessibility">הצהרת נגישות</a></div><small>© <span id="year"></span> לילך פבון. כל הזכויות שמורות.</small></div></footer>
+  <footer><div class="footer-inner"><div><b>לילך פבון</b><span>CBT · NLP · טיפול רגשי</span><span class="footer-address">📍 הכישור 30, חולון · <a href="https://www.google.com/maps/search/?api=1&query=%D7%94%D7%9B%D7%99%D7%A9%D7%95%D7%A8+30%2C+%D7%97%D7%95%D7%9C%D7%95%D7%9F" target="_blank" rel="noopener" aria-label="פתיחת הכתובת הכישור 30 חולון ב-Google Maps">Google Maps</a> | <a href="https://www.waze.com/ul?q=%D7%94%D7%9B%D7%99%D7%A9%D7%95%D7%A8%2030%2C%20%D7%97%D7%95%D7%9C%D7%95%D7%9F&navigate=yes" target="_blank" rel="noopener" aria-label="פתיחת הכתובת הכישור 30 חולון ב-Waze">Waze</a></span></div><div class="footer-links"><a href="#booking" data-booking-type="intake">קביעת פגישת אינטייק</a><a href="/privacy">מדיניות פרטיות</a><a href="/terms">תנאי שימוש</a><a href="/cancellations">מדיניות ביטולים</a><a href="/accessibility">הצהרת נגישות</a></div><small>© <span id="year"></span> לילך פבון. כל הזכויות שמורות.</small></div></footer>
 
-  <script src="./config.js?v=20261003-1245"></script>
-  <script src="./app.js?v=20261003-1205"></script>
+  <script src="./config.js?v=20261004-0735"></script>
+  <script src="./app.js?v=20261004-0735"></script>
   <script src="./accessibility.js?v=20261003-0013"></script>
 </body>
 </html>
