@@ -3,6 +3,21 @@
   const $ = (id) => document.getElementById(id);
   $("year").textContent = new Date().getFullYear();
 
+  // Count one anonymous visit per browser tab session. No personal identifier is sent.
+  try {
+    const visitKey = "lilach-anonymous-visit-v1";
+    if (cfg.SITE_ANALYTICS_URL && !sessionStorage.getItem(visitKey)) {
+      sessionStorage.setItem(visitKey, "1");
+      fetch(cfg.SITE_ANALYTICS_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ event: "visit" }),
+        keepalive: true
+      }).catch(() => {});
+    }
+  } catch (_) {}
+
+
   const msg = (el, text, ok=false) => {
     el.textContent = text;
     el.className = `form-message ${ok ? "ok" : "err"}`;
