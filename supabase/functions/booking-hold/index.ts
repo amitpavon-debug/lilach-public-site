@@ -197,7 +197,7 @@ async function sendApprovalEmail(booking: any, approvalUrl: string) {
     body: JSON.stringify({
       from: "לילך פבון | טיפול רגשי <appointments@lilachpavon.co.il>",
       to: [to],
-      subject: `נדרש אישור לתור חדש – ${name || "פונה חדש"}`,
+      subject: `נדרש אישור – ${appointmentTypeLabel} (${durationMinutes} דקות) – ${name || "פונה חדש"}`,
       html,
     }),
   });
