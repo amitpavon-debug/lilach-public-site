@@ -126,14 +126,15 @@ Deno.serve(async (req) => {
 
     const { data: booking, error } = await supabase
       .from("intake_bookings")
-      .select("id,booking_date,booking_time,status,meeting_mode")
+      .select("id,booking_date,booking_time,status,meeting_mode,appointment_type")
       .eq("id", bookingId)
       .maybeSingle();
     if (error) throw error;
     if (!booking) return new Response("Booking not found", { status: 404, headers: corsHeaders });
     if (booking.status !== "confirmed") return new Response("Booking is no longer active", { status: 410, headers: corsHeaders });
 
-    const duration = Number(Deno.env.get("INTAKE_DURATION_MINUTES") || 50);
+    const duration = booking.appointment_type === "intake" ? 60 : 50;
+    const appointmentTypeLabel = booking.appointment_type === "intake" ? "פגישת אינטייק ראשונית" : "טיפול רגשי";
     const start = israelDateTimeToUtc(booking.booking_date, booking.booking_time);
     const end = new Date(start.getTime() + duration * 60 * 1000);
     const cancelPageBase = Deno.env.get("CANCELLATION_SITE_URL") || "https://www.lilachpavon.co.il/cancel";
@@ -142,8 +143,8 @@ Deno.serve(async (req) => {
     const isZoom = booking.meeting_mode === "zoom";
     const zoomUrl = Deno.env.get("ZOOM_MEETING_URL") || "";
     const description = isZoom
-      ? `${zoomUrl ? `קישור Zoom: ${zoomUrl} | ` : "פגישה אונליין ב-Zoom | "}לביטול הפגישה: ${cancelUrl} | ביטול או שינוי בפחות מ־24 שעות מהמועד כרוך בתשלום של 150 ₪ בהתאם למדיניות הביטולים.`
-      : `לביטול הפגישה: ${cancelUrl} | ביטול או שינוי בפחות מ־24 שעות מהמועד כרוך בתשלום של 150 ₪ בהתאם למדיניות הביטולים.`;
+      ? `סוג הפגישה: ${appointmentTypeLabel} | משך: ${duration} דקות | ${zoomUrl ? `קישור Zoom: ${zoomUrl} | ` : "פגישה אונליין ב-Zoom | "}לביטול הפגישה: ${cancelUrl} | ביטול או שינוי בפחות מ־24 שעות מהמועד כרוך בתשלום של 150 ₪ בהתאם למדיניות הביטולים.`
+      : `סוג הפגישה: ${appointmentTypeLabel} | משך: ${duration} דקות | לביטול הפגישה: ${cancelUrl} | ביטול או שינוי בפחות מ־24 שעות מהמועד כרוך בתשלום של 150 ₪ בהתאם למדיניות הביטולים.`;
 
     const lines = [
       "BEGIN:VCALENDAR",
@@ -157,7 +158,7 @@ Deno.serve(async (req) => {
       `DTSTAMP:${icsUtc(new Date())}`,
       `DTSTART;TZID=Asia/Jerusalem:${localIcs(start)}`,
       `DTEND;TZID=Asia/Jerusalem:${localIcs(end)}`,
-      `SUMMARY:${escapeIcs("פגישה עם לילך פבון")}`,
+      `SUMMARY:${escapeIcs(`${appointmentTypeLabel} עם לילך פבון`)}`,
       `LOCATION:${escapeIcs(isZoom ? "אונליין (Zoom)" : "הכישור 30, חולון")}`,
       `DESCRIPTION:${escapeIcs(description)}`,
       `URL:${cancelUrl}`,
