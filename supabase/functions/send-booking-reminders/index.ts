@@ -96,8 +96,8 @@ async function sendReminder(booking: any, type: "48h" | "24h") {
   const dateHe = formatDateHe(booking.booking_date);
   const time = String(booking.booking_time || "").slice(0, 5);
   const isZoom = booking.meeting_mode === "zoom";
-  const appointmentType = booking.appointment_type === "intake" ? "intake" : "therapy";
-  const appointmentTypeLabel = appointmentType === "intake" ? "פגישת אינטייק ראשונית" : "טיפול רגשי";
+  const appointmentType = booking.appointment_type === "intake" ? "intake" : booking.appointment_type === "therapy" ? "therapy" : "";
+  const appointmentTypeLabel = appointmentType === "intake" ? "פגישת אינטייק ראשונית" : appointmentType === "therapy" ? "טיפול רגשי" : "פגישה";
   const durationMinutes = appointmentType === "intake" ? 60 : 50;
   const zoomUrl = Deno.env.get("ZOOM_MEETING_URL") || "";
   const isFollowUp = type === "24h";
