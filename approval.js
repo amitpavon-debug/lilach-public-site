@@ -96,6 +96,7 @@
       const durationMinutes = Number(data.durationMinutes || (data.appointmentType === "intake" ? 60 : 50));
       document.getElementById("appointmentType").textContent = `${appointmentTypeLabel} — ${durationMinutes} דקות`;
       document.getElementById("meetingMode").textContent = data.meetingMode === "zoom" ? "אונליין (Zoom)" : "בקליניקה";
+      document.getElementById("paymentStatus").textContent = data.paymentStatus === "paid" ? `150 ₪ — אומת` : "טרם אומת";
       document.getElementById("phone").textContent = data.phone || "";
 
       loading.classList.add("hidden");
