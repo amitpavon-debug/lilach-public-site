@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>השלמת תשלום | לילך פבון</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:#f5f3ef;color:#2f2f2f;font-family:Arial,sans-serif;line-height:1.6;padding:20px}
+    .wrap{width:min(640px,100%);margin:30px auto}.card{background:#fff;border-radius:24px;padding:28px;box-shadow:0 10px 34px rgba(0,0,0,.08)}
+    h1{margin:0 0 8px;color:#40513d}.sub{color:#667066;margin:0 0 20px}.details{background:#f7f5f2;border-radius:14px;padding:16px;margin:18px 0}
+    .actions{display:grid;gap:12px;margin-top:22px}.btn{display:block;width:100%;min-height:50px;border:0;border-radius:13px;padding:13px 18px;font-size:17px;font-weight:800;text-align:center;text-decoration:none;cursor:pointer}
+    .primary{background:#2f6f63;color:#fff}.secondary{background:#fff;color:#2f6f63;border:1px solid #2f6f63}.btn:disabled{opacity:.55;cursor:default}
+    .msg{margin-top:18px;padding:14px;border-radius:12px;text-align:center}.ok{background:#e9f8ee;color:#126331}.err{background:#fff1f0;color:#8b1712}.warning{background:#fff4df;color:#6f4708}.hidden{display:none!important}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card">
+      <h1>השלמת תשלום לשריון הפגישה</h1>
+      <p class="sub">המועד נשמר עבורך זמנית. כדי להמשיך לאישור הפגישה יש להשלים תשלום של 150 ₪ ב-PayBox.</p>
+      <div id="loading">טוען את פרטי הבקשה...</div>
+      <div id="content" class="hidden">
+        <div class="details">
+          <div><strong>שם:</strong> <span id="name"></span></div>
+          <div><strong>מועד:</strong> <span id="date"></span> · <span id="time"></span></div>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="https://links.payboxapp.com/7rvI3BpGZUb" target="_blank" rel="noopener">תשלום 150 ₪ ב-PayBox</a>
+          <button id="paidButton" class="btn secondary" type="button">כבר שילמתי 150 ₪</button>
+        </div>
+        <p class="sub" style="margin-top:16px">לאחר הלחיצה על „כבר שילמתי” תישלח ללילך בקשת אישור חדשה. לילך תבדוק ב-PayBox שהתקבל התשלום לפני אישור הפגישה.</p>
+        <div id="message" class="msg hidden" role="status" aria-live="polite"></div>
+      </div>
+      <div id="error" class="msg err hidden"></div>
+    </section>
+  </main>
+  <script src="/complete-payment.js?v=20261004-1925" defer></script>
+</body>
+</html>
