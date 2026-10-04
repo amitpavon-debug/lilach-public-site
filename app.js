@@ -495,7 +495,7 @@
     $("bookingFormWrap").classList.remove("hidden");
     $("bookingDetailsStep").classList.add("hidden");
     $("bookingPaymentStep").classList.remove("hidden");
-    $("bookingPending").innerHTML="<b>התשלום חזר בהצלחה.</b><span>מאמתים את התשלום. לאחר אימות תישלח ללילך בקשת אישור…</span>";
+    $("bookingPending").innerHTML="<b>חזרת מתהליך התשלום.</b><span>אם התשלום הושלם, לחצו על „כבר שילמתי 150 ₪” כדי לשלוח ללילך את בקשת האישור.</span>";
 
     if(!cfg.BOOKING_STATUS_URL){
       $("bookingPending").innerHTML="<b>התשלום התקבל, אבל עדיין לא ניתן לאמת אותו אוטומטית.</b><span>יש לחבר BOOKING_STATUS_URL כדי להציג אישור קביעה רק אחרי אימות אמיתי מהשרת.</span>";
@@ -535,10 +535,10 @@
         }
         await new Promise(resolve=>setTimeout(resolve,1800));
       }
-      $("bookingPending").innerHTML="<b>התשלום עדיין באימות.</b><span>לאחר האימות תישלח ללילך בקשת אישור. הפגישה אינה סופית עד לאישורה.</span>";
+      $("bookingPending").innerHTML="<b>עדיין ממתינים לעדכון.</b><span>הפגישה אינה סופית עד שלילך בודקת את התשלום ב-PayBox ומאשרת את התור.</span>";
     }catch(e){
       console.error(e);
-      $("bookingPending").innerHTML="<b>לא הצלחנו לבדוק את סטטוס התשלום כרגע.</b><span>לא מוצג אישור פגישה עד לקבלת אימות מהשרת.</span>";
+      $("bookingPending").innerHTML="<b>לא הצלחנו לבדוק את סטטוס הבקשה כרגע.</b><span>הפגישה אינה מאושרת עד שלילך בודקת את התשלום ומאשרת את התור.</span>";
     }
   }
 
