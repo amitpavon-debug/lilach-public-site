@@ -27,6 +27,10 @@
       "destination": "/open-zoom.html"
     },
     {
+      "source": "/complete-payment",
+      "destination": "/complete-payment.html"
+    },
+    {
       "source": "/cancel",
       "destination": "/cancel.html"
     },
