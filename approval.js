@@ -92,6 +92,9 @@
       document.getElementById("name").textContent = data.name || "";
       document.getElementById("date").textContent = data.date || "";
       document.getElementById("time").textContent = data.time || "";
+      const appointmentTypeLabel = data.appointmentType === "therapy" ? "טיפול רגשי" : "פגישת אינטייק ראשונית";
+      const durationMinutes = Number(data.durationMinutes || (data.appointmentType === "intake" ? 60 : 50));
+      document.getElementById("appointmentType").textContent = `${appointmentTypeLabel} — ${durationMinutes} דקות`;
       document.getElementById("meetingMode").textContent = data.meetingMode === "zoom" ? "אונליין (Zoom)" : "בקליניקה";
       document.getElementById("phone").textContent = data.phone || "";
 
