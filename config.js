@@ -4,6 +4,7 @@ window.LILACH_SITE_CONFIG = {
   BOOKING_AVAILABILITY_URL: "https://taafqwplvzcceoynhvve.supabase.co/functions/v1/calendar-availability",
   BOOKING_HOLD_URL: "https://taafqwplvzcceoynhvve.supabase.co/functions/v1/booking-hold",
   BOOKING_STATUS_URL: "",
+  SITE_ANALYTICS_URL: "https://taafqwplvzcceoynhvve.supabase.co/functions/v1/site-analytics",
   VCITA_FALLBACK_URL: "",
   CARD_PAYMENT_URL: "",
   PAYBOX_URL: "",
