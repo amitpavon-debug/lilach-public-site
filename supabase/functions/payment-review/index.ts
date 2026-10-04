@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, serviceRoleKey);
     const { data: booking, error: bookingError } = await supabase
       .from("intake_bookings")
-      .select("id,booking_date,booking_time,first_name,last_name,phone,email,reason,referral_source,status,payment_status,payment_amount,payment_verified_at,meeting_mode,appointment_type,approval_token_hash")
+      .select("id,booking_date,booking_time,first_name,last_name,phone,email,reason,referral_source,status,payment_status,payment_amount,payment_verified_at,meeting_mode,appointment_type,approval_token_hash,hold_expires_at")
       .eq("id", bookingId)
       .maybeSingle();
     if (bookingError) throw bookingError;
@@ -107,6 +107,15 @@ Deno.serve(async (req) => {
         booking.status === "awaiting_approval" && ["reported", "paid"].includes(booking.payment_status);
       if (!alreadyAwaitingApproval && booking.status !== "pending_payment") {
         return Response.json({ error: "booking_not_pending_payment", status: booking.status }, { status: 409, headers: corsHeaders });
+      }
+
+      if (!alreadyAwaitingApproval && booking.hold_expires_at && new Date(booking.hold_expires_at).getTime() <= Date.now()) {
+        await supabase
+          .from("intake_bookings")
+          .update({ status: "expired", updated_at: new Date().toISOString() })
+          .eq("id", booking.id)
+          .eq("status", "pending_payment");
+        return Response.json({ error: "payment_window_expired" }, { status: 409, headers: corsHeaders });
       }
 
       const approvalToken = await hmac(`lilach-booking-approval:${booking.id}`, secret);
