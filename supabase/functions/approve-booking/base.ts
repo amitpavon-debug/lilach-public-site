@@ -75,7 +75,7 @@ function googleCalendarDate(value: Date) {
 
 function buildGoogleCalendarUrl(dateValue: string, timeValue: string, meetingMode = "clinic", appointmentType = "") {
   const duration = appointmentType === "intake" ? 60 : 50;
-  const appointmentTypeLabel = appointmentType === "intake" ? "פגישת אינטייק ראשונית" : "טיפול רגשי";
+  const appointmentTypeLabel = appointmentType === "intake" ? "פגישת אינטייק ראשונית" : appointmentType === "therapy" ? "טיפול רגשי" : "פגישה";
   const start = israelDateTimeToUtc(dateValue, timeValue);
   const end = new Date(start.getTime() + duration * 60 * 1000);
   const isZoom = meetingMode === "zoom";
@@ -112,8 +112,8 @@ async function sendClientConfirmationEmail(booking: {
   const time = String(booking.booking_time || "").slice(0, 5);
   const isZoom = booking.meeting_mode === "zoom";
   const meetingModeLabel = isZoom ? "אונליין (Zoom)" : "בקליניקה";
-  const appointmentType = booking.appointment_type === "intake" ? "intake" : "therapy";
-  const appointmentTypeLabel = appointmentType === "intake" ? "פגישת אינטייק ראשונית" : "טיפול רגשי";
+  const appointmentType = booking.appointment_type === "intake" ? "intake" : booking.appointment_type === "therapy" ? "therapy" : "";
+  const appointmentTypeLabel = appointmentType === "intake" ? "פגישת אינטייק ראשונית" : appointmentType === "therapy" ? "טיפול רגשי" : "פגישה";
   const durationMinutes = appointmentType === "intake" ? 60 : 50;
   const zoomUrl = Deno.env.get("ZOOM_MEETING_URL") || "";
   const calendarUrl = buildGoogleCalendarUrl(booking.booking_date, booking.booking_time, booking.meeting_mode || "clinic", booking.appointment_type || "");
@@ -284,8 +284,8 @@ Deno.serve(async (req) => {
     if (busy.length > 0) return Response.json({ error: "slot_taken_before_approval" }, { status: 409, headers: corsHeaders });
 
     const fullName = [booking.first_name, booking.last_name].filter(Boolean).join(" ");
-    const appointmentType = booking.appointment_type === "intake" ? "intake" : "therapy";
-    const appointmentTypeLabel = appointmentType === "intake" ? "פגישת אינטייק ראשונית" : "טיפול רגשי";
+    const appointmentType = booking.appointment_type === "intake" ? "intake" : booking.appointment_type === "therapy" ? "therapy" : "";
+    const appointmentTypeLabel = appointmentType === "intake" ? "פגישת אינטייק ראשונית" : appointmentType === "therapy" ? "טיפול רגשי" : "פגישה";
     const isZoom = booking.meeting_mode === "zoom";
     const zoomUrl = Deno.env.get("ZOOM_MEETING_URL") || "";
     const approvalPageBase = Deno.env.get("APPROVAL_SITE_URL") || "https://www.lilachpavon.co.il/approval";
