@@ -2,7 +2,7 @@
   const SUPABASE_BASE = "https://taafqwplvzcceoynhvve.supabase.co/functions/v1";
   const DETAILS_URL = `${SUPABASE_BASE}/booking-approval`;
   const APPROVE_URL = `${SUPABASE_BASE}/approve-booking`;
-  const ADMIN_ACTION_URL = `${SUPABASE_BASE}/booking-admin-action`;
+  const ADMIN_ACTION_URL = `${SUPABASE_BASE}/booking-admin-action`;\n  const PAYMENT_REVIEW_URL = `${SUPABASE_BASE}/payment-review`;
 
   const params = new URLSearchParams(window.location.search);
   const bookingId = params.get("bookingId") || "";
@@ -16,7 +16,7 @@
   const approveButton = document.getElementById("approveButton");
   const rejectButton = document.getElementById("rejectButton");
   const cancelButton = document.getElementById("cancelButton");
-  const resultMessage = document.getElementById("resultMessage");
+  const resultMessage = document.getElementById("resultMessage");\n  let loadedPaymentStatus = "";
 
   function showError(text) {
     loading.classList.add("hidden");
@@ -96,7 +96,7 @@
       const durationMinutes = Number(data.durationMinutes || (data.appointmentType === "intake" ? 60 : 50));
       document.getElementById("appointmentType").textContent = `${appointmentTypeLabel} — ${durationMinutes} דקות`;
       document.getElementById("meetingMode").textContent = data.meetingMode === "zoom" ? "אונליין (Zoom)" : "בקליניקה";
-      document.getElementById("paymentStatus").textContent = data.paymentStatus === "paid" ? `150 ₪ — אומת` : "טרם אומת";
+      loadedPaymentStatus = data.paymentStatus || "";\n      document.getElementById("paymentStatus").textContent = data.paymentStatus === "paid"\n        ? "150 ₪ — אומת על ידי לילך"\n        : data.paymentStatus === "reported"\n          ? "150 ₪ — הלקוח/ה דיווח/ה ששילם/ה; יש לבדוק ב-PayBox לפני אישור"\n          : "טרם דווח";
       document.getElementById("phone").textContent = data.phone || "";
 
       loading.classList.add("hidden");
@@ -109,11 +109,34 @@
   }
 
   approveButton.addEventListener("click", async () => {
+    if (loadedPaymentStatus === "reported") {
+      const checked = window.confirm("לפני אישור התור: האם בדקת ב-PayBox שהתקבלו בפועל בדיוק 150 ₪ מהלקוח/ה המתאים/ה?");
+      if (!checked) return;
+    }
+
     setBusy(true);
-    approveButton.textContent = "מאשרת...";
+    approveButton.textContent = "מאמתת ומאשרת...";
     resultMessage.classList.add("hidden");
 
     try {
+      if (loadedPaymentStatus === "reported") {
+        const verifyResponse = await fetch(PAYMENT_REVIEW_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "verify_from_approval",
+            bookingId,
+            approvalToken: token
+          })
+        });
+        const verifyData = await verifyResponse.json();
+        if (!verifyResponse.ok || !verifyData.ok) {
+          throw new Error(verifyData.error || "payment_verification_failed");
+        }
+        loadedPaymentStatus = "paid";
+        document.getElementById("paymentStatus").textContent = "150 ₪ — אומת על ידי לילך";
+      }
+
       const response = await fetch(APPROVE_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
