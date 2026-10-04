@@ -151,7 +151,19 @@ window.LILACH_SITE_CONFIG = {
     return `${day}/${month}/${year}`;
   }
 
-  confirmButton.addEventListener("click", async (event) => {
+  document.querySelectorAll("[data-booking-type]").forEach((link) => {
+    link.addEventListener("click", () => {
+      const type = link.getAttribute("data-booking-type");
+      if (!["intake", "therapy"].includes(type || "")) return;
+      const radio = document.querySelector(`input[name="appointmentType"][value="${type}"]`);
+      if (radio) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    });
+  });
+
+    confirmButton.addEventListener("click", async (event) => {
     event.preventDefault();
     event.stopImmediatePropagation();
 
@@ -161,8 +173,14 @@ window.LILACH_SITE_CONFIG = {
     const lastName = document.getElementById("bookLastName")?.value.trim() || "";
     const phone = document.getElementById("bookPhone")?.value.trim() || "";
     const email = emailInput.value.trim();
-    const reason = document.getElementById("bookReason")?.value.trim() || "";
-    const referral = document.getElementById("bookReferral")?.value.trim() || "";
+    const appointmentType = document.querySelector('input[name="appointmentType"]:checked')?.value || "intake";
+    const appointmentTypeLabel = appointmentType === "therapy" ? "טיפול רגשי" : "פגישת אינטייק ראשונית";
+    const durationMinutes = appointmentType === "therapy" ? 50 : 60;
+    const returningMarker = "כבר נפגשתי בעבר עם לילך";
+    const reasonRaw = document.getElementById("bookReason")?.value.trim() || "";
+    const referralRaw = document.getElementById("bookReferral")?.value.trim() || "";
+    const reason = reasonRaw || (appointmentType === "therapy" ? returningMarker : "");
+    const referral = referralRaw || (appointmentType === "therapy" ? returningMarker : "");
     const privacyConsent = Boolean(document.getElementById("bookPrivacyConsent")?.checked);
     const policyAccepted = Boolean(document.getElementById("bookPolicyAccepted")?.checked);
     const meetingMode = document.querySelector('input[name="meetingMode"]:checked')?.value || "clinic";
@@ -172,8 +190,10 @@ window.LILACH_SITE_CONFIG = {
       showMessage("בחרו יום ושעה.");
       return;
     }
-    if (!firstName || !lastName || !phone || !email || !reason || !referral) {
-      showMessage("נא למלא שם פרטי, שם משפחה, טלפון, אימייל, סיבת פנייה ומאיפה שמעת/הגעת ללילך.");
+    if (!firstName || !lastName || !phone || !email || (appointmentType === "intake" && (!reason || !referral))) {
+      showMessage(appointmentType === "intake"
+        ? "נא למלא שם פרטי, שם משפחה, טלפון, אימייל, סיבת פנייה ומאיפה שמעת/הגעת ללילך."
+        : "נא למלא שם פרטי, שם משפחה, טלפון ואימייל.");
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -209,7 +229,8 @@ window.LILACH_SITE_CONFIG = {
           privacyConsent: true,
           whatsappConsent: false,
           policyAccepted: true,
-          meetingMode
+          meetingMode,
+          appointmentType
         })
       });
 
@@ -229,7 +250,7 @@ window.LILACH_SITE_CONFIG = {
 
       const confirmation = document.getElementById("bookingApprovalConfirmation");
       if (confirmation) {
-        confirmation.innerHTML = `<b>${firstName} ${lastName} — בקשת הפגישה נשלחה.</b><span>${formatDateHe(date)} בשעה ${time} · ${meetingModeLabel}.<br>${meetingMode === "zoom" ? "קישור ל-Zoom יישלח סמוך למועד הפגישה.<br>" : ""}לילך קיבלה מייל עם בקשת האישור. לאחר אישורה יישלח אליך מייל אישור.</span>`;
+        confirmation.innerHTML = `<b>${firstName} ${lastName} — בקשת הפגישה נשלחה.</b><span>${appointmentTypeLabel} · ${durationMinutes} דקות<br>${formatDateHe(date)} בשעה ${time} · ${meetingModeLabel}.<br>${meetingMode === "zoom" ? "קישור ל-Zoom יישלח סמוך למועד הפגישה.<br>" : ""}לילך קיבלה מייל עם בקשת האישור. לאחר אישורה יישלח אליך מייל אישור.</span>`;
       }
 
       showMessage("בקשת הפגישה נשלחה ללילך לאישור.", true);
