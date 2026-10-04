@@ -183,7 +183,7 @@
 
       pendingActions.classList.add("hidden");
       rejectButton.textContent = "הבקשה נדחתה";
-      const refundNote = data.refundRequired ? " יש לבצע החזר מלא של 150 ₪ דרך PayBox." : "";
+      const refundNote = data.refundNeedsPaymentCheck\n        ? " יש לבדוק ב-PayBox אם התקבלו 150 ₪, ואם כן לבצע החזר מלא."\n        : data.refundRequired ? " יש לבצע החזר מלא של 150 ₪ דרך PayBox." : "";
       showResult(data.clientEmailSent === false
         ? `הבקשה נדחתה והמועד שוחרר, אך שליחת המייל ללקוח נכשלה.${refundNote}`
         : `הבקשה נדחתה, המועד שוחרר ונשלח ללקוח מייל עם אפשרות לבחור מועד חדש.${refundNote}`,
