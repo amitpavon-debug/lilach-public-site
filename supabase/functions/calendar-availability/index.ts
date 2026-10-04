@@ -34,7 +34,11 @@ serve(async (req) => {
   try {
     const url = new URL(req.url);
     const date = url.searchParams.get("date");
+    const appointmentType = String(url.searchParams.get("appointmentType") || "intake").trim().toLowerCase();
     if (!date) return Response.json({ error: "date required" }, { status: 400, headers: corsHeaders });
+    if (!["intake", "therapy"].includes(appointmentType)) {
+      return Response.json({ error: "invalid appointment type" }, { status: 400, headers: corsHeaders });
+    }
 
     const dateMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
     if (!dateMatch) return Response.json({ error: "invalid date" }, { status: 400, headers: corsHeaders });
@@ -85,7 +89,7 @@ serve(async (req) => {
 
     if (!windows.length) return Response.json({ slots: [] }, { headers: corsHeaders });
 
-    const duration = Number(Deno.env.get("INTAKE_DURATION_MINUTES") || 50);
+    const duration = appointmentType === "therapy" ? 50 : 60;
     const token = await googleToken();
     const calendarId = Deno.env.get("GOOGLE_CALENDAR_ID") || "primary";
 
@@ -152,7 +156,7 @@ serve(async (req) => {
       }
     }
 
-    return Response.json({ slots }, {
+    return Response.json({ slots, appointmentType, durationMinutes: duration }, {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
