@@ -134,7 +134,7 @@ Deno.serve(async (req) => {
     if (booking.status !== "confirmed") return new Response("Booking is no longer active", { status: 410, headers: corsHeaders });
 
     const duration = booking.appointment_type === "intake" ? 60 : 50;
-    const appointmentTypeLabel = booking.appointment_type === "intake" ? "פגישת אינטייק ראשונית" : "טיפול רגשי";
+    const appointmentTypeLabel = booking.appointment_type === "intake" ? "פגישת אינטייק ראשונית" : booking.appointment_type === "therapy" ? "טיפול רגשי" : "פגישה";
     const start = israelDateTimeToUtc(booking.booking_date, booking.booking_time);
     const end = new Date(start.getTime() + duration * 60 * 1000);
     const cancelPageBase = Deno.env.get("CANCELLATION_SITE_URL") || "https://www.lilachpavon.co.il/cancel";
