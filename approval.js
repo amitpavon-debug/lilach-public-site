@@ -2,7 +2,8 @@
   const SUPABASE_BASE = "https://taafqwplvzcceoynhvve.supabase.co/functions/v1";
   const DETAILS_URL = `${SUPABASE_BASE}/booking-approval`;
   const APPROVE_URL = `${SUPABASE_BASE}/approve-booking`;
-  const ADMIN_ACTION_URL = `${SUPABASE_BASE}/booking-admin-action`;\n  const PAYMENT_REVIEW_URL = `${SUPABASE_BASE}/payment-review`;
+  const ADMIN_ACTION_URL = `${SUPABASE_BASE}/booking-admin-action`;
+  const PAYMENT_REVIEW_URL = `${SUPABASE_BASE}/payment-review`;
 
   const params = new URLSearchParams(window.location.search);
   const bookingId = params.get("bookingId") || "";
@@ -14,9 +15,11 @@
   const content = document.getElementById("content");
   const pendingActions = document.getElementById("pendingActions");
   const approveButton = document.getElementById("approveButton");
+  const paymentMissingButton = document.getElementById("paymentMissingButton");
   const rejectButton = document.getElementById("rejectButton");
   const cancelButton = document.getElementById("cancelButton");
-  const resultMessage = document.getElementById("resultMessage");\n  let loadedPaymentStatus = "";
+  const resultMessage = document.getElementById("resultMessage");
+  let loadedPaymentStatus = "";
 
   function showError(text) {
     loading.classList.add("hidden");
@@ -33,20 +36,30 @@
 
   function setBusy(busy) {
     approveButton.disabled = busy;
+    paymentMissingButton.disabled = busy;
     rejectButton.disabled = busy;
     cancelButton.disabled = busy;
   }
 
   function applyStatus(status) {
     pendingActions.classList.add("hidden");
+    paymentMissingButton.classList.add("hidden");
     cancelButton.classList.add("hidden");
 
     if (status === "awaiting_approval") {
       pendingActions.classList.remove("hidden");
+      if (loadedPaymentStatus === "reported") {
+        paymentMissingButton.classList.remove("hidden");
+      }
       if (requestedAction === "reject") {
         showResult("הבקשה עדיין ממתינה. לחצי על „דחיית הבקשה” כדי לאשר את הדחייה.", "warning");
         rejectButton.focus();
       }
+      return;
+    }
+
+    if (status === "pending_payment") {
+      showResult("המועד שמור זמנית וממתין לתשלום של הלקוח/ה.", "warning");
       return;
     }
 
@@ -92,11 +105,20 @@
       document.getElementById("name").textContent = data.name || "";
       document.getElementById("date").textContent = data.date || "";
       document.getElementById("time").textContent = data.time || "";
-      const appointmentTypeLabel = data.appointmentType === "intake" ? "פגישת אינטייק ראשונית" : data.appointmentType === "therapy" ? "טיפול רגשי" : "פגישה";
+      const appointmentTypeLabel = data.appointmentType === "intake"
+        ? "פגישת אינטייק ראשונית"
+        : data.appointmentType === "therapy"
+          ? "טיפול רגשי"
+          : "פגישה";
       const durationMinutes = Number(data.durationMinutes || (data.appointmentType === "intake" ? 60 : 50));
       document.getElementById("appointmentType").textContent = `${appointmentTypeLabel} — ${durationMinutes} דקות`;
       document.getElementById("meetingMode").textContent = data.meetingMode === "zoom" ? "אונליין (Zoom)" : "בקליניקה";
-      loadedPaymentStatus = data.paymentStatus || "";\n      document.getElementById("paymentStatus").textContent = data.paymentStatus === "paid"\n        ? "150 ₪ — אומת על ידי לילך"\n        : data.paymentStatus === "reported"\n          ? "150 ₪ — הלקוח/ה דיווח/ה ששילם/ה; יש לבדוק ב-PayBox לפני אישור"\n          : "טרם דווח";
+      loadedPaymentStatus = data.paymentStatus || "";
+      document.getElementById("paymentStatus").textContent = data.paymentStatus === "paid"
+        ? "150 ₪ — אומת על ידי לילך"
+        : data.paymentStatus === "reported"
+          ? "150 ₪ — הלקוח/ה דיווח/ה ששילם/ה; יש לבדוק ב-PayBox לפני אישור"
+          : "טרם התקבל / ממתין לתשלום";
       document.getElementById("phone").textContent = data.phone || "";
 
       loading.classList.add("hidden");
@@ -135,6 +157,7 @@
         }
         loadedPaymentStatus = "paid";
         document.getElementById("paymentStatus").textContent = "150 ₪ — אומת על ידי לילך";
+        paymentMissingButton.classList.add("hidden");
       }
 
       const response = await fetch(APPROVE_URL, {
@@ -165,6 +188,37 @@
     }
   });
 
+  paymentMissingButton.addEventListener("click", async () => {
+    if (!window.confirm("לא נמצא תשלום ב-PayBox? המועד יישמר ללקוח/ה לשעתיים נוספות ויישלח מייל תזכורת לתשלום.")) return;
+
+    setBusy(true);
+    paymentMissingButton.textContent = "שולחת תזכורת...";
+    resultMessage.classList.add("hidden");
+
+    try {
+      const response = await fetch(ADMIN_ACTION_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingId, approvalToken: token, action: "payment_missing" })
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) throw new Error(data.error || "payment_missing_failed");
+
+      pendingActions.classList.add("hidden");
+      loadedPaymentStatus = "pending";
+      document.getElementById("paymentStatus").textContent = "ממתין לתשלום — נשלחה תזכורת";
+      const emailNote = data.clientEmailSent === false
+        ? " המועד נשמר, אך שליחת המייל ללקוח נכשלה."
+        : " נשלח ללקוח מייל עם קישור לתשלום ולהמשך התהליך.";
+      showResult(`לא נמצא תשלום. המועד נשמר ללקוח/ה לשעתיים נוספות.${emailNote} לאחר התשלום תישלח אלייך בקשת אישור חדשה.`, data.clientEmailSent === false ? "warning" : "success");
+    } catch (error) {
+      console.error(error);
+      paymentMissingButton.textContent = "לא התקבל תשלום — שליחת תזכורת";
+      setBusy(false);
+      showResult("לא הצלחנו לשלוח את תזכורת התשלום. נסי שוב.", "error");
+    }
+  });
+
   rejectButton.addEventListener("click", async () => {
     if (!window.confirm("לדחות את בקשת הפגישה? המועד ישתחרר והלקוח יקבל מייל שמאפשר לבחור מועד חדש.")) return;
 
@@ -183,7 +237,9 @@
 
       pendingActions.classList.add("hidden");
       rejectButton.textContent = "הבקשה נדחתה";
-      const refundNote = data.refundNeedsPaymentCheck\n        ? " יש לבדוק ב-PayBox אם התקבלו 150 ₪, ואם כן לבצע החזר מלא."\n        : data.refundRequired ? " יש לבצע החזר מלא של 150 ₪ דרך PayBox." : "";
+      const refundNote = data.refundNeedsPaymentCheck
+        ? " יש לבדוק ב-PayBox אם התקבלו 150 ₪, ואם כן לבצע החזר מלא."
+        : data.refundRequired ? " יש לבצע החזר מלא של 150 ₪ דרך PayBox." : "";
       showResult(data.clientEmailSent === false
         ? `הבקשה נדחתה והמועד שוחרר, אך שליחת המייל ללקוח נכשלה.${refundNote}`
         : `הבקשה נדחתה, המועד שוחרר ונשלח ללקוח מייל עם אפשרות לבחור מועד חדש.${refundNote}`,
