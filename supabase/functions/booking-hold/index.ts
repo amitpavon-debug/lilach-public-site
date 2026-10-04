@@ -8,7 +8,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST,OPTIONS",
 };
 
-const POLICY_TEXT = 'ביטול או שינוי בתוך פחות מ-24 שעות ממועד הפגישה כרוך בתשלום של 150 ש"ח, בכפוף לזכויות שאינן ניתנות לוויתור לפי דין.';
+const POLICY_TEXT = 'שריון המועד מותנה בתשלום מקדמה של 150 ₪ באמצעות PayBox ובאימות התשלום. המקדמה היא חלק ממחיר הפגישה. בביטול או שינוי 24 שעות או יותר לפני המועד ניתן לקבל החזר או להעביר את המקדמה למועד חדש; בביטול או שינוי בתוך פחות מ-24 שעות או באי-הגעה, המקדמה עשויה להישאר כדמי ביטול, בכפוף לדין. אם לילך אינה מאשרת את הפגישה או מבטלת אותה, המקדמה תוחזר במלואה.';
 
 function escapeHtml(value: unknown) {
   return String(value ?? "")
@@ -23,6 +23,24 @@ async function sha256(value: string) {
   const encoded = new TextEncoder().encode(value);
   const digest = await crypto.subtle.digest("SHA-256", encoded);
   return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function createPaymentClaimToken(bookingId: string, secret: string) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(`lilach-payment-claim:${bookingId}`),
+  );
+  return Array.from(new Uint8Array(signature))
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
 }
@@ -335,11 +353,15 @@ Deno.serve(async (req) => {
         whatsapp_opted_out_at: null,
         policy_accepted: true,
         policy_text: POLICY_TEXT,
-        hold_expires_at: null,
-        payment_status: "not_required",
-        status: "awaiting_approval",
+        hold_expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+        payment_status: "pending",
+        payment_amount: 150,
+        payment_method: "paybox",
+        payment_verification_requested_at: null,
+        payment_verified_at: null,
+        status: "pending_payment",
       })
-      .select("id,booking_date,booking_time,first_name,last_name,phone,email,reason,referral_source,meeting_mode,appointment_type,status,payment_status")
+      .select("id,booking_date,booking_time,first_name,last_name,phone,email,reason,referral_source,meeting_mode,appointment_type,status,payment_status,hold_expires_at")
       .single();
 
     if (insertError) {
@@ -349,18 +371,8 @@ Deno.serve(async (req) => {
       throw insertError;
     }
 
-    const approvalToken = await createApprovalToken(inserted.id, approvalLinkSecret);
-    const approvalTokenHash = await sha256(approvalToken);
-    const approvalPageBase = Deno.env.get("APPROVAL_SITE_URL") || "https://www.lilachpavon.co.il/approval";
-    const approvalUrl = `${approvalPageBase}?bookingId=${encodeURIComponent(inserted.id)}&token=${encodeURIComponent(approvalToken)}`;
-
-    const { error: tokenError } = await supabase
-      .from("intake_bookings")
-      .update({ approval_token_hash: approvalTokenHash, updated_at: new Date().toISOString() })
-      .eq("id", inserted.id);
-    if (tokenError) throw tokenError;
-
-    const emailResult = await sendApprovalEmail(inserted, approvalUrl);
+    const paymentClaimToken = await createPaymentClaimToken(inserted.id, approvalLinkSecret);
+    const payboxUrl = "https://links.payboxapp.com/7rvI3BpGZUb";
 
     try {
       const { error: analyticsError } = await supabase.rpc("increment_site_analytics", { p_event_type: "booking_request" });
@@ -377,8 +389,10 @@ Deno.serve(async (req) => {
       meetingMode: inserted.meeting_mode,
       appointmentType: inserted.appointment_type,
       durationMinutes,
-      emailSent: emailResult.sent,
-      emailSkipped: emailResult.skipped,
+      expiresAt: inserted.hold_expires_at,
+      payboxUrl,
+      paymentAmount: 150,
+      paymentClaimToken,
     }, {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
