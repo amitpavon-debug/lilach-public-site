@@ -73,8 +73,9 @@ function googleCalendarDate(value: Date) {
   return value.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
 }
 
-function buildGoogleCalendarUrl(dateValue: string, timeValue: string, meetingMode = "clinic") {
-  const duration = Number(Deno.env.get("INTAKE_DURATION_MINUTES") || 50);
+function buildGoogleCalendarUrl(dateValue: string, timeValue: string, meetingMode = "clinic", appointmentType = "") {
+  const duration = appointmentType === "intake" ? 60 : 50;
+  const appointmentTypeLabel = appointmentType === "intake" ? "פגישת אינטייק ראשונית" : "טיפול רגשי";
   const start = israelDateTimeToUtc(dateValue, timeValue);
   const end = new Date(start.getTime() + duration * 60 * 1000);
   const isZoom = meetingMode === "zoom";
@@ -84,7 +85,7 @@ function buildGoogleCalendarUrl(dateValue: string, timeValue: string, meetingMod
     : "פגישה שאושרה דרך אתר לילך פבון";
   const params = new URLSearchParams({
     action: "TEMPLATE",
-    text: "פגישה עם לילך פבון",
+    text: `${appointmentTypeLabel} עם לילך פבון`,
     dates: `${googleCalendarDate(start)}/${googleCalendarDate(end)}`,
     details,
     location: isZoom ? "אונליין (Zoom)" : "הכישור 30, חולון",
@@ -100,6 +101,7 @@ async function sendClientConfirmationEmail(booking: {
   booking_date: string;
   booking_time: string;
   meeting_mode?: string;
+  appointment_type?: string;
 }) {
   const apiKey = Deno.env.get("RESEND_API_KEY") || "";
   const email = String(booking.email || "").trim();
@@ -110,8 +112,11 @@ async function sendClientConfirmationEmail(booking: {
   const time = String(booking.booking_time || "").slice(0, 5);
   const isZoom = booking.meeting_mode === "zoom";
   const meetingModeLabel = isZoom ? "אונליין (Zoom)" : "בקליניקה";
+  const appointmentType = booking.appointment_type === "intake" ? "intake" : "therapy";
+  const appointmentTypeLabel = appointmentType === "intake" ? "פגישת אינטייק ראשונית" : "טיפול רגשי";
+  const durationMinutes = appointmentType === "intake" ? 60 : 50;
   const zoomUrl = Deno.env.get("ZOOM_MEETING_URL") || "";
-  const calendarUrl = buildGoogleCalendarUrl(booking.booking_date, booking.booking_time, booking.meeting_mode || "clinic");
+  const calendarUrl = buildGoogleCalendarUrl(booking.booking_date, booking.booking_time, booking.meeting_mode || "clinic", booking.appointment_type || "");
 
   const approvalLinkSecret = Deno.env.get("APPROVAL_LINK_SECRET") || "";
   if (!approvalLinkSecret) throw new Error("approval_link_secret_not_configured");
@@ -128,6 +133,7 @@ async function sendClientConfirmationEmail(booking: {
       <div style="background:#f7f5f2;border-radius:14px;padding:16px;margin:18px 0">
         <p style="margin:0 0 8px"><b>תאריך:</b> ${escapeHtml(date)}</p>
         <p style="margin:0 0 8px"><b>שעה:</b> ${escapeHtml(time)}</p>
+        <p style="margin:0 0 8px"><b>סוג הפגישה:</b> ${escapeHtml(appointmentTypeLabel)} — ${durationMinutes} דקות</p>
         <p style="margin:0 0 8px"><b>אופן הפגישה:</b> ${escapeHtml(meetingModeLabel)}</p>
         ${isZoom
           ? `<p style="margin:0"><b>Zoom:</b> קישור ל-Zoom יישלח סמוך למועד הפגישה</p>`
@@ -245,7 +251,7 @@ Deno.serve(async (req) => {
 
     const { data: booking, error: bookingError } = await supabase
       .from("intake_bookings")
-      .select("id,booking_date,booking_time,first_name,last_name,phone,email,reason,status,payment_status,approval_token_hash,google_event_id,meeting_mode")
+      .select("id,booking_date,booking_time,first_name,last_name,phone,email,reason,status,payment_status,approval_token_hash,google_event_id,meeting_mode,appointment_type")
       .eq("id", bookingId)
       .maybeSingle();
     if (bookingError) throw bookingError;
@@ -261,7 +267,7 @@ Deno.serve(async (req) => {
     if (!["paid", "not_required"].includes(booking.payment_status)) return Response.json({ error: "booking_not_ready_for_approval" }, { status: 409, headers: corsHeaders });
     if (booking.status !== "awaiting_approval") return Response.json({ error: "booking_not_awaiting_approval", status: booking.status }, { status: 409, headers: corsHeaders });
 
-    const duration = Number(Deno.env.get("INTAKE_DURATION_MINUTES") || 50);
+    const duration = booking.appointment_type === "intake" ? 60 : 50;
     const start = israelDateTimeToUtc(booking.booking_date, booking.booking_time);
     const end = new Date(start.getTime() + duration * 60 * 1000);
     const accessToken = await googleToken();
@@ -278,7 +284,8 @@ Deno.serve(async (req) => {
     if (busy.length > 0) return Response.json({ error: "slot_taken_before_approval" }, { status: 409, headers: corsHeaders });
 
     const fullName = [booking.first_name, booking.last_name].filter(Boolean).join(" ");
-    const isReturningClient = String(booking.reason || "").trim() === "כבר נפגשתי בעבר עם לילך";
+    const appointmentType = booking.appointment_type === "intake" ? "intake" : "therapy";
+    const appointmentTypeLabel = appointmentType === "intake" ? "פגישת אינטייק ראשונית" : "טיפול רגשי";
     const isZoom = booking.meeting_mode === "zoom";
     const zoomUrl = Deno.env.get("ZOOM_MEETING_URL") || "";
     const approvalPageBase = Deno.env.get("APPROVAL_SITE_URL") || "https://www.lilachpavon.co.il/approval";
@@ -287,6 +294,8 @@ Deno.serve(async (req) => {
       "נקבע דרך אתר לילך פבון",
       booking.phone ? `טלפון: ${booking.phone}` : "",
       booking.email ? `אימייל: ${booking.email}` : "",
+      `סוג הפגישה: ${appointmentTypeLabel}`,
+      `משך: ${duration} דקות`,
       `אופן הפגישה: ${isZoom ? "אונליין (Zoom)" : "בקליניקה"}`,
       isZoom && zoomUrl ? `קישור Zoom: ${zoomUrl}` : "",
       isZoom && !zoomUrl ? "יש לשלוח ללקוח קישור Zoom בנפרד." : "",
@@ -301,7 +310,7 @@ Deno.serve(async (req) => {
       method: "POST",
       headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        summary: `${isReturningClient ? "טיפול" : "פגישת היכרות"} - ${fullName || "מטופל/ת"}`,
+        summary: `${appointmentTypeLabel} - ${fullName || "מטופל/ת"}`,
         description: descriptionLines.join("\n"),
         location: isZoom ? "אונליין (Zoom)" : "הכישור 30, חולון",
         start: { dateTime: start.toISOString(), timeZone: "Asia/Jerusalem" },
@@ -321,7 +330,7 @@ Deno.serve(async (req) => {
       .single();
     if (updateError) throw updateError;
 
-    const emailResult = await sendClientConfirmationEmail({ id: booking.id, first_name: booking.first_name, email: booking.email, booking_date: updated.booking_date, booking_time: updated.booking_time, meeting_mode: booking.meeting_mode || "clinic" });
+    const emailResult = await sendClientConfirmationEmail({ id: booking.id, first_name: booking.first_name, email: booking.email, booking_date: updated.booking_date, booking_time: updated.booking_time, meeting_mode: booking.meeting_mode || "clinic", appointment_type: booking.appointment_type || "" });
 
     return Response.json({
       ok: true,
@@ -333,6 +342,8 @@ Deno.serve(async (req) => {
       approvedAt: updated.approved_at,
       googleEventId: updated.google_event_id,
       meetingMode: booking.meeting_mode || "clinic",
+      appointmentType: booking.appointment_type || "",
+      durationMinutes: duration,
       emailSent: emailResult.sent,
       emailSkipped: emailResult.skipped,
     }, { headers: { ...corsHeaders, "Content-Type": "application/json" } });
