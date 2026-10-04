@@ -259,7 +259,7 @@
     $("bookingSuccessStep").classList.add("hidden");
     $("bookingApprovalStep").classList.remove("hidden");
     $("bookingFormWrap").classList.remove("hidden");
-    $("bookingApprovalConfirmation").innerHTML=`<b>${booking.name||"הפגישה"} — התשלום אומת.</b><span>${formatBookingDate(booking.date)} בשעה ${booking.time}.<br>לילך קיבלה בקשת אישור במייל.</span>`;
+    $("bookingApprovalConfirmation").innerHTML=`<b>${booking.name||"הפגישה"} — הדיווח על התשלום נשלח.</b><span>${formatBookingDate(booking.date)} בשעה ${booking.time}.<br>לילך קיבלה בקשת אישור במייל ותבדוק את התשלום ב-PayBox לפני אישור התור.</span>`;
     if(cfg.DEMO_BOOKING){
       $("demoApproveBtn").classList.remove("hidden");
     }else{
@@ -406,15 +406,11 @@
         });
         const j=await r.json().catch(()=>({}));
         if(!r.ok || !j.ok) throw new Error(j.error||"review_request_failed");
-        if(j.alreadyVerified){
-          showAwaitingApproval({...pendingBooking,status:"awaiting_approval",paymentStatus:"paid"});
-          return;
-        }
-        if(reviewMessage){
-          reviewMessage.textContent="הבקשה לבדיקת התשלום נשלחה. לילך תבדוק ב-PayBox שהתקבלו בדיוק 150 ₪; רק לאחר האימות תישלח אליה בקשת אישור הפגישה.";
-          reviewMessage.className="form-message ok";
-        }
-        paymentClaimBtn.textContent="התשלום נשלח לבדיקה";
+        showAwaitingApproval({
+          ...pendingBooking,
+          status:j.status||"awaiting_approval",
+          paymentStatus:j.paymentStatus||"reported"
+        });
       }catch(e){
         console.error(e);
         if(reviewMessage){
