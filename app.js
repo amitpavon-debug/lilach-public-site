@@ -237,7 +237,7 @@
     const expiry = booking.expiresAt
       ? ` המועד נשמר עד ${new Intl.DateTimeFormat("he-IL",{hour:"2-digit",minute:"2-digit"}).format(new Date(booking.expiresAt))}.`
       : " המועד נשמר זמנית בזמן השלמת התשלום.";
-    $("bookingPending").innerHTML=`<b>${booking.name}, המועד עדיין לא אושר.</b><span>${formatBookingDate(booking.date)} בשעה ${booking.time}.${expiry}<br>לאחר אימות התשלום תישלח ללילך בקשת אישור במייל.</span>`;
+    $("bookingPending").innerHTML=`<b>${booking.name}, המועד נשמר זמנית לצורך תשלום.</b><span>${formatBookingDate(booking.date)} בשעה ${booking.time}.${expiry}<br>לתשלום כעת: <strong>150 ₪</strong>. רק לאחר בדיקת התשלום ב-PayBox תישלח ללילך בקשת אישור.</span>`;
 
     const cardUrl = booking.cardPaymentUrl || paymentLinkFromConfig(cfg.CARD_PAYMENT_URL, booking);
     const payboxUrl = booking.payboxUrl || paymentLinkFromConfig(cfg.PAYBOX_URL, booking);
@@ -294,10 +294,12 @@
       reason:returningClient ? RETURNING_CLIENT_VALUE : $("bookReason").value.trim(),
       returningClient,
       referral:returningClient ? RETURNING_CLIENT_VALUE : $("bookReferral").value.trim(),
+      appointmentType:document.querySelector('input[name="appointmentType"]:checked')?.value||"intake",
+      meetingMode:document.querySelector('input[name="meetingMode"]:checked')?.value||"clinic",
       privacyConsent:Boolean($("bookPrivacyConsent")?.checked),
-      whatsappConsent:Boolean($("bookWhatsappConsent")?.checked),
+      whatsappConsent:false,
       policyAccepted:Boolean($("bookPolicyAccepted")?.checked),
-      policyText:'הנני מבינ/ה שלא ניתן לשנות תור בטווח 24 שעות מהמועד, כל שינוי בטווח זה יגרור תשלום של 150 ש"ח.'
+      policyText:"שריון המועד מותנה בתשלום מקדמה של 150 ₪ באמצעות PayBox ובאימות התשלום. המקדמה היא חלק ממחיר הפגישה וחלה עליה מדיניות הביטולים."
     };
   }
 
@@ -326,7 +328,7 @@
       return;
     }
     if(!payload.policyAccepted){
-      msg(bm,'כדי להמשיך יש לאשר את מדיניות שינוי התור בטווח 24 שעות.');
+      msg(bm,"כדי להמשיך יש לאשר את תנאי המקדמה בסך 150 ₪ ואת מדיניות הביטולים.");
       return;
     }
 
@@ -351,6 +353,8 @@
           expiresAt:j.expiresAt||j.expires_at||null,
           cardPaymentUrl:j.cardPaymentUrl||j.card_payment_url||"",
           payboxUrl:j.payboxUrl||j.paybox_url||"",
+          paymentClaimToken:j.paymentClaimToken||j.payment_claim_token||"",
+          paymentAmount:Number(j.paymentAmount||j.payment_amount||150),
           returnUrl
         };
         if(!booking.bookingId) throw new Error("missing booking id");
@@ -374,11 +378,56 @@
       msg(bm,"לא הצלחנו לשמור את המועד. ייתכן שנתפס בינתיים — נסו שעה אחרת.");
     }finally{
       btn.disabled=false;
-      btn.textContent="המשך לתשלום";
+      btn.textContent="המשך לתשלום 150 ₪";
     }
   };
 
-  $("demoPaidBtn").onclick=async()=>{
+  const paymentClaimBtn=$("paymentClaimBtn");
+  if(paymentClaimBtn){
+    paymentClaimBtn.onclick=async()=>{
+      if(!pendingBooking?.bookingId || !pendingBooking?.paymentClaimToken) return;
+      const reviewMessage=$("paymentReviewMessage");
+      paymentClaimBtn.disabled=true;
+      paymentClaimBtn.textContent="שולח לבדיקה...";
+      if(reviewMessage){
+        reviewMessage.textContent="";
+        reviewMessage.className="form-message";
+      }
+      try{
+        if(!cfg.PAYMENT_REVIEW_URL) throw new Error("payment_review_not_configured");
+        const r=await fetch(cfg.PAYMENT_REVIEW_URL,{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({
+            action:"request_review",
+            bookingId:pendingBooking.bookingId,
+            token:pendingBooking.paymentClaimToken
+          })
+        });
+        const j=await r.json().catch(()=>({}));
+        if(!r.ok || !j.ok) throw new Error(j.error||"review_request_failed");
+        if(j.alreadyVerified){
+          showAwaitingApproval({...pendingBooking,status:"awaiting_approval",paymentStatus:"paid"});
+          return;
+        }
+        if(reviewMessage){
+          reviewMessage.textContent="הבקשה לבדיקת התשלום נשלחה. לילך תבדוק ב-PayBox שהתקבלו בדיוק 150 ₪; רק לאחר האימות תישלח אליה בקשת אישור הפגישה.";
+          reviewMessage.className="form-message ok";
+        }
+        paymentClaimBtn.textContent="התשלום נשלח לבדיקה";
+      }catch(e){
+        console.error(e);
+        if(reviewMessage){
+          reviewMessage.textContent="לא הצלחנו לשלוח את התשלום לבדיקה. נסו שוב בעוד רגע.";
+          reviewMessage.className="form-message err";
+        }
+        paymentClaimBtn.disabled=false;
+        paymentClaimBtn.textContent="כבר שילמתי 150 ₪";
+      }
+    };
+  }
+
+    $("demoPaidBtn").onclick=async()=>{
     if(!pendingBooking) return;
     const btn=$("demoPaidBtn");
     btn.disabled=true;
