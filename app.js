@@ -70,7 +70,8 @@
     let times=[];
     try{
       if(cfg.BOOKING_AVAILABILITY_URL){
-        const r=await fetch(`${cfg.BOOKING_AVAILABILITY_URL}?date=${selectedDate}`);
+        const appointmentType=document.querySelector('input[name="appointmentType"]:checked')?.value||"intake";
+        const r=await fetch(`${cfg.BOOKING_AVAILABILITY_URL}?date=${selectedDate}&appointmentType=${encodeURIComponent(appointmentType)}`);
         if(!r.ok)throw new Error();
         const j=await r.json();
         times=j.slots||[];
@@ -112,6 +113,16 @@
     renderDates();
   };
   renderDates();
+
+  document.querySelectorAll('input[name="appointmentType"]').forEach((input)=>{
+    input.addEventListener("change",()=>{
+      selectedTime=null;
+      if(selectedDate){
+        const selected=new Date(`${selectedDate}T12:00:00`);
+        selectDate(selected);
+      }
+    });
+  });
 
   function setupReturningClientOption(){
     const reasonField=$("bookReason");
@@ -160,6 +171,11 @@
       if(isReturning){
         reasonField.value="";
         referralField.value=RETURNING_CLIENT_VALUE;
+        const therapyRadio=document.querySelector('input[name="appointmentType"][value="therapy"]');
+        if(therapyRadio && !therapyRadio.checked){
+          therapyRadio.checked=true;
+          therapyRadio.dispatchEvent(new Event("change",{bubbles:true}));
+        }
       }else if(referralField.value===RETURNING_CLIENT_VALUE){
         referralField.value="";
       }
