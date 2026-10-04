@@ -34,6 +34,20 @@ async function sha256(value: string) {
     .join("");
 }
 
+async function hmac(message: string, secret: string) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(message));
+  return Array.from(new Uint8Array(signature))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 async function googleToken() {
   const clientId = Deno.env.get("GOOGLE_CLIENT_ID") || "";
   const clientSecret = Deno.env.get("GOOGLE_CLIENT_SECRET") || "";
@@ -130,18 +144,20 @@ Deno.serve(async (req) => {
     const approvalToken = String(body?.approvalToken || "").trim();
     const action = String(body?.action || "").trim();
 
-    if (!bookingId || !approvalToken || !["reject", "cancel"].includes(action)) {
+    if (!bookingId || !approvalToken || !["payment_missing", "reject", "cancel"].includes(action)) {
       return Response.json({ error: "invalid_request" }, { status: 400, headers: corsHeaders });
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    const approvalLinkSecret = Deno.env.get("APPROVAL_LINK_SECRET") || "";
     if (!supabaseUrl || !serviceRoleKey) throw new Error("missing_supabase_server_credentials");
+    if (!approvalLinkSecret) throw new Error("approval_link_secret_not_configured");
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
     const { data: booking, error: bookingError } = await supabase
       .from("intake_bookings")
-      .select("id,booking_date,booking_time,first_name,last_name,email,phone,status,payment_status,payment_amount,payment_method,payment_verified_at,approval_token_hash,google_event_id")
+      .select("id,booking_date,booking_time,first_name,last_name,email,phone,status,payment_status,payment_amount,payment_method,payment_verified_at,approval_token_hash,google_event_id,hold_expires_at")
       .eq("id", bookingId)
       .maybeSingle();
 
@@ -157,6 +173,84 @@ Deno.serve(async (req) => {
     const time = String(booking.booking_time || "").slice(0, 5);
     const firstName = String(booking.first_name || "").trim();
     const siteBookingUrl = "https://www.lilachpavon.co.il/#booking";
+
+    if (action === "payment_missing") {
+      if (booking.status !== "awaiting_approval" || booking.payment_status !== "reported") {
+        return Response.json(
+          { error: "booking_not_waiting_for_payment_check", status: booking.status, paymentStatus: booking.payment_status },
+          { status: 409, headers: corsHeaders },
+        );
+      }
+
+      const nowIso = new Date().toISOString();
+      const holdUntil = new Date(Date.now() + 2 * 60 * 60 * 1000);
+      const holdUntilIso = holdUntil.toISOString();
+      const { data: updated, error: updateError } = await supabase
+        .from("intake_bookings")
+        .update({
+          status: "pending_payment",
+          payment_status: "pending",
+          payment_reference: "paybox_payment_not_found",
+          payment_verified_at: null,
+          payment_verification_requested_at: null,
+          hold_expires_at: holdUntilIso,
+          updated_at: nowIso,
+        })
+        .eq("id", booking.id)
+        .eq("status", "awaiting_approval")
+        .eq("payment_status", "reported")
+        .select("id")
+        .maybeSingle();
+      if (updateError) throw updateError;
+      if (!updated) return Response.json({ error: "booking_state_changed" }, { status: 409, headers: corsHeaders });
+
+      const claimToken = await hmac(`lilach-payment-claim:${booking.id}`, approvalLinkSecret);
+      const completePaymentUrl = `https://www.lilachpavon.co.il/complete-payment?bookingId=${encodeURIComponent(booking.id)}&token=${encodeURIComponent(claimToken)}`;
+      const payboxUrl = "https://links.payboxapp.com/7rvI3BpGZUb";
+      const holdUntilLabel = new Intl.DateTimeFormat("he-IL", {
+        timeZone: "Asia/Jerusalem",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(holdUntil);
+
+      const clientHtml = `
+        <div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7;color:#263126;max-width:640px;margin:auto">
+          <h2>נדרש להשלים תשלום כדי לאשר את הפגישה</h2>
+          <p>${firstName ? `שלום ${escapeHtml(firstName)},` : "שלום,"}</p>
+          <p>לא נמצא עדיין תשלום של 150 ₪ ב-PayBox עבור בקשת הפגישה שלך.</p>
+          <div style="background:#fff4df;border-radius:14px;padding:16px;margin:18px 0">
+            <p style="margin:0"><strong>המועד נשמר עבורך זמנית עד השעה ${escapeHtml(holdUntilLabel)}.</strong></p>
+          </div>
+          <div style="background:#f7f5f2;border-radius:14px;padding:16px;margin:18px 0">
+            <p style="margin:0 0 8px"><b>תאריך:</b> ${escapeHtml(dateHe)}</p>
+            <p style="margin:0"><b>שעה:</b> ${escapeHtml(time)}</p>
+          </div>
+          <div style="text-align:center;margin:22px 0 12px">
+            <a href="${escapeHtml(payboxUrl)}" target="_blank" rel="noopener" style="display:inline-block;background:#2f6f63;color:#fff;text-decoration:none;font-weight:700;padding:13px 22px;border-radius:12px">תשלום 150 ₪ ב-PayBox</a>
+          </div>
+          <div style="text-align:center;margin:12px 0 22px">
+            <a href="${escapeHtml(completePaymentUrl)}" style="display:inline-block;border:1px solid #2f6f63;color:#2f6f63;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:12px">כבר שילמתי / המשך לאישור</a>
+          </div>
+          <p>לאחר השלמת התשלום ולחיצה על „כבר שילמתי”, תישלח ללילך בקשת אישור חדשה.</p>
+          ${NO_REPLY_NOTE}
+          ${SIGNATURE_HTML}
+        </div>`;
+
+      const emailResult = await sendEmail(
+        String(booking.email || "").trim(),
+        "תזכורת: השלמת תשלום 150 ₪ לצורך קביעת הפגישה",
+        clientHtml,
+      );
+
+      return Response.json({
+        ok: true,
+        status: "pending_payment",
+        paymentStatus: "pending",
+        holdExpiresAt: holdUntilIso,
+        clientEmailSent: emailResult.sent,
+        clientEmailSkipped: emailResult.skipped,
+      }, { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
     if (action === "reject") {
       if (booking.status === "rejected") {
