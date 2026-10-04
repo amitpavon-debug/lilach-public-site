@@ -66,7 +66,7 @@
 <link rel="preload" as="image" href="./assets/lilach-logo.jpg" fetchpriority="high">
   <link rel="preload" href="./assets/fonts/heebo-hebrew-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="./assets/fonts/rubik-hebrew-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="./styles.css?v=20261004-0955" />
+  <link rel="stylesheet" href="./styles.css?v=20261004-1725" />
   <link rel="stylesheet" href="./accessibility.css?v=20261003-0013" />
 </head>
 <body>
@@ -235,7 +235,7 @@
       <div class="section-shell booking-layout">
         <div>
           <span class="eyebrow">קביעת פגישה</span><h2 id="booking-title">כל התהליך במקום אחד</h2>
-          <p>בוחרים מועד, ממלאים פרטים וסיבת פנייה ומאשרים את מדיניות שינוי התור וממתינים לאישור.</p>
+          <p>בוחרים מועד, ממלאים פרטים, משלמים מקדמה של 150 ₪ באמצעות PayBox, ולאחר אימות התשלום הבקשה עוברת לאישור לילך.</p>
           <div class="privacy-box"><b>שמירה על פרטיות</b><p>הפרטים נמסרים לצורך טיפול בפנייה, תיאום וניהול הפגישה. מסירת המידע היא מרצון; ללא הפרטים הנדרשים לא ניתן לטפל בבקשת התור. מומלץ למסור בסיבת הפנייה רק את המידע הדרוש לתיאום ראשוני. <a href="/privacy" target="_blank" rel="noopener">למדיניות הפרטיות המלאה</a>.</p></div>
           <p class="booking-required-note"><strong>לתשומת לב:</strong> קביעת הפגישה באתר מיועדת למי שמלאו לו 18 שנים.</p>
           <div id="bookingState" class="booking-state"></div>
@@ -310,17 +310,36 @@
                 </select>
               </label>
               <label class="booking-consent"><input id="bookPrivacyConsent" type="checkbox"><span>קראתי את <a href="/privacy" target="_blank" rel="noopener">מדיניות הפרטיות</a>, ידוע לי שמסירת המידע היא מרצון ואני מאשר/ת את שמירת ועיבוד הפרטים לצורך טיפול בפנייה, תיאום וניהול הפגישה ויצירת קשר בקשר אליה.</span></label>
-              <label class="booking-consent booking-policy"><input id="bookPolicyAccepted" type="checkbox"><span><strong>קראתי ואני מאשר/ת את <a href="/terms" target="_blank" rel="noopener">תנאי השימוש</a> ואת <a href="/cancellations" target="_blank" rel="noopener">מדיניות הביטולים</a>, לרבות האפשרות לחיוב של 150 ש"ח בביטול או שינוי בתוך פחות מ-24 שעות, בכפוף לדין.</strong></span></label>
+              <label class="booking-consent booking-policy"><input id="bookPolicyAccepted" type="checkbox"><span><strong>קראתי ואני מאשר/ת את <a href="/terms" target="_blank" rel="noopener">תנאי השימוש</a> ואת <a href="/cancellations" target="_blank" rel="noopener">מדיניות הביטולים</a>. ידוע לי ששריון המועד מותנה בתשלום מקדמה של 150 ₪ באמצעות PayBox ובאימות התשלום, שהמקדמה היא חלק ממחיר הפגישה, ושיחולו עליה תנאי הביטול המפורטים במדיניות.</strong></span></label>
               <p class="booking-required-note">* שם פרטי, שם משפחה, טלפון, סיבת הפנייה, מקור ההגעה ושני האישורים הם חובה.</p>
-              <button id="confirmBooking" class="btn primary full">שליחת בקשה לאישור</button>
+              <button id="confirmBooking" class="btn primary full">המשך לתשלום 150 ₪</button>
               <p id="bookingMessage" class="form-message"></p>
+            </div>
+
+            <div id="bookingPaymentStep" class="booking-payment-step hidden">
+              <div class="booking-step-head payment-step-head">
+                <span>שלב 3</span>
+                <div>
+                  <h3>תשלום מקדמה לשריון המועד</h3>
+                  <p>כדי להמשיך, יש לשלם 150 ₪ באמצעות PayBox. המקדמה היא חלק ממחיר הפגישה.</p>
+                </div>
+              </div>
+              <div id="bookingPending" class="booking-confirmation"></div>
+              <div class="payment-deposit-box">
+                <strong>לתשלום כעת: 150 ₪</strong>
+                <span>לאחר התשלום חזרו לכאן ולחצו על „כבר שילמתי 150 ₪”. לילך תאמת את הסכום ב-PayBox לפני שיישלח אליה מייל לאישור הפגישה.</span>
+              </div>
+              <a id="payboxBtn" class="btn primary full paybox-main" href="#" target="_blank" rel="noopener">תשלום 150 ₪ ב-PayBox</a>
+              <button id="paymentClaimBtn" class="btn ghost full payment-review-button" type="button">כבר שילמתי 150 ₪</button>
+              <p id="paymentReviewMessage" class="form-message"></p>
+              <p class="payment-security-note">הפגישה אינה מאושרת בשלב זה. בקשת האישור ללילך תישלח רק לאחר בדיקה ואימות של תשלום בסך 150 ₪.</p>
             </div>
 
             <div id="bookingApprovalStep" class="booking-approval-step hidden">
               <div class="booking-wait-mark">⏳</div>
-              <h3>הבקשה נשלחה — ממתינים לאישור לילך</h3>
+              <h3>התשלום אומת — ממתינים לאישור לילך</h3>
               <div id="bookingApprovalConfirmation" class="booking-confirmation"></div>
-              <p>נשלח ללילך מייל עם פרטי הפגישה ובקשה לאישור. רק לאחר אישורה הפגישה תהיה סופית.</p>
+              <p>לאחר אימות התשלום בסך 150 ₪ נשלחה ללילך בקשת אישור. רק לאחר אישורה הפגישה תהיה סופית.</p>
             </div>
 
             <div id="bookingSuccessStep" class="booking-success-step hidden">
@@ -340,8 +359,8 @@
 
   <footer><div class="footer-inner"><div><b>לילך פבון</b><span>CBT · NLP · טיפול רגשי</span><span class="footer-address">📍 הכישור 30, חולון · <a href="https://www.google.com/maps/search/?api=1&query=%D7%94%D7%9B%D7%99%D7%A9%D7%95%D7%A8+30%2C+%D7%97%D7%95%D7%9C%D7%95%D7%9F" target="_blank" rel="noopener" aria-label="פתיחת הכתובת הכישור 30 חולון ב-Google Maps">Google Maps</a> | <a href="https://www.waze.com/ul?q=%D7%94%D7%9B%D7%99%D7%A9%D7%95%D7%A8%2030%2C%20%D7%97%D7%95%D7%9C%D7%95%D7%9F&navigate=yes" target="_blank" rel="noopener" aria-label="פתיחת הכתובת הכישור 30 חולון ב-Waze">Waze</a></span></div><div class="footer-links"><a href="#booking" data-booking-type="intake">קביעת פגישת אינטייק</a><a href="/privacy">מדיניות פרטיות</a><a href="/terms">תנאי שימוש</a><a href="/cancellations">מדיניות ביטולים</a><a href="/accessibility">הצהרת נגישות</a></div><small>© <span id="year"></span> לילך פבון. כל הזכויות שמורות.</small></div></footer>
 
-  <script src="./config.js?v=20261004-1015"></script>
-  <script src="./app.js?v=20261004-1015"></script>
+  <script src="./config.js?v=20261004-1725"></script>
+  <script src="./app.js?v=20261004-1725"></script>
   <script src="./accessibility.js?v=20261003-0013"></script>
 </body>
 </html>
