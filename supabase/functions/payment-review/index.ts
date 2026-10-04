@@ -103,10 +103,9 @@ Deno.serve(async (req) => {
       if (booking.status === "confirmed") {
         return Response.json({ ok: true, alreadyProcessed: true, status: booking.status, paymentStatus: booking.payment_status }, { headers: corsHeaders });
       }
-      if (booking.status === "awaiting_approval" && ["reported", "paid"].includes(booking.payment_status)) {
-        return Response.json({ ok: true, alreadyRequested: true, status: booking.status, paymentStatus: booking.payment_status }, { headers: corsHeaders });
-      }
-      if (booking.status !== "pending_payment") {
+      const alreadyAwaitingApproval =
+        booking.status === "awaiting_approval" && ["reported", "paid"].includes(booking.payment_status);
+      if (!alreadyAwaitingApproval && booking.status !== "pending_payment") {
         return Response.json({ error: "booking_not_pending_payment", status: booking.status }, { status: 409, headers: corsHeaders });
       }
 
@@ -115,25 +114,27 @@ Deno.serve(async (req) => {
       const approvalUrl = `https://www.lilachpavon.co.il/approval?bookingId=${encodeURIComponent(booking.id)}&token=${encodeURIComponent(approvalToken)}`;
       const nowIso = new Date().toISOString();
 
-      const { data: updated, error: updateError } = await supabase
-        .from("intake_bookings")
-        .update({
-          payment_status: "reported",
-          payment_amount: 150,
-          payment_method: "paybox",
-          payment_reference: "paybox_client_reported_150",
-          payment_verification_requested_at: nowIso,
-          status: "awaiting_approval",
-          approval_token_hash: approvalTokenHash,
-          hold_expires_at: null,
-          updated_at: nowIso,
-        })
-        .eq("id", booking.id)
-        .eq("status", "pending_payment")
-        .select("id")
-        .maybeSingle();
-      if (updateError) throw updateError;
-      if (!updated) return Response.json({ error: "booking_state_changed" }, { status: 409, headers: corsHeaders });
+      if (!alreadyAwaitingApproval) {
+        const { data: updated, error: updateError } = await supabase
+          .from("intake_bookings")
+          .update({
+            payment_status: "reported",
+            payment_amount: 150,
+            payment_method: "paybox",
+            payment_reference: "paybox_client_reported_150",
+            payment_verification_requested_at: nowIso,
+            status: "awaiting_approval",
+            approval_token_hash: approvalTokenHash,
+            hold_expires_at: null,
+            updated_at: nowIso,
+          })
+          .eq("id", booking.id)
+          .eq("status", "pending_payment")
+          .select("id")
+          .maybeSingle();
+        if (updateError) throw updateError;
+        if (!updated) return Response.json({ error: "booking_state_changed" }, { status: 409, headers: corsHeaders });
+      }
 
       const { appointmentTypeLabel, durationMinutes, meetingModeLabel } = labels(booking);
       const name = [booking.first_name, booking.last_name].filter(Boolean).join(" ");
@@ -173,9 +174,10 @@ Deno.serve(async (req) => {
       return Response.json({
         ok: true,
         status: "awaiting_approval",
-        paymentStatus: "reported",
+        paymentStatus: booking.payment_status === "paid" ? "paid" : "reported",
         paymentAmount: 150,
         approvalRequested: true,
+        resent: alreadyAwaitingApproval,
         emailSent: emailResult.sent,
         emailSkipped: emailResult.skipped,
       }, { headers: { ...corsHeaders, "Content-Type": "application/json" } });
