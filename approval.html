@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <title>ניהול תור | לילך פבון</title>
   <style>
-    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:#f5f3ef;color:#2f2f2f;font-family:Arial,sans-serif;line-height:1.55}.skip{position:fixed;top:10px;right:12px;z-index:10;background:#233329;color:#fff;padding:10px 14px;border-radius:10px;transform:translateY(-180%);font-weight:700}.skip:focus{transform:translateY(0)}.wrap{width:min(640px,calc(100% - 28px));margin:34px auto}.card{background:#fff;border-radius:24px;padding:30px;box-shadow:0 10px 34px rgba(0,0,0,.08)}h1{margin:0 0 8px;font-size:28px}.sub{margin:0 0 22px;color:#5d675d;line-height:1.6}.row{padding:12px 0;border-bottom:1px solid #d8ddd8;line-height:1.55}.label{font-weight:700}.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}button{width:100%;min-height:48px;padding:15px 18px;border:0;border-radius:14px;color:#fff;font-size:18px;font-weight:700;cursor:pointer}button:disabled{opacity:.55;cursor:default}.approve{background:#2f6f63}.reject{background:#8f342e}.cancel{background:#8f342e;margin-top:24px}.secondary{background:#5d675d}.message{margin-top:20px;padding:14px;border-radius:12px;line-height:1.6;text-align:center}.error{background:#fff1f0;color:#8b1712}.success{background:#e9f8ee;color:#126331}.warning{background:#fff4df;color:#6f4708}.loading{text-align:center;padding:28px 0;color:#5d675d}.hidden{display:none!important}a:focus-visible,button:focus-visible{outline:3px solid #1d6655;outline-offset:3px}@media(max-width:520px){.actions{grid-template-columns:1fr}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}@media(forced-colors:active){button{border:1px solid ButtonText}}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:#f5f3ef;color:#2f2f2f;font-family:Arial,sans-serif;line-height:1.55}.skip{position:fixed;top:10px;right:12px;z-index:10;background:#233329;color:#fff;padding:10px 14px;border-radius:10px;transform:translateY(-180%);font-weight:700}.skip:focus{transform:translateY(0)}.wrap{width:min(640px,calc(100% - 28px));margin:34px auto}.card{background:#fff;border-radius:24px;padding:30px;box-shadow:0 10px 34px rgba(0,0,0,.08)}h1{margin:0 0 8px;font-size:28px}.sub{margin:0 0 22px;color:#5d675d;line-height:1.6}.row{padding:12px 0;border-bottom:1px solid #d8ddd8;line-height:1.55}.label{font-weight:700}.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}button{width:100%;min-height:48px;padding:15px 18px;border:0;border-radius:14px;color:#fff;font-size:18px;font-weight:700;cursor:pointer}button:disabled{opacity:.55;cursor:default}.approve{background:#2f6f63}.payment-missing{background:#b47a21}.reject{background:#8f342e}.cancel{background:#8f342e;margin-top:24px}.secondary{background:#5d675d}.message{margin-top:20px;padding:14px;border-radius:12px;line-height:1.6;text-align:center}.error{background:#fff1f0;color:#8b1712}.success{background:#e9f8ee;color:#126331}.warning{background:#fff4df;color:#6f4708}.loading{text-align:center;padding:28px 0;color:#5d675d}.hidden{display:none!important}a:focus-visible,button:focus-visible{outline:3px solid #1d6655;outline-offset:3px}@media(max-width:520px){.actions{grid-template-columns:1fr}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}@media(forced-colors:active){button{border:1px solid ButtonText}}
   </style>
 </head>
 <body>
@@ -28,6 +28,7 @@
 
         <div id="pendingActions" class="actions hidden" role="group" aria-label="פעולות על בקשת הפגישה">
           <button id="approveButton" class="approve" type="button">אישור התור</button>
+          <button id="paymentMissingButton" class="payment-missing hidden" type="button">לא התקבל תשלום — שליחת תזכורת</button>
           <button id="rejectButton" class="reject" type="button">דחיית הבקשה</button>
         </div>
 
@@ -36,6 +37,6 @@
       </div>
     </section>
   </main>
-  <script src="/approval.js?v=20261004-1845" defer></script>
+  <script src="/approval.js?v=20261004-1915" defer></script>
 </body>
 </html>
