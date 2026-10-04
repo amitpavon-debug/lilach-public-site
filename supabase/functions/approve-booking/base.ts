@@ -330,6 +330,13 @@ Deno.serve(async (req) => {
       .single();
     if (updateError) throw updateError;
 
+    try {
+      const { error: analyticsError } = await supabase.rpc("increment_site_analytics", { p_event_type: "booking_confirmed" });
+      if (analyticsError) console.error("BOOKING CONFIRMED ANALYTICS ERROR:", analyticsError);
+    } catch (analyticsError) {
+      console.error("BOOKING CONFIRMED ANALYTICS ERROR:", analyticsError);
+    }
+
     const emailResult = await sendClientConfirmationEmail({ id: booking.id, first_name: booking.first_name, email: booking.email, booking_date: updated.booking_date, booking_time: updated.booking_time, meeting_mode: booking.meeting_mode || "clinic", appointment_type: booking.appointment_type || "" });
 
     return Response.json({
