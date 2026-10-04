@@ -184,7 +184,7 @@ Deno.serve(async (req) => {
         <div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7;color:#263126;max-width:640px;margin:auto">
           <h2>עדכון לגבי בקשת הפגישה</h2>
           <p>${firstName ? `שלום ${escapeHtml(firstName)},` : "שלום,"}</p>
-          <p>המועד שביקשת לא אושר. אפשר לבחור מועד אחר מתוך השעות הפנויות באתר.</p>${booking.payment_status === "paid" ? '<p><strong>המקדמה בסך 150 ₪ תוחזר במלואה דרך PayBox.</strong></p>' : ""}
+          <p>המועד שביקשת לא אושר. אפשר לבחור מועד אחר מתוך השעות הפנויות באתר.</p>${booking.payment_status === "paid" ? '<p><strong>המקדמה בסך 150 ₪ תוחזר במלואה דרך PayBox.</strong></p>' : booking.payment_status === "reported" ? '<p><strong>אם התשלום בסך 150 ₪ התקבל בפועל ב-PayBox, הוא יוחזר במלואו.</strong></p>' : ""}
           <div style="background:#f7f5f2;border-radius:14px;padding:16px;margin:18px 0">
             <p style="margin:0 0 8px"><b>תאריך שהתבקש:</b> ${escapeHtml(dateHe)}</p>
             <p style="margin:0"><b>שעה:</b> ${escapeHtml(time)}</p>
@@ -197,7 +197,7 @@ Deno.serve(async (req) => {
         </div>`;
 
       const emailResult = await sendEmail(String(booking.email || "").trim(), "עדכון לגבי בקשת הפגישה עם לילך", clientHtml);
-      return Response.json({ ok: true, status: "rejected", refundRequired: booking.payment_status === "paid", refundAmount: booking.payment_status === "paid" ? 150 : 0, clientEmailSent: emailResult.sent, clientEmailSkipped: emailResult.skipped }, { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return Response.json({ ok: true, status: "rejected", refundRequired: ["paid", "reported"].includes(booking.payment_status), refundAmount: ["paid", "reported"].includes(booking.payment_status) ? 150 : 0, refundNeedsPaymentCheck: booking.payment_status === "reported", clientEmailSent: emailResult.sent, clientEmailSkipped: emailResult.skipped }, { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     if (booking.status === "cancelled_by_lilach") {
