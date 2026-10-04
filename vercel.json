@@ -45,6 +45,10 @@
     {
       "source": "/cancellations",
       "destination": "/cancellations.html"
+    },
+    {
+      "source": "/analytics",
+      "destination": "/analytics.html"
     }
   ],
   "headers": [
