@@ -4,7 +4,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+  "Access-Control-Allow-Methods": "POST,OPTIONS",
 };
 
 function escapeHtml(value: unknown) {
@@ -54,7 +54,7 @@ async function sendEmail(to: string, subject: string, html: string) {
     }),
   });
   if (!response.ok) {
-    console.error("PAYMENT REVIEW EMAIL ERROR:", response.status, await response.text());
+    console.error("PAYMENT APPROVAL EMAIL ERROR:", response.status, await response.text());
     return { sent: false, skipped: false };
   }
   return { sent: true, skipped: false };
@@ -69,6 +69,7 @@ function labels(booking: any) {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  if (req.method !== "POST") return Response.json({ error: "method_not_allowed" }, { status: 405, headers: corsHeaders });
 
   try {
     const secret = Deno.env.get("APPROVAL_LINK_SECRET") || "";
@@ -78,192 +79,152 @@ Deno.serve(async (req) => {
     if (!secret) throw new Error("approval_link_secret_not_configured");
     if (!supabaseUrl || !serviceRoleKey) throw new Error("missing_supabase_server_credentials");
 
-    const supabase = createClient(supabaseUrl, serviceRoleKey);
-
-    if (req.method === "GET") {
-      const url = new URL(req.url);
-      const bookingId = String(url.searchParams.get("bookingId") || "").trim();
-      const token = String(url.searchParams.get("token") || "").trim();
-      if (!bookingId || !token) return Response.json({ error: "invalid_request" }, { status: 400, headers: corsHeaders });
-
-      const expected = await hmac(`lilach-payment-review:${bookingId}`, secret);
-      if (!timingSafeEqual(token, expected)) return Response.json({ error: "invalid_token" }, { status: 401, headers: corsHeaders });
-
-      const { data: booking, error } = await supabase
-        .from("intake_bookings")
-        .select("id,booking_date,booking_time,first_name,last_name,phone,email,status,payment_status,payment_amount,payment_method,payment_verified_at,meeting_mode,appointment_type")
-        .eq("id", bookingId)
-        .maybeSingle();
-      if (error) throw error;
-      if (!booking) return Response.json({ error: "booking_not_found" }, { status: 404, headers: corsHeaders });
-
-      const { appointmentTypeLabel, durationMinutes, meetingModeLabel } = labels(booking);
-      return Response.json({
-        ok: true,
-        bookingId: booking.id,
-        name: [booking.first_name, booking.last_name].filter(Boolean).join(" "),
-        phone: booking.phone || "",
-        email: booking.email || "",
-        date: booking.booking_date,
-        time: String(booking.booking_time || "").slice(0, 5),
-        status: booking.status,
-        paymentStatus: booking.payment_status,
-        paymentAmount: Number(booking.payment_amount || 150),
-        paymentVerifiedAt: booking.payment_verified_at,
-        appointmentTypeLabel,
-        durationMinutes,
-        meetingModeLabel,
-      }, { headers: { ...corsHeaders, "Content-Type": "application/json", "Cache-Control": "no-store" } });
-    }
-
-    if (req.method !== "POST") return Response.json({ error: "method_not_allowed" }, { status: 405, headers: corsHeaders });
-
     const body = await req.json().catch(() => ({}));
     const action = String(body?.action || "").trim();
     const bookingId = String(body?.bookingId || "").trim();
-    const token = String(body?.token || "").trim();
-    if (!bookingId || !token || !["request_review", "verify"].includes(action)) {
+    const token = String(body?.token || body?.approvalToken || "").trim();
+    if (!bookingId || !token || !["request_review", "verify_from_approval"].includes(action)) {
       return Response.json({ error: "invalid_request" }, { status: 400, headers: corsHeaders });
     }
 
-    const tokenMessage = action === "request_review"
-      ? `lilach-payment-claim:${bookingId}`
-      : `lilach-payment-review:${bookingId}`;
-    const expected = await hmac(tokenMessage, secret);
-    if (!timingSafeEqual(token, expected)) return Response.json({ error: "invalid_token" }, { status: 401, headers: corsHeaders });
-
+    const supabase = createClient(supabaseUrl, serviceRoleKey);
     const { data: booking, error: bookingError } = await supabase
       .from("intake_bookings")
-      .select("id,booking_date,booking_time,first_name,last_name,phone,email,reason,referral_source,status,payment_status,payment_amount,payment_verified_at,meeting_mode,appointment_type")
+      .select("id,booking_date,booking_time,first_name,last_name,phone,email,reason,referral_source,status,payment_status,payment_amount,payment_verified_at,meeting_mode,appointment_type,approval_token_hash")
       .eq("id", bookingId)
       .maybeSingle();
     if (bookingError) throw bookingError;
     if (!booking) return Response.json({ error: "booking_not_found" }, { status: 404, headers: corsHeaders });
 
-    const { appointmentTypeLabel, durationMinutes, meetingModeLabel } = labels(booking);
-    const name = [booking.first_name, booking.last_name].filter(Boolean).join(" ");
-    const time = String(booking.booking_time || "").slice(0, 5);
-
     if (action === "request_review") {
-      if (booking.payment_status === "paid") {
-        return Response.json({ ok: true, alreadyVerified: true, status: booking.status, paymentStatus: booking.payment_status }, { headers: corsHeaders });
+      const expected = await hmac(`lilach-payment-claim:${bookingId}`, secret);
+      if (!timingSafeEqual(token, expected)) return Response.json({ error: "invalid_token" }, { status: 401, headers: corsHeaders });
+
+      if (booking.status === "confirmed") {
+        return Response.json({ ok: true, alreadyProcessed: true, status: booking.status, paymentStatus: booking.payment_status }, { headers: corsHeaders });
+      }
+      if (booking.status === "awaiting_approval" && ["reported", "paid"].includes(booking.payment_status)) {
+        return Response.json({ ok: true, alreadyRequested: true, status: booking.status, paymentStatus: booking.payment_status }, { headers: corsHeaders });
       }
       if (booking.status !== "pending_payment") {
         return Response.json({ error: "booking_not_pending_payment", status: booking.status }, { status: 409, headers: corsHeaders });
       }
 
+      const approvalToken = await hmac(`lilach-booking-approval:${booking.id}`, secret);
+      const approvalTokenHash = await sha256(approvalToken);
+      const approvalUrl = `https://www.lilachpavon.co.il/approval?bookingId=${encodeURIComponent(booking.id)}&token=${encodeURIComponent(approvalToken)}`;
       const nowIso = new Date().toISOString();
-      const holdUntil = new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString();
-      const { error: updateError } = await supabase
+
+      const { data: updated, error: updateError } = await supabase
         .from("intake_bookings")
         .update({
+          payment_status: "reported",
+          payment_amount: 150,
+          payment_method: "paybox",
+          payment_reference: "paybox_client_reported_150",
           payment_verification_requested_at: nowIso,
-          hold_expires_at: holdUntil,
+          status: "awaiting_approval",
+          approval_token_hash: approvalTokenHash,
+          hold_expires_at: null,
           updated_at: nowIso,
         })
-        .eq("id", booking.id);
+        .eq("id", booking.id)
+        .eq("status", "pending_payment")
+        .select("id")
+        .maybeSingle();
       if (updateError) throw updateError;
+      if (!updated) return Response.json({ error: "booking_state_changed" }, { status: 409, headers: corsHeaders });
 
-      const reviewToken = await hmac(`lilach-payment-review:${booking.id}`, secret);
-      const reviewUrl = `https://www.lilachpavon.co.il/payment-review?bookingId=${encodeURIComponent(booking.id)}&token=${encodeURIComponent(reviewToken)}`;
+      const { appointmentTypeLabel, durationMinutes, meetingModeLabel } = labels(booking);
+      const name = [booking.first_name, booking.last_name].filter(Boolean).join(" ");
+      const time = String(booking.booking_time || "").slice(0, 5);
 
       const html = `
         <div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7;color:#263126;max-width:640px;margin:auto">
-          <h2 style="margin-bottom:8px">בדיקת תשלום PayBox לפני אישור התור</h2>
-          <p><strong>הלקוח/ה דיווח/ה שביצע/ה תשלום של 150 ₪.</strong></p>
-          <p>לפני שליחת בקשת האישור, יש לבדוק באפליקציית PayBox שהתקבלו בפועל <strong>בדיוק 150 ₪</strong> מהלקוח/ה המתאים/ה.</p>
+          <h2 style="margin-bottom:8px">בקשת תור חדשה — נדרש אישור</h2>
+          <div style="background:#fff4df;border:1px solid #e9cf92;border-radius:14px;padding:16px;margin:18px 0">
+            <p style="margin:0 0 8px;font-size:18px"><strong>הלקוח/ה דיווח/ה שביצע/ה תשלום של 150 ₪ ב-PayBox.</strong></p>
+            <p style="margin:0"><strong>לפני אישור התור יש לבדוק באפליקציית PayBox שהתקבלו בפועל 150 ₪ מהלקוח/ה המתאים/ה.</strong></p>
+          </div>
           <div style="background:#f7f5f2;border-radius:14px;padding:16px;margin:18px 0">
             <p style="margin:0 0 8px"><b>שם:</b> ${escapeHtml(name)}</p>
             <p style="margin:0 0 8px"><b>מועד:</b> ${escapeHtml(booking.booking_date)} · ${escapeHtml(time)}</p>
-            <p style="margin:0 0 8px"><b>סוג:</b> ${escapeHtml(appointmentTypeLabel)} — ${durationMinutes} דקות</p>
-            <p style="margin:0 0 8px"><b>אופן:</b> ${escapeHtml(meetingModeLabel)}</p>
-            <p style="margin:0"><b>טלפון:</b> ${escapeHtml(booking.phone || "")}</p>
+            <p style="margin:0 0 8px"><b>טלפון:</b> ${escapeHtml(booking.phone || "")}</p>
+            <p style="margin:0 0 8px"><b>אימייל:</b> ${escapeHtml(booking.email || "")}</p>
+            <p style="margin:0 0 8px"><b>סוג הפגישה:</b> ${escapeHtml(appointmentTypeLabel)} — ${durationMinutes} דקות</p>
+            <p style="margin:0 0 8px"><b>אופן הפגישה:</b> ${escapeHtml(meetingModeLabel)}</p>
+            <p style="margin:0"><b>מקור הפנייה:</b> ${escapeHtml(booking.referral_source || "לא נמסר")}</p>
+          </div>
+          <div style="background:#f7f5f2;border-radius:14px;padding:16px;margin:18px 0">
+            <b>סיבת הפנייה</b><br>${escapeHtml(booking.reason || "")}
           </div>
           <p style="text-align:center;margin:24px 0">
-            <a href="${escapeHtml(reviewUrl)}" style="display:inline-block;background:#2f6f63;color:#fff;text-decoration:none;font-weight:700;padding:13px 22px;border-radius:12px">בדיקת ואימות תשלום 150 ₪</a>
+            <a href="${escapeHtml(approvalUrl)}" style="display:inline-block;background:#2f6f63;color:#fff;text-decoration:none;font-weight:700;padding:13px 22px;border-radius:12px">בדיקה ואישור התור</a>
           </p>
-          <p style="font-size:13px;color:#687168">מייל זה אינו אישור תשלום. רק לחיצה על כפתור האימות לאחר בדיקה ב-PayBox תסמן את התשלום כמאומת ותאפשר לשלוח את בקשת אישור התור.</p>
+          <p style="font-size:13px;color:#687168">לחיצה על הקישור תפתח את מסך האישור. בעת האישור תתבקשי לאשר שבדקת ב-PayBox שהתקבלו 150 ₪.</p>
         </div>`;
-      const emailResult = await sendEmail(notifyEmail, `נדרש אימות PayBox – 150 ₪ – ${name || "פונה חדש"}`, html);
+
+      const emailResult = await sendEmail(
+        notifyEmail,
+        `נדרש אישור – דווח תשלום 150 ₪ – ${appointmentTypeLabel} – ${name || "פונה חדש"}`,
+        html,
+      );
 
       return Response.json({
         ok: true,
-        status: booking.status,
-        paymentStatus: booking.payment_status,
-        reviewRequested: true,
+        status: "awaiting_approval",
+        paymentStatus: "reported",
+        paymentAmount: 150,
+        approvalRequested: true,
         emailSent: emailResult.sent,
         emailSkipped: emailResult.skipped,
       }, { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    if (booking.payment_status === "paid" && ["awaiting_approval", "confirmed"].includes(booking.status)) {
-      return Response.json({ ok: true, alreadyVerified: true, status: booking.status, paymentStatus: booking.payment_status }, { headers: corsHeaders });
+    const expectedApprovalToken = await hmac(`lilach-booking-approval:${bookingId}`, secret);
+    if (!timingSafeEqual(token, expectedApprovalToken)) {
+      return Response.json({ error: "invalid_approval_token" }, { status: 401, headers: corsHeaders });
     }
-    if (booking.status !== "pending_payment") {
-      return Response.json({ error: "booking_not_pending_payment", status: booking.status }, { status: 409, headers: corsHeaders });
+    const receivedHash = await sha256(token);
+    if (!booking.approval_token_hash || receivedHash !== booking.approval_token_hash) {
+      return Response.json({ error: "invalid_approval_token" }, { status: 401, headers: corsHeaders });
     }
 
-    const approvalToken = await hmac(`lilach-booking-approval:${booking.id}`, secret);
-    const approvalTokenHash = await sha256(approvalToken);
-    const approvalUrl = `https://www.lilachpavon.co.il/approval?bookingId=${encodeURIComponent(booking.id)}&token=${encodeURIComponent(approvalToken)}`;
+    if (booking.payment_status === "paid") {
+      return Response.json({ ok: true, alreadyVerified: true, status: booking.status, paymentStatus: "paid" }, { headers: corsHeaders });
+    }
+    if (booking.status !== "awaiting_approval" || booking.payment_status !== "reported") {
+      return Response.json({ error: "payment_not_reported_for_approval", status: booking.status, paymentStatus: booking.payment_status }, { status: 409, headers: corsHeaders });
+    }
+
     const nowIso = new Date().toISOString();
-
-    const { error: updateError } = await supabase
+    const { data: verified, error: verifyError } = await supabase
       .from("intake_bookings")
       .update({
         payment_status: "paid",
         payment_amount: 150,
         payment_method: "paybox",
-        payment_reference: "paybox_manual_verified_150",
+        payment_reference: "paybox_manual_verified_during_approval",
         payment_verified_at: nowIso,
-        status: "awaiting_approval",
-        approval_token_hash: approvalTokenHash,
-        hold_expires_at: null,
         updated_at: nowIso,
       })
       .eq("id", booking.id)
-      .eq("status", "pending_payment");
-    if (updateError) throw updateError;
-
-    const approvalHtml = `
-      <div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7;color:#263126;max-width:640px;margin:auto">
-        <h2 style="margin-bottom:8px">התשלום אומת — נדרש אישור תור</h2>
-        <div style="background:#eaf5e8;border:1px solid #bdd8b8;border-radius:14px;padding:16px;margin:18px 0">
-          <p style="margin:0;font-size:18px"><strong>✓ התקבל ואומת תשלום PayBox בסך 150 ₪</strong></p>
-        </div>
-        <div style="background:#f7f5f2;border-radius:14px;padding:16px;margin:18px 0">
-          <p style="margin:0 0 8px"><b>שם:</b> ${escapeHtml(name)}</p>
-          <p style="margin:0 0 8px"><b>מועד:</b> ${escapeHtml(booking.booking_date)} · ${escapeHtml(time)}</p>
-          <p style="margin:0 0 8px"><b>טלפון:</b> ${escapeHtml(booking.phone || "")}</p>
-          <p style="margin:0 0 8px"><b>אימייל:</b> ${escapeHtml(booking.email || "")}</p>
-          <p style="margin:0 0 8px"><b>סוג הפגישה:</b> ${escapeHtml(appointmentTypeLabel)} — ${durationMinutes} דקות</p>
-          <p style="margin:0 0 8px"><b>אופן הפגישה:</b> ${escapeHtml(meetingModeLabel)}</p>
-          <p style="margin:0"><b>מקור הפנייה:</b> ${escapeHtml(booking.referral_source || "לא נמסר")}</p>
-        </div>
-        <div style="background:#f7f5f2;border-radius:14px;padding:16px;margin:18px 0">
-          <b>סיבת הפנייה</b><br>${escapeHtml(booking.reason || "")}
-        </div>
-        <p style="text-align:center;margin:24px 0">
-          <a href="${escapeHtml(approvalUrl)}" style="display:inline-block;background:#2f6f63;color:#fff;text-decoration:none;font-weight:700;padding:13px 22px;border-radius:12px">אישור התור</a>
-        </p>
-        <p style="font-size:13px;color:#687168">הפגישה תתווסף ליומן ותאושר ללקוח/ה רק לאחר אישורך.</p>
-      </div>`;
-    const approvalEmail = await sendEmail(
-      notifyEmail,
-      `תשלום 150 ₪ אומת — נדרש אישור – ${appointmentTypeLabel} – ${name || "פונה חדש"}`,
-      approvalHtml,
-    );
+      .eq("status", "awaiting_approval")
+      .eq("payment_status", "reported")
+      .select("id")
+      .maybeSingle();
+    if (verifyError) throw verifyError;
+    if (!verified) return Response.json({ error: "booking_state_changed" }, { status: 409, headers: corsHeaders });
 
     return Response.json({
       ok: true,
       status: "awaiting_approval",
       paymentStatus: "paid",
       paymentAmount: 150,
-      emailSent: approvalEmail.sent,
-      emailSkipped: approvalEmail.skipped,
+      verifiedAt: nowIso,
     }, { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (error) {
-    console.error("PAYMENT REVIEW ERROR:", error);
+    console.error("PAYMENT APPROVAL FLOW ERROR:", error);
     return Response.json({ error: error instanceof Error ? error.message : String(error) }, { status: 500, headers: corsHeaders });
   }
 });
