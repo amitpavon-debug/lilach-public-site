@@ -159,9 +159,10 @@
 
       pendingActions.classList.add("hidden");
       rejectButton.textContent = "הבקשה נדחתה";
+      const refundNote = data.refundRequired ? " יש לבצע החזר מלא של 150 ₪ דרך PayBox." : "";
       showResult(data.clientEmailSent === false
-        ? "הבקשה נדחתה והמועד שוחרר, אך שליחת המייל ללקוח נכשלה."
-        : "הבקשה נדחתה, המועד שוחרר ונשלח ללקוח מייל עם אפשרות לבחור מועד חדש.",
+        ? `הבקשה נדחתה והמועד שוחרר, אך שליחת המייל ללקוח נכשלה.${refundNote}`
+        : `הבקשה נדחתה, המועד שוחרר ונשלח ללקוח מייל עם אפשרות לבחור מועד חדש.${refundNote}`,
         data.clientEmailSent === false ? "warning" : "success");
     } catch (error) {
       console.error(error);
@@ -188,9 +189,10 @@
       if (!response.ok || !data.ok) throw new Error(data.error || "cancel_failed");
 
       cancelButton.classList.add("hidden");
+      const refundNote = data.refundRequired ? " יש לבצע החזר מלא של 150 ₪ דרך PayBox." : "";
       showResult(data.clientEmailSent === false
-        ? "הפגישה בוטלה ונמחקה מהיומן, אך שליחת מייל הביטול ללקוח נכשלה."
-        : "הפגישה בוטלה, נמחקה מיומן Google ונשלח ללקוח מייל ביטול.",
+        ? `הפגישה בוטלה ונמחקה מהיומן, אך שליחת מייל הביטול ללקוח נכשלה.${refundNote}`
+        : `הפגישה בוטלה, נמחקה מיומן Google ונשלח ללקוח מייל ביטול.${refundNote}`,
         data.clientEmailSent === false ? "warning" : "success");
     } catch (error) {
       console.error(error);
