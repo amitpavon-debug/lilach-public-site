@@ -57,7 +57,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Rubik:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Rubik:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
-  <link rel="stylesheet" href="./styles.css?v=20261004-0718" />
+  <link rel="stylesheet" href="./styles.css?v=20261004-0940" />
   <link rel="stylesheet" href="./accessibility.css?v=20261003-0013" />
 </head>
 <body>
@@ -71,6 +71,20 @@
     <nav class="desktop-nav" aria-label="ניווט ראשי">
       <a href="#about">אודות</a><a href="#help">תחומי הטיפול</a><a href="#process">איך נראה התהליך</a><a href="#pricing">מחירים</a><a href="#booking">קביעת פגישה</a>
     </nav>
+    <details class="mobile-nav">
+      <summary aria-label="פתיחת תפריט ניווט">
+        <span class="mobile-nav-icon" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>תפריט</span>
+      </summary>
+      <nav class="mobile-nav-panel" aria-label="ניווט בנייד">
+        <a href="#top">ראש העמוד</a>
+        <a href="#about">אודות</a>
+        <a href="#help">תחומי הטיפול</a>
+        <a href="#process">איך נראה התהליך</a>
+        <a href="#pricing">מחירים</a>
+        <a class="mobile-nav-booking" href="#booking">קביעת פגישה</a>
+      </nav>
+    </details>
     <a class="header-cta" href="#booking">לקביעת פגישה</a>
   </header>
 
@@ -318,7 +332,7 @@
   <footer><div class="footer-inner"><div><b>לילך פבון</b><span>CBT · NLP · טיפול רגשי</span><span class="footer-address">📍 הכישור 30, חולון · <a href="https://www.google.com/maps/search/?api=1&query=%D7%94%D7%9B%D7%99%D7%A9%D7%95%D7%A8+30%2C+%D7%97%D7%95%D7%9C%D7%95%D7%9F" target="_blank" rel="noopener" aria-label="פתיחת הכתובת הכישור 30 חולון ב-Google Maps">Google Maps</a> | <a href="https://www.waze.com/ul?q=%D7%94%D7%9B%D7%99%D7%A9%D7%95%D7%A8%2030%2C%20%D7%97%D7%95%D7%9C%D7%95%D7%9F&navigate=yes" target="_blank" rel="noopener" aria-label="פתיחת הכתובת הכישור 30 חולון ב-Waze">Waze</a></span></div><div class="footer-links"><a href="#booking" data-booking-type="intake">קביעת פגישת אינטייק</a><a href="/privacy">מדיניות פרטיות</a><a href="/terms">תנאי שימוש</a><a href="/cancellations">מדיניות ביטולים</a><a href="/accessibility">הצהרת נגישות</a></div><small>© <span id="year"></span> לילך פבון. כל הזכויות שמורות.</small></div></footer>
 
   <script src="./config.js?v=20261004-0735"></script>
-  <script src="./app.js?v=20261004-0735"></script>
+  <script src="./app.js?v=20261004-0940"></script>
   <script src="./accessibility.js?v=20261003-0013"></script>
 </body>
 </html>
