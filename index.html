@@ -66,7 +66,7 @@
 <link rel="preload" as="image" href="./assets/lilach-logo.jpg" fetchpriority="high">
   <link rel="preload" href="./assets/fonts/heebo-hebrew-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="./assets/fonts/rubik-hebrew-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="./styles.css?v=20261004-1725" />
+  <link rel="stylesheet" href="./styles.css?v=20261006-ux1" />
   <link rel="stylesheet" href="./accessibility.css?v=20261003-0013" />
 </head>
 <body>
@@ -107,7 +107,7 @@
         <h1 id="hero-title">מקום בטוח לעצור,<br><em>לנשום ולהתחיל שינוי</em></h1>
         <p>לפעמים כל מה שצריך הוא מרחב שקט, מקצועי ולא שיפוטי — כדי להבין מה עובר עליך, להתחבר לכוחות שלך ולמצוא דרך חדשה קדימה.</p>
         <div class="hero-actions">
-          <a class="btn primary" href="#booking" data-booking-type="intake">לקביעת פגישת אינטייק</a>
+          <a class="btn primary" href="#booking" data-booking-type="intake">לקביעת פגישה</a>
           <p class="hero-intake-note">פעם ראשונה אצלי? <a href="#pricing">לחצו כאן</a></p>
         </div>
         <div class="trust-row" aria-label="עקרונות השירות"><span>פרטיות ודיסקרטיות</span><span>ליווי אישי</span><span>CBT + NLP</span></div>
@@ -213,7 +213,7 @@
               <span class="price-divider" aria-hidden="true"></span>
               <span class="price-amount"><strong>400</strong> ₪</span>
             </div>
-            <a class="btn primary price-cta" href="#booking" data-booking-type="intake">לקביעת פגישת אינטייק</a>
+            <a class="btn primary price-cta" href="#booking" data-booking-type="intake">לקביעת פגישה</a>
           </article>
 
           <article class="price-card">
@@ -234,9 +234,12 @@
     <section id="booking" class="soft-section" aria-labelledby="booking-title">
       <div class="section-shell booking-layout">
         <div>
-          <span class="eyebrow">קביעת פגישה</span><h2 id="booking-title">כל התהליך במקום אחד</h2>
+          <span class="eyebrow">קביעת פגישה</span><h2 id="booking-title">מתחילים מכאן, בקצב שנכון לך</h2>
           <p>בוחרים מועד, ממלאים פרטים, משלמים מקדמה של 150 ₪ באמצעות PayBox, ולאחר אימות התשלום הבקשה עוברת לאישור לילך.</p>
-          <div class="privacy-box"><b>שמירה על פרטיות</b><p>הפרטים נמסרים לצורך טיפול בפנייה, תיאום וניהול הפגישה. מסירת המידע היא מרצון; ללא הפרטים הנדרשים לא ניתן לטפל בבקשת התור. מומלץ למסור בסיבת הפנייה רק את המידע הדרוש לתיאום ראשוני. <a href="/privacy" target="_blank" rel="noopener">למדיניות הפרטיות המלאה</a>.</p></div>
+          <details class="privacy-box mobile-collapsible">
+            <summary><b>שמירה על פרטיות</b><span class="mobile-more" aria-hidden="true">קראו עוד</span></summary>
+            <p>הפרטים נמסרים לצורך טיפול בפנייה, תיאום וניהול הפגישה. מסירת המידע היא מרצון; ללא הפרטים הנדרשים לא ניתן לטפל בבקשת התור. מומלץ למסור בסיבת הפנייה רק את המידע הדרוש לתיאום ראשוני. <a href="/privacy" target="_blank" rel="noopener">למדיניות הפרטיות המלאה</a>.</p>
+          </details>
           <p class="booking-required-note"><strong>לתשומת לב:</strong> קביעת הפגישה באתר מיועדת למי שמלאו לו 18 שנים.</p>
           <div id="bookingState" class="booking-state"></div>
         </div>
