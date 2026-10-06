@@ -239,3 +239,50 @@
 .payment-deposit-box span{font-size:13px;line-height:1.65;color:var(--muted)}
 .paybox-main{margin-top:2px}
 .payment-review-button{margin-top:10px}
+
+
+/* Mobile UX polish - 2026-10-06 */
+.mobile-collapsible summary{list-style:none;cursor:default}
+.mobile-collapsible summary::-webkit-details-marker{display:none}
+.mobile-more{display:none}
+
+@media (max-width: 720px){
+  .hero-copy,
+  .section-head,
+  .booking-layout > div:first-child{
+    text-align:center;
+  }
+  .hero-actions,
+  .trust-row{
+    justify-content:center;
+  }
+  .booking-layout > div:first-child .privacy-box{
+    text-align:right;
+  }
+  .mobile-collapsible summary{
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .mobile-collapsible .mobile-more{
+    display:inline-block;
+    font-size:.82rem;
+    font-weight:600;
+    white-space:nowrap;
+    text-decoration:underline;
+  }
+  .mobile-collapsible:not([open]) p{
+    display:-webkit-box;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:2;
+    overflow:hidden;
+    margin-bottom:0;
+  }
+  .mobile-collapsible[open] .mobile-more{font-size:0}
+  .mobile-collapsible[open] .mobile-more::after{
+    content:"סגירה";
+    font-size:.82rem;
+  }
+}
