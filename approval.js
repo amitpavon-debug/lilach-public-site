@@ -14,6 +14,7 @@
   const errorBox = document.getElementById("errorBox");
   const content = document.getElementById("content");
   const pendingActions = document.getElementById("pendingActions");
+  const paymentVerifyButton = document.getElementById("paymentVerifyButton");
   const approveButton = document.getElementById("approveButton");
   const paymentMissingButton = document.getElementById("paymentMissingButton");
   const rejectButton = document.getElementById("rejectButton");
@@ -35,6 +36,7 @@
   }
 
   function setBusy(busy) {
+    paymentVerifyButton.disabled = busy;
     approveButton.disabled = busy;
     paymentMissingButton.disabled = busy;
     rejectButton.disabled = busy;
@@ -48,9 +50,17 @@
 
     if (status === "awaiting_approval") {
       pendingActions.classList.remove("hidden");
+      paymentVerifyButton.classList.add("hidden");
+      approveButton.classList.add("hidden");
+
       if (loadedPaymentStatus === "reported") {
+        paymentVerifyButton.classList.remove("hidden");
         paymentMissingButton.classList.remove("hidden");
+        showResult("לפני אישור הפגישה יש לבדוק ב-PayBox שהתקבלו בפועל 150 ₪. לאחר האימות יישלח אלייך מייל נפרד לאישור הפגישה.", "warning");
+      } else if (loadedPaymentStatus === "paid") {
+        approveButton.classList.remove("hidden");
       }
+
       if (requestedAction === "reject") {
         showResult("הבקשה עדיין ממתינה. לחצי על „דחיית הבקשה” כדי לאשר את הדחייה.", "warning");
         rejectButton.focus();
@@ -130,36 +140,61 @@
     }
   }
 
-  approveButton.addEventListener("click", async () => {
-    if (loadedPaymentStatus === "reported") {
-      const checked = window.confirm("לפני אישור התור: האם בדקת ב-PayBox שהתקבלו בפועל בדיוק 150 ₪ מהלקוח/ה המתאים/ה?");
-      if (!checked) return;
-    }
+  paymentVerifyButton.addEventListener("click", async () => {
+    if (!window.confirm("האם בדקת ב-PayBox והתקבלו בפועל בדיוק 150 ₪ מהלקוח/ה המתאים/ה?")) return;
 
     setBusy(true);
-    approveButton.textContent = "מאמתת ומאשרת...";
+    paymentVerifyButton.textContent = "מאמתת תשלום...";
     resultMessage.classList.add("hidden");
 
     try {
-      if (loadedPaymentStatus === "reported") {
-        const verifyResponse = await fetch(PAYMENT_REVIEW_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "verify_from_approval",
-            bookingId,
-            approvalToken: token
-          })
-        });
-        const verifyData = await verifyResponse.json();
-        if (!verifyResponse.ok || !verifyData.ok) {
-          throw new Error(verifyData.error || "payment_verification_failed");
-        }
-        loadedPaymentStatus = "paid";
-        document.getElementById("paymentStatus").textContent = "150 ₪ — אומת על ידי לילך";
-        paymentMissingButton.classList.add("hidden");
+      const verifyResponse = await fetch(PAYMENT_REVIEW_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "verify_from_approval",
+          bookingId,
+          approvalToken: token
+        })
+      });
+      const verifyData = await verifyResponse.json();
+      if (!verifyResponse.ok || !verifyData.ok) {
+        throw new Error(verifyData.error || "payment_verification_failed");
       }
 
+      loadedPaymentStatus = "paid";
+      document.getElementById("paymentStatus").textContent = "150 ₪ — אומת על ידי לילך";
+      paymentVerifyButton.classList.add("hidden");
+      paymentMissingButton.classList.add("hidden");
+      approveButton.classList.remove("hidden");
+      setBusy(false);
+      paymentVerifyButton.textContent = "התשלום אומת";
+      showResult(
+        verifyData.approvalEmailSent === false
+          ? "התשלום סומן כמאומת, אך שליחת מייל האישור ללילך נכשלה. אפשר לאשר את הפגישה מהמסך הזה."
+          : "התשלום אומת. נשלח ללילך מייל חדש שמציין שהתקבלו 150 ₪ ובו קישור לאישור הפגישה.",
+        verifyData.approvalEmailSent === false ? "warning" : "success"
+      );
+      approveButton.focus();
+    } catch (error) {
+      console.error(error);
+      paymentVerifyButton.textContent = "בדקתי ב-PayBox — התקבלו 150 ₪";
+      setBusy(false);
+      showResult("לא הצלחנו לשמור את אימות התשלום. נסי שוב.", "error");
+    }
+  });
+
+  approveButton.addEventListener("click", async () => {
+    if (loadedPaymentStatus !== "paid") {
+      showResult("לא ניתן לאשר את הפגישה לפני שאומת תשלום של 150 ₪ ב-PayBox.", "warning");
+      return;
+    }
+
+    setBusy(true);
+    approveButton.textContent = "מאשרת...";
+    resultMessage.classList.add("hidden");
+
+    try {
       const response = await fetch(APPROVE_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -205,6 +240,7 @@
       if (!response.ok || !data.ok) throw new Error(data.error || "payment_missing_failed");
 
       pendingActions.classList.add("hidden");
+      paymentVerifyButton.classList.add("hidden");
       loadedPaymentStatus = "pending";
       document.getElementById("paymentStatus").textContent = "ממתין לתשלום — נשלחה תזכורת";
       const emailNote = data.clientEmailSent === false
