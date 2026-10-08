@@ -15,3 +15,12 @@
 .date-btn.active{background:var(--sage-dark);color:#fff;border-color:var(--sage-dark)}.slot-btn.active{background:var(--sage-dark);color:#fff;border-color:var(--sage-dark)}
 @media(max-width:899px){.booking-step-head{display:block;text-align:center}.booking-step-head>span{display:inline-block;margin-bottom:8px}.booking-field{text-align:center}}
 @media(max-width:559px){.bk-range{grid-template-columns:38px 1fr 38px}.bk-range__btn{width:36px;height:36px}}
+/* app.js generates these class names; mirror the ZIP's .bk-day/.bk-slot rules exactly. */
+.date-btn{border:1.5px solid var(--line);background:#fbfcfa;border-radius:16px;padding:10px 4px;cursor:pointer;color:var(--sage-dark);transition:all .2s var(--ease)}
+.date-btn:hover{border-color:var(--sage)}
+.date-btn b,.date-btn small{display:block}
+.date-btn b{font-size:clamp(15px,4.6vw,20px);font-family:Rubik,sans-serif}
+.date-btn small{font-size:12px;opacity:.8}
+.slot-btn{border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:11px 6px;cursor:pointer;color:var(--sage-dark);font-weight:700;transition:all .2s var(--ease)}
+.slot-btn:hover{background:var(--rose-soft)}
+.slot-btn[disabled]{opacity:.38;cursor:not-allowed;text-decoration:line-through}
