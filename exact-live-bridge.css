@@ -1,0 +1,66 @@
+/* Integration bridge only.
+   The visual system comes from the user's ZIP styles.css.
+   This file maps the existing production booking IDs/classes to those exact styles. */
+
+.hidden{display:none!important}
+.live-privacy{max-width:760px;margin:0 auto 18px;padding:14px 18px;border:1px solid var(--line);border-radius:18px;background:var(--rose-soft);color:var(--muted);text-align:right}
+.live-privacy summary{cursor:pointer;list-style:none;color:var(--sage-dark);font-weight:700}
+.live-privacy summary::-webkit-details-marker{display:none}
+.live-privacy p{margin:8px 0 0;line-height:1.65}
+.live-privacy a{color:var(--rose-deep)}
+.booking-required-note{max-width:760px;margin:0 auto 14px;text-align:center;color:var(--muted);font-size:13px}
+.booking-state{max-width:760px;margin:0 auto 14px}
+.live-booking{max-width:760px;margin:0 auto}
+.exact-live-options{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.meeting-mode-option{display:block;position:relative;cursor:pointer}
+.meeting-mode-option input{position:absolute;opacity:0;pointer-events:none}
+.exact-live-seg{display:flex!important;flex-direction:column;gap:2px;align-items:center;border:1.5px solid var(--line)!important;border-radius:18px!important;padding:14px 8px!important;background:#fbfcfa!important;transition:all .25s var(--ease);height:100%;text-align:center}
+.exact-live-seg b{color:var(--sage-dark);font-size:16px}
+.exact-live-seg small{color:var(--muted);font-size:13px;line-height:1.35}
+.meeting-mode-option input:checked+.exact-live-seg{border-color:var(--sage-dark)!important;background:var(--sage-soft)!important;box-shadow:0 8px 20px rgba(79,93,72,.12)}
+.meeting-mode-option input:focus-visible+.exact-live-seg{outline:3px solid var(--rose-deep);outline-offset:2px}
+.booking-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:2px 0 14px;color:var(--sage-dark)}
+.booking-top button{width:38px;height:38px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--sage-dark);font:inherit;font-size:22px;cursor:pointer}
+.date-btn{border:1.5px solid var(--line);background:#fbfcfa;border-radius:16px;padding:10px 4px;cursor:pointer;color:var(--sage-dark);transition:all .2s var(--ease)}
+.date-btn:hover{border-color:var(--sage)}
+.date-btn b,.date-btn small{display:block}
+.date-btn b{font-size:clamp(15px,4.6vw,20px);font-family:Rubik,sans-serif}
+.date-btn small{font-size:12px;opacity:.8}
+.date-btn.active{background:var(--sage-dark);color:#fff;border-color:var(--sage-dark)}
+.slot-btn{border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:11px 6px;cursor:pointer;color:var(--sage-dark);font-weight:700;transition:all .2s var(--ease)}
+.slot-btn:hover{background:var(--rose-soft)}
+.slot-btn.active{background:var(--sage-dark);color:#fff;border-color:var(--sage-dark)}
+.muted{grid-column:1/-1;margin:0;color:var(--muted);font-size:14px}
+#bookingFormWrap:not(.hidden){display:block}
+.booking-form-wrap{border-top:1px solid var(--line);padding-top:20px;text-align:right}
+.booking-field{display:grid;gap:6px;margin-bottom:14px;font-weight:700;color:var(--sage-dark);font-size:15px}
+.booking-highlight{padding:14px;border-radius:18px;background:var(--rose-soft);margin-bottom:14px}
+.booking-consent{margin-bottom:14px!important;text-align:right}
+.booking-consent span{line-height:1.55}
+.booking-consent a{color:var(--rose-deep)}
+.booking-step-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;padding:14px 16px;border-radius:18px;background:var(--rose-soft);text-align:right}
+.booking-step-head>span{flex:none;border-radius:999px;background:var(--rose-deep);color:#fff;padding:5px 10px;font-size:12px;font-weight:700}
+.booking-step-head h3{margin:0 0 4px;color:var(--sage-dark)}
+.booking-step-head p{margin:0;color:var(--muted);font-size:13px;line-height:1.55}
+.payment-step-head{background:var(--sage-soft)}
+.payment-step-head>span{background:var(--sage-dark)}
+.booking-confirmation,.payment-deposit-box{margin:14px 0;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--sage-soft);color:var(--sage-dark);display:grid;gap:5px;text-align:right}
+.booking-confirmation span,.payment-deposit-box span{color:var(--muted);font-size:13px;line-height:1.6}
+.payment-deposit-box strong{font-size:20px}
+.form-message{min-height:22px;margin:10px 0 0;text-align:center;font-weight:700;font-size:13px}
+.form-message.ok{color:#2e7d4c}.form-message.err{color:#b23a48}
+.payment-security-note{margin:12px 0 0;color:var(--muted);font-size:12px;line-height:1.55;text-align:center}
+.payment-review-button{margin-top:10px}
+.booking-approval-step,.booking-success-step{text-align:center}
+.booking-wait-mark,.booking-success-mark{width:62px;height:62px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;background:var(--sage-soft);color:var(--sage-dark);font-size:28px;font-weight:800}
+.fallback-link{display:block;margin-top:14px;text-align:center;color:var(--rose-deep);font-weight:700}
+.full,.btn--full{width:100%}
+.mobile-more{margin-inline-start:8px;color:var(--rose-deep);font-size:12px}
+@media(max-width:559px){
+  .exact-live-options{grid-template-columns:1fr}
+  .booking-form-wrap .two{grid-template-columns:1fr}
+  .booking-step-head{display:block;text-align:center}
+  .booking-step-head>span{display:inline-block;margin-bottom:8px}
+  .live-privacy{text-align:center}
+  .live-privacy p{text-align:right}
+}
