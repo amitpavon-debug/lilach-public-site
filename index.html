@@ -8,21 +8,7 @@
 <link rel="canonical" href="https://www.lilachpavon.co.il/">
 <link rel="alternate" hreflang="he-IL" href="https://www.lilachpavon.co.il/">
 <link rel="alternate" hreflang="x-default" href="https://www.lilachpavon.co.il/">
-<script type="application/ld+json">
-{
-  "@context":"https://schema.org",
-  "@type":"ProfessionalService",
-  "name":"לילך פבון",
-  "url":"https://www.lilachpavon.co.il/",
-  "image":"https://www.lilachpavon.co.il/assets/lilach-logo.jpg",
-  "description":"מטפלת רגשית בחולון המשלבת CBT, NLP ומיינדפולנס בתהליך אישי ומעשי.",
-  "email":"appointments@lilachpavon.co.il",
-  "address":{"@type":"PostalAddress","streetAddress":"הכישור 30","addressLocality":"חולון","addressCountry":"IL"},
-  "areaServed":{"@type":"City","name":"חולון"},
-  "priceRange":"400 ₪",
-  "founder":{"@type":"Person","name":"לילך פבון","jobTitle":"מטפלת רגשית"}
-}
-</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"לילך פבון","url":"https://www.lilachpavon.co.il/","description":"מטפלת רגשית בחולון המשלבת CBT, NLP ומיינדפולנס בתהליך אישי ומעשי.","email":"appointments@lilachpavon.co.il","address":{"@type":"PostalAddress","streetAddress":"הכישור 30","addressLocality":"חולון","addressCountry":"IL"},"areaServed":{"@type":"City","name":"חולון"},"priceRange":"400 ₪","founder":{"@type":"Person","name":"לילך פבון","jobTitle":"מטפלת רגשית"}}</script>
 <meta name="description" content="לילך פבון, מטפלת רגשית בחולון, בשילוב CBT, NLP ומיינדפולנס. ליווי בחרדה, סטרס, ביטחון עצמי ושינוי דפוסים, ופגישת אינטייק אונליין או בקליניקה.">
 <meta name="theme-color" content="#FFFAF7">
 <!-- OG: הכתובות כאן כבר מצביעות על הדומיין של לילך. תמונת השיתוף נמצאת ב-assets/img. -->
@@ -68,7 +54,7 @@
 .bk-demo-done.is-on{display:block}
 </style>
 <link rel="stylesheet" href="https://lilach-pavon-preview.netlify.app/styles.css">
-<link rel="stylesheet" href="./live.css?v=20261008-live1">
+<link rel="stylesheet" href="./live.css?v=20261008-live2">
 <link rel="stylesheet" href="./accessibility.css?v=20261003-0013">
 </head>
 <body>
@@ -235,55 +221,34 @@
 <!-- 7. קביעת פגישה: יומן מדומה בהדגמה -->
 <section id="booking" class="sec" aria-labelledby="booking-title">
   <div class="wrap wrap--narrow">
-    <header class="sec__head" data-reveal>
-      <span class="eyebrow">קביעת פגישה</span>
-      <h2 id="booking-title">מתחילים מכאן, בקצב שנכון לך</h2>
-      <p>בוחרים מועד, ממלאים פרטים ומשלמים מקדמה של 150 ₪ ב-PayBox. אחרי אימות התשלום הבקשה עוברת לאישור של לילך.</p>
-    </header>
+    <header class="sec__head" data-reveal><span class="eyebrow">קביעת פגישה</span><h2 id="booking-title">מתחילים מכאן, בקצב שנכון לך</h2><p>בוחרים מועד, ממלאים פרטים ומשלמים מקדמה של 150 ₪ ב-PayBox. אחרי אימות התשלום הבקשה עוברת לאישור של לילך.</p></header>
     <div id="bookingState" class="booking-state" role="status" aria-live="polite"></div>
-    <form class="bk" data-reveal id="bk-form" novalidate>
-      <fieldset class="seg">
-        <legend>איזו פגישה?</legend>
-        <label><input type="radio" name="type" value="intake" checked><span><b>אינטייק ראשונית</b><small>60 דקות</small></span></label>
-        <label><input type="radio" name="type" value="therapy"><span><b>טיפול רגשי</b><small>50 דקות</small></span></label>
+    <form class="bk" data-reveal novalidate>
+      <fieldset class="seg appointment-type-fieldset"><legend>איזו פגישה?</legend>
+        <label><input type="radio" name="appointmentType" value="intake" checked><span><b>אינטייק ראשונית</b><small>60 דקות</small></span></label>
+        <label><input type="radio" name="appointmentType" value="therapy"><span><b>טיפול רגשי</b><small>50 דקות</small></span></label>
       </fieldset>
-      <fieldset class="seg">
-        <legend>איך תרצו להיפגש?</legend>
-        <label><input type="radio" name="mode" value="clinic" checked><span><b><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg>בקליניקה</b><small>הכישור 30, חולון</small></span></label>
-        <label><input type="radio" name="mode" value="zoom"><span><b><svg class="ico" aria-hidden="true"><use href="#i-cam"/></svg>אונליין (Zoom)</b><small>קישור יישלח סמוך למועד</small></span></label>
+      <fieldset class="seg"><legend>איך תרצו להיפגש?</legend>
+        <label><input type="radio" name="meetingMode" value="clinic" checked><span><b><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg>בקליניקה</b><small>הכישור 30, חולון</small></span></label>
+        <label><input type="radio" name="meetingMode" value="zoom"><span><b><svg class="ico" aria-hidden="true"><use href="#i-cam"/></svg>אונליין (Zoom)</b><small>קישור יישלח סמוך למועד</small></span></label>
       </fieldset>
-      <div class="bk-range">
-        <button id="prevDays" type="button" class="bk-range__btn" aria-label="ימים קודמים">‹</button>
-        <strong id="bookingRange">מועדים קרובים</strong>
-        <button id="nextDays" type="button" class="bk-range__btn" aria-label="ימים הבאים">›</button>
-      </div>
+      <div class="bk-range"><button id="prevDays" type="button" class="bk-range__btn" aria-label="ימים קודמים">‹</button><strong id="bookingRange">מועדים קרובים</strong><button id="nextDays" type="button" class="bk-range__btn" aria-label="ימים הבאים">›</button></div>
       <div class="bk__days" id="dateStrip" role="group" aria-label="בחירת יום"></div>
       <div class="bk__slots" id="slots" role="group" aria-label="שעות פנויות"><p class="muted">בחרו יום להצגת השעות הפנויות.</p></div>
-      <div class="bk-form" id="bk-fields">
+      <div class="bk-form hidden" id="bookingFormWrap" role="region" aria-label="פרטי בקשת הפגישה">
         <div id="bookingDetailsStep">
-          <label class="chk"><input type="checkbox" id="bk-first" checked><span>זו הפעם הראשונה שלי אצל לילך</span></label>
-          <div class="two"><label>שם פרטי *<input id="bookFirstName" autocomplete="given-name"></label><label>שם משפחה *<input id="bookLastName" autocomplete="family-name"></label></div>
-          <div class="two"><label>טלפון *<input id="bookPhone" inputmode="tel" autocomplete="tel"></label><label>אימייל *<input id="bookEmail" type="email" autocomplete="email"></label></div>
-          <div class="first-only" id="bk-first-fields">
-            <label>מה מביא אותך לפנות עכשיו? *<textarea id="bookReason" rows="3" placeholder="בכמה מילים. אפשר גם רק את המידע הדרוש לתיאום ראשוני"></textarea></label>
-            <label>איך הגעת ללילך? *<select id="bookReferral"><option value="">בחרו</option><option value="המלצה">המלצה</option><option value="אינסטגרם">אינסטגרם</option><option value="פייסבוק">פייסבוק</option><option value="גוגל">גוגל</option><option value="אתר">אתר</option><option value="מטופל/ת קודם/ת">מטופל/ת קודם/ת</option><option value="אחר">אחר</option></select></label>
-          </div>
-          <label class="chk legal-check"><input id="bookPrivacyConsent" type="checkbox"><span>קראתי את <a href="/privacy" target="_blank" rel="noopener">מדיניות הפרטיות</a>, ואני מאשר/ת שמירת ועיבוד הפרטים לצורך תיאום וניהול הפגישה.</span></label>
-          <label class="chk legal-check"><input id="bookPolicyAccepted" type="checkbox"><span>קראתי ואני מאשר/ת את <a href="/terms" target="_blank" rel="noopener">תנאי השימוש</a> ואת <a href="/cancellations" target="_blank" rel="noopener">מדיניות הביטולים</a>. ידוע לי ששריון המועד מותנה בתשלום מקדמה של 150 ₪.</span></label>
-          <p class="booking-required-note">קביעת הפגישה באתר מיועדת למי שמלאו לו 18 שנים.</p>
-          <button id="confirmBooking" class="btn btn--primary btn--full" type="submit">המשך לתשלום 150 ₪</button>
+          <div class="booking-step-head"><span>שלב 2</span><div><h3>פרטים לאישור הפגישה</h3><p>בפנייה ראשונה יש למלא גם סיבת פנייה וגם מאיפה שמעת/הגעת ללילך.</p></div></div>
+          <div class="two"><label class="booking-field">שם פרטי *<input id="bookFirstName" autocomplete="given-name"></label><label class="booking-field">שם משפחה *<input id="bookLastName" autocomplete="family-name"></label></div>
+          <div class="two"><label class="booking-field">טלפון *<input id="bookPhone" inputmode="tel" autocomplete="tel"></label><label class="booking-field">אימייל *<input id="bookEmail" type="email" autocomplete="email"></label></div>
+          <label class="booking-field first-only">מה מביא אותך לפנות עכשיו? *<textarea id="bookReason" rows="3" placeholder="בכמה מילים. אפשר גם רק את המידע הדרוש לתיאום ראשוני"></textarea></label>
+          <label class="booking-field first-only">איך הגעת ללילך? *<select id="bookReferral"><option value="">בחרו</option><option value="המלצה">המלצה</option><option value="אינסטגרם">אינסטגרם</option><option value="פייסבוק">פייסבוק</option><option value="גוגל">גוגל</option><option value="אתר">אתר</option><option value="מטופל/ת קודם/ת">מטופל/ת קודם/ת</option><option value="אחר">אחר</option></select></label>
+          <label class="chk booking-consent legal-check"><input id="bookPrivacyConsent" type="checkbox"><span>קראתי את <a href="/privacy" target="_blank" rel="noopener">מדיניות הפרטיות</a>, ואני מאשר/ת שמירת ועיבוד הפרטים לצורך תיאום וניהול הפגישה.</span></label>
+          <label class="chk booking-consent booking-policy legal-check"><input id="bookPolicyAccepted" type="checkbox"><span><strong>קראתי ואני מאשר/ת את <a href="/terms" target="_blank" rel="noopener">תנאי השימוש</a> ואת <a href="/cancellations" target="_blank" rel="noopener">מדיניות הביטולים</a>. ידוע לי ששריון המועד מותנה בתשלום מקדמה של 150 ₪.</strong></span></label>
+          <p class="booking-required-note">* שם פרטי, שם משפחה, טלפון, אימייל, סיבת הפנייה, מקור ההגעה ושני האישורים הם חובה.</p>
+          <button id="confirmBooking" class="btn btn--primary btn--full" type="button">המשך לתשלום 150 ₪</button>
           <p id="bookingMessage" class="form-message" role="status" aria-live="polite"></p>
         </div>
-        <div id="bookingPaymentStep" class="live-step hidden">
-          <div class="live-step__icon"><svg class="ico ico--lg" aria-hidden="true"><use href="#i-check"/></svg></div>
-          <h3>המועד נשמר זמנית</h3>
-          <div id="bookingPending" class="live-box"></div>
-          <div class="live-box live-box--rose"><b>לתשלום כעת: 150 ₪</b><span>פתחו את PayBox, השלימו את התשלום, חזרו לכאן ולחצו על “כבר שילמתי 150 ₪”.</span></div>
-          <a id="payboxBtn" class="btn btn--primary btn--full" href="#" target="_blank" rel="noopener">תשלום 150 ₪ ב-PayBox</a>
-          <button id="paymentClaimBtn" class="btn btn--ghost btn--full live-gap" type="button">כבר שילמתי 150 ₪</button>
-          <p id="paymentReviewMessage" class="form-message" role="status" aria-live="polite"></p>
-          <p class="payment-security-note">הפגישה אינה מאושרת עדיין. לילך תבדוק את התשלום ב-PayBox לפני אישור התור.</p>
-        </div>
+        <div id="bookingPaymentStep" class="live-step hidden"><div class="live-step__icon"><svg class="ico ico--lg" aria-hidden="true"><use href="#i-check"/></svg></div><h3>המועד נשמר זמנית</h3><div id="bookingPending" class="live-box"></div><div class="live-box live-box--rose"><b>לתשלום כעת: 150 ₪</b><span>פתחו את PayBox, השלימו את התשלום, חזרו לכאן ולחצו על “כבר שילמתי 150 ₪”.</span></div><a id="payboxBtn" class="btn btn--primary btn--full" href="#" target="_blank" rel="noopener">תשלום 150 ₪ ב-PayBox</a><button id="paymentClaimBtn" class="btn btn--ghost btn--full live-gap" type="button">כבר שילמתי 150 ₪</button><p id="paymentReviewMessage" class="form-message" role="status" aria-live="polite"></p><p class="payment-security-note">הפגישה אינה מאושרת עדיין. לילך תבדוק את התשלום ב-PayBox לפני אישור התור.</p></div>
         <div id="bookingApprovalStep" class="live-step hidden"><div class="live-step__icon">⏳</div><h3>התשלום דווח — ממתינים לאישור לילך</h3><div id="bookingApprovalConfirmation" class="live-box"></div><p>לילך קיבלה בקשה לבדוק את התשלום ב-PayBox. לאחר האימות היא תאשר או תדחה את הפגישה.</p></div>
         <div id="bookingSuccessStep" class="live-step hidden"><div class="live-step__icon"><svg class="ico ico--lg" aria-hidden="true"><use href="#i-check"/></svg></div><h3>הפגישה אושרה בהצלחה</h3><div id="bookingFinalConfirmation" class="live-box"></div><p>נשלח לפונה מייל אישור עם פרטי הפגישה.</p><button id="newBookingBtn" class="btn btn--ghost btn--full" type="button">קביעת פגישה נוספת</button></div>
       </div>
@@ -293,12 +258,7 @@
 </section>
 
 <!-- 8. השארת פרטים: טופס קצר, ללא חיבור -->
-<section id="details" class="sec sec--soft" aria-labelledby="details-title">
-  <div class="wrap wrap--narrow">
-    <header class="sec__head" data-reveal><span class="eyebrow">רוצים להתחיל?</span><h2 id="details-title">אפשר לקבוע פגישה ישירות באתר</h2><p>בחרו מועד שמתאים לכם והמשיכו לתהליך הקביעה המאובטח.</p></header>
-    <div class="det-form det-form--cta" data-reveal><svg class="ico ico--lg" aria-hidden="true"><use href="#i-heart"/></svg><p>כל התהליך — בחירת מועד, פרטים ותשלום מקדמה — נמצא כאן באתר.</p><a class="btn btn--primary btn--full" href="#booking" data-book-type="therapy" data-booking-type="therapy">לקביעת פגישה</a></div>
-  </div>
-</section>
+<section id="details" class="sec sec--soft" aria-labelledby="details-title"><div class="wrap wrap--narrow"><header class="sec__head" data-reveal><span class="eyebrow">רוצים להתחיל?</span><h2 id="details-title">אפשר לקבוע פגישה ישירות באתר</h2><p>בחרו מועד שמתאים לכם והמשיכו לתהליך הקביעה המאובטח.</p></header><div class="det-form det-form--cta" data-reveal><svg class="ico ico--lg" aria-hidden="true"><use href="#i-heart"/></svg><p>כל התהליך — בחירת מועד, פרטים ותשלום מקדמה — נמצא כאן באתר.</p><a class="btn btn--primary btn--full" href="#booking" data-book-type="therapy" data-booking-type="therapy">לקביעת פגישה</a></div></div></section>
 </main>
 
 <footer class="foot">
@@ -308,8 +268,9 @@
     <small>© <span id="year"></span> לילך פבון</small>
   </div>
 </footer>
+<script type="module" src="https://lilach-pavon-preview.netlify.app/main.js"></script>
 <script src="./config.js?v=20261004-1725"></script>
+<script src="./app.js?v=20261004-1725"></script>
 <script src="./accessibility.js?v=20261003-0013"></script>
-<script type="module" src="./main.js?v=20261008-live1"></script>
 </body>
 </html>
