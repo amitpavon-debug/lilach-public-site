@@ -1,0 +1,542 @@
+
+
+.hero__bg i:nth-child(3){
+  width:min(760px,150vw);
+  height:min(760px,150vw);
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  border:1px solid rgba(123,135,111,.12);
+  box-shadow:0 0 0 70px rgba(255,255,255,.35),0 0 0 140px rgba(255,255,255,.18)
+}
+
+.hero__in{
+  position:relative;
+  max-width:760px;
+  margin:0 auto
+}
+
+/* ── הלוגו של לילך בראש ההירו: בלי צלחת ובלי פולסים (הכרעת שי 2026-10-07).
+   הקובץ שקוף מחוץ לטבעת הירוקה ולבן בתוכה, כך שהטבעת שלו היא הקצה. ── */
+
+.hero__mark{
+  position:relative;
+  width:clamp(118px,33vw,140px);
+  aspect-ratio:1;
+  margin:0 auto 22px
+}
+
+.hero__logo{
+  position:absolute;
+  inset:0;
+  display:block
+}
+
+/* צל רך שמפריד מהרקע הוורוד. הקו הזיתי צרוב בתוך קובץ הלוגו (lilach-logo-v3), לאורך הקצה האמיתי
+   של הטבעת: הטבעת מצוירת ביד ואינה עגולה, וכל קו CSS גאומטרי נעלם בנקודות מסוימות. */
+
+.hero__mark::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  box-shadow:0 14px 36px rgba(79,93,72,.20)
+}
+
+.hero__logo img{
+  width:100%;
+  height:100%;
+  -o-object-fit:contain;
+     object-fit:contain
+}
+
+/* בלי העיגול הרחב: הקשת שלו חצתה את הלוגו, בנייד וגם במחשב */
+
+.hero__bg i:nth-child(3){
+  display:none
+}
+
+.hero h1{
+  font-size:clamp(40px,8.4vw,78px);
+  line-height:1.08;
+  font-weight:800
+}
+
+.hero h1 em{
+  font-style:normal;
+  color:var(--rose-deep)
+}
+
+.hero__sub{
+  margin-top:20px;
+  font-size:clamp(18px,2.4vw,22px);
+  color:var(--muted)
+}
+
+.hero__sub b{
+  color:var(--sage-dark)
+}
+
+.hero__actions{
+  margin-top:28px;
+  display:flex;
+  gap:12px;
+  justify-content:center;
+  flex-wrap:wrap
+}
+
+.hero__first{
+  margin-top:14px;
+  font-size:15px;
+  color:var(--muted)
+}
+
+.hero__first a{
+  color:var(--rose-deep);
+  font-weight:700;
+  text-underline-offset:4px
+}
+
+.hero__text{
+  margin:34px auto 0;
+  max-width:560px;
+  color:var(--muted);
+  font-size:17px
+}
+
+.hero__trust{
+  margin-top:26px;
+  display:flex;
+  gap:10px 18px;
+  justify-content:center;
+  flex-wrap:wrap;
+  font-size:14px;
+  font-weight:600;
+  color:var(--sage-dark)
+}
+
+.hero__trust li{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  white-space:nowrap
+}
+
+.hero__trust .ico{
+  width:20px;
+  height:20px
+}
+
+/* ── מבנה כללי של סקציות ───────────────────────────────────────────────── */
+
+.sec{
+  padding:clamp(56px,9vw,104px) 20px;
+  position:relative
+}
+
+.sec--soft{
+  background:linear-gradient(135deg,#f8f3ee 0,#eef3ec 100%);
+  border-block:1px solid rgba(123,135,111,.12)
+}
+
+.wrap{
+  max-width:1180px;
+  margin:0 auto
+}
+
+.wrap--narrow{
+  max-width:760px
+}
+
+.sec__head{
+  max-width:680px;
+  margin:0 auto clamp(30px,5vw,50px)
+}
+
+.eyebrow{
+  display:inline-block;
+  color:var(--rose-deep);
+  font-weight:800;
+  font-size:13px;
+  letter-spacing:.06em;
+  margin-bottom:12px
+}
+
+.sec h2{
+  font-size:clamp(30px,5vw,48px);
+  font-weight:700
+}
+
+.sec__head p{
+  margin-top:14px;
+  color:var(--muted);
+  font-size:18px
+}
+
+.cards4{
+  display:grid;
+  gap:16px;
+  grid-template-columns:1fr
+}
+
+.card,.price,.step{
+  background:rgba(255,255,255,.9);
+  border:1px solid var(--line);
+  border-radius:26px;
+  padding:28px 24px;
+  box-shadow:var(--shadow-s);
+  transition:transform .35s var(--ease),box-shadow .35s var(--ease)
+}
+
+.card:hover,.step:hover{
+  transform:translateY(-4px);
+  box-shadow:var(--shadow)
+}
+
+.card__ico{
+  display:inline-grid;
+  place-items:center;
+  width:62px;
+  height:62px;
+  border-radius:20px;
+  background:linear-gradient(135deg,var(--sage-soft),var(--rose-soft));
+  margin-bottom:16px
+}
+
+.card h3,.step h3,.price h3{
+  font-size:21px;
+  margin-bottom:8px
+}
+
+.card p,.step p,.price p{
+  color:var(--muted);
+  font-size:16px;
+  line-height:1.7
+}
+
+@media (min-width:640px){
+  .cards4{
+    grid-template-columns:repeat(2,1fr)
+  }
+}
+
+@media (min-width:1000px){
+  .cards4{
+    grid-template-columns:repeat(4,1fr)
+  }
+}
+
+/* ── נעים להכיר ────────────────────────────────────────────────────────── */
+
+.about{
+  display:grid;
+  gap:34px;
+  align-items:center
+}
+
+/* width:100% + picture block: בלי זה הפריט בגריד מתכווץ לתוכן, והתמונה (lazy) תפסה 0 גובה עד שנטענה.
+   כשנטענה בזמן הקפיצה לקביעת פגישה, הדף גדל ב-350px והגלילה נעצרה באמצע. */
+
+.about__photo{
+  width:100%;
+  max-width:420px;
+  margin:0 auto;
+  position:relative
+}
+
+.about__photo picture{
+  display:block
+}
+
+.about__photo::before{
+  content:"";
+  position:absolute;
+  inset:18px -14px -14px 18px;
+  border-radius:34px;
+  background:linear-gradient(145deg,var(--sage-soft),var(--rose-soft));
+  z-index:0
+}
+
+.about__photo img{
+  position:relative;
+  z-index:1;
+  width:100%;
+  border-radius:32px;
+  box-shadow:var(--shadow);
+  aspect-ratio:1/1;
+  -o-object-fit:cover;
+     object-fit:cover
+}
+
+.about__copy>*+*{
+  margin-top:16px
+}
+
+.lead{
+  font-size:20px;
+  color:var(--sage);
+  font-weight:700
+}
+
+.about__copy p{
+  color:var(--muted)
+}
+
+.about__copy .lead{
+  color:var(--sage-dark)
+}
+
+.years{
+  display:inline-flex;
+  align-items:center;
+  gap:14px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:12px 22px;
+  box-shadow:var(--shadow-s)
+}
+
+.years strong{
+  font-family:Rubik,sans-serif;
+  font-size:44px;
+  line-height:1;
+  background:linear-gradient(120deg,var(--sage-dark),var(--rose-deep));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  font-variant-numeric:tabular-nums
+}
+
+.years span{
+  font-weight:700;
+  color:var(--sage-dark);
+  text-align:start;
+  max-width:11em;
+  line-height:1.35
+}
+
+.train{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:22px 20px;
+  box-shadow:var(--shadow-s)
+}
+
+.train h3{
+  font-size:19px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  margin-bottom:12px
+}
+
+.train li{
+  padding:10px 0;
+  border-top:1px dashed rgba(123,135,111,.3);
+  color:var(--muted);
+  font-size:15.5px;
+  line-height:1.6
+}
+
+.train li:first-child{
+  border-top:0
+}
+
+@media (min-width:900px){
+  .about{
+    grid-template-columns:.9fr 1.1fr;
+    gap:70px
+  }
+
+  .about__copy{
+    text-align:start
+  }
+
+  .train h3{
+    justify-content:flex-start
+  }
+}
+
+/* ── תהליך ─────────────────────────────────────────────────────────────── */
+
+.steps{
+  display:grid;
+  gap:16px;
+  grid-template-columns:1fr;
+  counter-reset:s
+}
+
+.step{
+  position:relative
+}
+
+.step__n{
+  display:inline-grid;
+  place-items:center;
+  width:52px;
+  height:52px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--sage-dark),#6f7f66);
+  color:#fff;
+  font-family:Rubik,sans-serif;
+  font-weight:700;
+  font-size:22px;
+  margin-bottom:14px;
+  box-shadow:0 10px 22px rgba(79,93,72,.25)
+}
+
+@media (min-width:860px){
+  .steps{
+    grid-template-columns:repeat(3,1fr)
+  }
+
+  .step:not(:last-child)::after{
+    content:"";
+    position:absolute;
+    top:54px;
+    inset-inline-end:-17px;
+    width:18px;
+    height:2px;
+    background:linear-gradient(90deg,var(--rose),transparent)
+  }
+}
+
+/* ── מחירים ────────────────────────────────────────────────────────────── */
+
+.prices{
+  display:grid;
+  gap:18px;
+  max-width:900px;
+  margin:0 auto;
+  grid-template-columns:1fr
+}
+
+.price{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  position:relative;
+  padding:34px 26px 28px
+}
+
+.price--hi{
+  border:1.5px solid rgba(201,144,144,.55);
+  background:linear-gradient(180deg,#fff,#fdf6f4)
+}
+
+.price__tag{
+  position:absolute;
+  top:-14px;
+  background:var(--rose-deep);
+  color:#fff;
+  font-size:13px;
+  font-weight:700;
+  padding:4px 16px;
+  border-radius:999px
+}
+
+.price__meta{
+  width:100%;
+  margin:20px 0 14px;
+  padding:16px;
+  border-radius:18px;
+  background:var(--sage-soft);
+  border:1px solid rgba(123,135,111,.18);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:22px;
+  color:var(--sage-dark);
+  font-size:16px
+}
+
+.price__meta span{
+  display:inline-flex;
+  align-items:center;
+  gap:8px
+}
+
+.price__meta b{
+  font-size:24px;
+  font-family:Rubik,sans-serif
+}
+
+.price__amt b{
+  font-size:32px
+}
+
+.price__where{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+  font-size:14.5px;
+  font-weight:700;
+  color:var(--sage-dark)!important
+}
+
+.price__where .ico{
+  width:20px;
+  height:20px
+}
+
+.price .btn{
+  margin-top:auto;
+  width:100%;
+  max-width:320px
+}
+
+@media (min-width:760px){
+  .prices{
+    grid-template-columns:repeat(2,1fr)
+  }
+}
+
+/* ── שאלות ─────────────────────────────────────────────────────────────── */
+
+.faqs{
+  display:grid;
+  gap:12px;
+  text-align:start
+}
+
+.faq{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:20px;
+  box-shadow:var(--shadow-s);
+  transition:box-shadow .3s,border-color .3s
+}
+
+.faq summary{
+  list-style:none;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:18px 22px;
+  font-weight:700;
+  color:var(--sage-dark);
+  font-size:17.5px
+}
+
+.faq summary::-webkit-details-marker{
+  display:none
+}
+
+.faq__plus{
+  position:relative;
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:var(--sage-soft);
+  color:var(--sage-dark);
+  flex:none;
+  transition:transform .3s var(--ease),background .3s
+}
