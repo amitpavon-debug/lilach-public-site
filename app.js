@@ -259,7 +259,7 @@
     $("bookingSuccessStep").classList.add("hidden");
     $("bookingApprovalStep").classList.remove("hidden");
     $("bookingFormWrap").classList.remove("hidden");
-    $("bookingApprovalConfirmation").innerHTML=`<b>${booking.name||"הפגישה"} — הדיווח על התשלום נשלח.</b><span>${formatBookingDate(booking.date)} בשעה ${booking.time}.<br>לילך קיבלה בקשת אישור במייל ותבדוק את התשלום ב-PayBox לפני אישור התור.</span>`;
+    $("bookingApprovalConfirmation").innerHTML=`<b>${booking.name||"הפגישה"} — הדיווח על התשלום נשלח.</b><span>${formatBookingDate(booking.date)} בשעה ${booking.time}.<br>לילך קיבלה בקשה לבדוק את התשלום ב-PayBox. בקשת אישור הפגישה תישלח אליה רק לאחר שתאמת שהתקבלו 150 ₪.</span>`;
     if(cfg.DEMO_BOOKING){
       $("demoApproveBtn").classList.remove("hidden");
     }else{
