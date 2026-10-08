@@ -1109,3 +1109,121 @@ body.zip-design .footer-address{
     padding:7px 10px;
   }
 }
+
+
+/* ==========================================================================
+   ZIP MOTION / INTERACTION EFFECTS — preview only
+   Mirrors the exported prototype's motion language without touching app logic.
+   ========================================================================== */
+html.zip-effects body.zip-design [data-zip-reveal]{
+  opacity:0;
+  transform:translateY(34px);
+  transition:
+    opacity 1s cubic-bezier(.2,.7,.2,1) var(--zip-delay,0s),
+    transform 1s cubic-bezier(.2,.7,.2,1) var(--zip-delay,0s);
+  will-change:opacity,transform;
+}
+html.zip-effects body.zip-design [data-zip-reveal="img"]{
+  transform:translateY(14px) scale(.965);
+}
+html.zip-effects body.zip-design [data-zip-reveal="fade"]{
+  transform:none;
+}
+html.zip-effects body.zip-design [data-zip-reveal].zip-is-in{
+  opacity:1;
+  transform:none;
+  will-change:auto;
+}
+
+/* The exported design staggers the hero on load */
+html.zip-effects body.zip-design .hero-card[data-zip-reveal]{
+  --zip-delay:.02s;
+  transition-duration:1.15s;
+}
+html.zip-effects body.zip-design .hero-copy>.eyebrow[data-zip-reveal]{--zip-delay:.08s}
+html.zip-effects body.zip-design .hero-copy>h1[data-zip-reveal]{--zip-delay:.16s}
+html.zip-effects body.zip-design .hero-copy>p[data-zip-reveal]{--zip-delay:.24s}
+html.zip-effects body.zip-design .hero-actions[data-zip-reveal]{--zip-delay:.32s}
+html.zip-effects body.zip-design .trust-row[data-zip-reveal]{--zip-delay:.42s}
+
+/* More tactile hover/focus behavior from the ZIP */
+body.zip-design .info-card,
+body.zip-design .process-card,
+body.zip-design .price-card,
+body.zip-design .booking-card{
+  transition:
+    transform .35s cubic-bezier(.2,.7,.2,1),
+    box-shadow .35s cubic-bezier(.2,.7,.2,1),
+    border-color .25s ease;
+}
+@media (hover:hover){
+  body.zip-design .info-card:hover,
+  body.zip-design .process-card:hover{
+    transform:translateY(-4px);
+    box-shadow:var(--shadow);
+  }
+  body.zip-design .price-card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 20px 50px rgba(73,82,66,.13);
+  }
+  body.zip-design .date-btn:hover{
+    border-color:var(--sage);
+    transform:translateY(-1px);
+  }
+  body.zip-design .slot-btn:hover{
+    transform:translateY(-1px);
+  }
+}
+
+/* Mobile menu enters softly, like the prototype */
+body.zip-design .mobile-nav-panel{
+  transform-origin:top center;
+  animation:zipMenuIn .24s cubic-bezier(.2,.7,.2,1) both;
+}
+@keyframes zipMenuIn{
+  from{opacity:0;transform:translateY(-8px) scale(.985)}
+  to{opacity:1;transform:none}
+}
+
+/* The logo gets the same soft separation from the hero background */
+body.zip-design .logo-halo{
+  transition:transform .45s cubic-bezier(.2,.7,.2,1),box-shadow .45s ease;
+}
+@media (hover:hover){
+  body.zip-design .logo-halo:hover{
+    transform:translateY(-3px) scale(1.015);
+    box-shadow:0 22px 54px rgba(79,93,72,.16);
+  }
+}
+
+/* Focus and form selections animate without altering any state/handlers */
+body.zip-design .meeting-mode-card,
+body.zip-design .date-btn,
+body.zip-design .slot-btn,
+body.zip-design .booking-form-wrap input,
+body.zip-design .booking-form-wrap textarea,
+body.zip-design .booking-form-wrap select{
+  transition:
+    transform .2s cubic-bezier(.2,.7,.2,1),
+    background .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease,
+    color .2s ease;
+}
+
+/* Respect accessibility preference exactly as the ZIP does */
+@media (prefers-reduced-motion:reduce){
+  html.zip-effects body.zip-design [data-zip-reveal]{
+    opacity:1!important;
+    transform:none!important;
+    transition:none!important;
+  }
+  body.zip-design *,
+  body.zip-design *::before,
+  body.zip-design *::after{
+    scroll-behavior:auto!important;
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+  }
+}
