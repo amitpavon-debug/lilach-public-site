@@ -1,0 +1,17 @@
+/* Only bridges production logic states into the ZIP's original visual system. */
+.hidden{display:none!important}
+.booking-state{max-width:760px;margin:0 auto 14px;text-align:center}
+.bk-range{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;gap:10px;margin:0 0 14px;color:var(--sage-dark)}
+.bk-range__btn{width:40px;height:40px;border:1.5px solid var(--line);border-radius:13px;background:#fff;color:var(--sage-dark);font:inherit;font-size:24px;cursor:pointer;transition:all .2s var(--ease)}
+.bk-range__btn:hover{background:var(--sage-soft);border-color:var(--sage)}
+.muted{grid-column:1/-1;margin:0;color:var(--muted);font-size:14px}
+#bookingFormWrap:not(.hidden){display:block}
+.booking-step-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;padding:14px 16px;border-radius:18px;background:var(--rose-soft);text-align:start}.booking-step-head>span{flex:none;border-radius:999px;background:var(--rose-deep);color:#fff;padding:5px 10px;font-size:12px;font-weight:700}.booking-step-head h3{margin:0 0 4px;color:var(--sage-dark)}.booking-step-head p{margin:0;color:var(--muted);font-size:13px;line-height:1.55}
+.booking-field{display:grid;gap:6px;margin-bottom:14px;font-weight:700;color:var(--sage-dark);font-size:15px}.booking-required-note{margin:4px 0 14px;color:var(--muted);font-size:13px;text-align:center}.legal-check{margin-top:10px!important;line-height:1.55}.legal-check a{color:var(--rose-deep);text-decoration:underline;text-underline-offset:3px}
+.form-message{min-height:22px;margin:10px 0 0;text-align:center;font-weight:700;font-size:13px}.form-message.ok{color:#2e7d4c}.form-message.err{color:#b23a48}
+.live-step{text-align:center}.live-step h3{font-family:Rubik,sans-serif;color:var(--sage-dark);font-size:clamp(22px,5vw,28px);margin:8px 0 12px}.live-step>p{color:var(--muted);line-height:1.65}.live-step__icon{width:62px;height:62px;margin:0 auto 10px;border-radius:50%;display:grid;place-items:center;background:var(--sage-soft);color:var(--sage-dark);font-size:28px}
+.live-box{display:grid;gap:5px;margin:14px 0;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--sage-soft);color:var(--sage-dark);text-align:center}.live-box--rose{background:var(--rose-soft)}.live-box b{font-size:18px}.live-box span{color:var(--muted);font-size:13px;line-height:1.6}.live-gap{margin-top:10px}.payment-security-note{margin:12px 0 0!important;font-size:12px!important;line-height:1.55!important}
+.det-form--cta{text-align:center}.det-form--cta>.ico{color:var(--rose-deep);margin:0 auto 8px}.det-form--cta p{color:var(--muted);margin:0 0 18px}#vcitaFallback{display:block;margin-top:12px;color:var(--rose-deep);font-weight:700;text-align:center}
+.date-btn.active{background:var(--sage-dark);color:#fff;border-color:var(--sage-dark)}.slot-btn.active{background:var(--sage-dark);color:#fff;border-color:var(--sage-dark)}
+@media(max-width:899px){.booking-step-head{display:block;text-align:center}.booking-step-head>span{display:inline-block;margin-bottom:8px}.booking-field{text-align:center}}
+@media(max-width:559px){.bk-range{grid-template-columns:38px 1fr 38px}.bk-range__btn{width:36px;height:36px}}
