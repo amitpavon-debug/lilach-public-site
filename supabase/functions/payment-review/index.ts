@@ -151,7 +151,7 @@ Deno.serve(async (req) => {
 
       const html = `
         <div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7;color:#263126;max-width:640px;margin:auto">
-          <h2 style="margin-bottom:8px">בקשת תור חדשה — נדרש אישור</h2>
+          <h2 style="margin-bottom:8px">נדרשת בדיקת תשלום ב-PayBox</h2>
           <div style="background:#fff4df;border:1px solid #e9cf92;border-radius:14px;padding:16px;margin:18px 0">
             <p style="margin:0 0 8px;font-size:18px"><strong>הלקוח/ה דיווח/ה שביצע/ה תשלום של 150 ₪ ב-PayBox.</strong></p>
             <p style="margin:0"><strong>לפני אישור התור יש לבדוק באפליקציית PayBox שהתקבלו בפועל 150 ₪ מהלקוח/ה המתאים/ה.</strong></p>
@@ -169,14 +169,14 @@ Deno.serve(async (req) => {
             <b>סיבת הפנייה</b><br>${escapeHtml(booking.reason || "")}
           </div>
           <p style="text-align:center;margin:24px 0">
-            <a href="${escapeHtml(approvalUrl)}" style="display:inline-block;background:#2f6f63;color:#fff;text-decoration:none;font-weight:700;padding:13px 22px;border-radius:12px">בדיקה ואישור התור</a>
+            <a href="${escapeHtml(approvalUrl)}" style="display:inline-block;background:#2f6f63;color:#fff;text-decoration:none;font-weight:700;padding:13px 22px;border-radius:12px">בדיקת התשלום ב-PayBox</a>
           </p>
-          <p style="font-size:13px;color:#687168">לחיצה על הקישור תפתח את מסך האישור. בעת האישור תתבקשי לאשר שבדקת ב-PayBox שהתקבלו 150 ₪.</p>
+          <p style="font-size:13px;color:#687168">זהו שלב בדיקת תשלום בלבד. בקשת אישור הפגישה תישלח רק לאחר שתאשרי שהתקבלו בפועל 150 ₪.</p>
         </div>`;
 
       const emailResult = await sendEmail(
         notifyEmail,
-        `נדרש אישור – דווח תשלום 150 ₪ – ${appointmentTypeLabel} – ${name || "פונה חדש"}`,
+        `בדיקת תשלום נדרשת – דווחו 150 ₪ – ${appointmentTypeLabel} – ${name || "פונה חדש"}`,
         html,
       );
 
@@ -227,12 +227,43 @@ Deno.serve(async (req) => {
     if (verifyError) throw verifyError;
     if (!verified) return Response.json({ error: "booking_state_changed" }, { status: 409, headers: corsHeaders });
 
+    const { appointmentTypeLabel, durationMinutes, meetingModeLabel } = labels(booking);
+    const name = [booking.first_name, booking.last_name].filter(Boolean).join(" ");
+    const time = String(booking.booking_time || "").slice(0, 5);
+    const approvalUrl = `https://www.lilachpavon.co.il/approval?bookingId=${encodeURIComponent(booking.id)}&token=${encodeURIComponent(token)}`;
+
+    const approvalHtml = `
+      <div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7;color:#263126;max-width:640px;margin:auto">
+        <h2 style="margin-bottom:8px">התשלום אומת — ניתן לאשר את הפגישה</h2>
+        <div style="background:#e9f8ee;border:1px solid #b9dec2;border-radius:14px;padding:16px;margin:18px 0">
+          <p style="margin:0;font-size:18px"><strong>אומת שהתקבל תשלום של 150 ₪ ב-PayBox.</strong></p>
+        </div>
+        <div style="background:#f7f5f2;border-radius:14px;padding:16px;margin:18px 0">
+          <p style="margin:0 0 8px"><b>שם:</b> ${escapeHtml(name)}</p>
+          <p style="margin:0 0 8px"><b>מועד:</b> ${escapeHtml(booking.booking_date)} · ${escapeHtml(time)}</p>
+          <p style="margin:0 0 8px"><b>סוג הפגישה:</b> ${escapeHtml(appointmentTypeLabel)} — ${durationMinutes} דקות</p>
+          <p style="margin:0"><b>אופן הפגישה:</b> ${escapeHtml(meetingModeLabel)}</p>
+        </div>
+        <p style="text-align:center;margin:24px 0">
+          <a href="${escapeHtml(approvalUrl)}" style="display:inline-block;background:#2f6f63;color:#fff;text-decoration:none;font-weight:700;padding:13px 22px;border-radius:12px">אישור הפגישה</a>
+        </p>
+        <p style="font-size:13px;color:#687168">המייל הזה נשלח רק לאחר אימות ידני של קבלת 150 ₪ ב-PayBox.</p>
+      </div>`;
+
+    const approvalEmailResult = await sendEmail(
+      notifyEmail,
+      `התשלום אומת – 150 ₪ – נדרש אישור פגישה – ${appointmentTypeLabel} – ${name || "פונה חדש"}`,
+      approvalHtml,
+    );
+
     return Response.json({
       ok: true,
       status: "awaiting_approval",
       paymentStatus: "paid",
       paymentAmount: 150,
       verifiedAt: nowIso,
+      approvalEmailSent: approvalEmailResult.sent,
+      approvalEmailSkipped: approvalEmailResult.skipped,
     }, { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (error) {
     console.error("PAYMENT APPROVAL FLOW ERROR:", error);
