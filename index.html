@@ -213,7 +213,7 @@
     <div class="faqs">
       <details class="faq" data-reveal><summary><span>מה קורה בפגישת האינטייק?</span><i class="faq__plus" aria-hidden="true"></i></summary><p>זו פגישת היכרות של 60 דקות, שבה מבינים מה מביא אותך לטיפול, מה היית רוצה לשנות או להשיג, ומתאימים את המשך התהליך.</p></details>
       <details class="faq" data-reveal style="--d:.05s"><summary><span>כמה עולה פגישה?</span><i class="faq__plus" aria-hidden="true"></i></summary><p>פגישת אינטייק של 60 דקות עולה 400 ₪, ופגישת טיפול של 50 דקות עולה 400 ₪.</p></details>
-      <details class="faq" data-reveal style="--d:.1s"><summary><span>איפה נפגשים?</span><i class="faq__plus" aria-hidden="true"></i></summary><p>בקליניקה בהכישור 30, חולון, או אונליין ב-Zoom. קישור ל-Zoom נשלח סמוך למועד הפגישה.</p></details>
+      <details class="faq" data-reveal style="--d:.1s"><summary><span>איפה נפגשים?</span><i class="faq__plus" aria-hidden="true"></i></summary><p>בקליניקה ב<a href="#" class="address-link" data-nav-picker>הכישור 30, חולון</a>, או אונליין ב-Zoom. קישור ל-Zoom נשלח סמוך למועד הפגישה.</p></details>
       <details class="faq" data-reveal style="--d:.15s"><summary><span>איך קובעים פגישה?</span><i class="faq__plus" aria-hidden="true"></i></summary><p>בוחרים מועד ומשלמים מקדמה של 150 ₪ באמצעות PayBox. אחרי אימות התשלום הבקשה עוברת לאישור של לילך.</p></details>
       <details class="faq" data-reveal style="--d:.2s"><summary><span>מה לגבי פרטיות?</span><i class="faq__plus" aria-hidden="true"></i></summary><p>הפרטים נמסרים לצורך תיאום וניהול הפגישה בלבד, ומסירתם היא מרצון. מומלץ למסור בסיבת הפנייה רק את המידע הדרוש לתיאום ראשוני.</p></details>
       <details class="faq" data-reveal style="--d:.25s"><summary><span>האם אפשר לקבוע גם בלי גיל 18?</span><i class="faq__plus" aria-hidden="true"></i></summary><p>קביעת פגישה באתר מיועדת למי שמלאו לו 18 שנים.</p></details>
@@ -236,7 +236,7 @@
         <label><input type="radio" name="appointmentType" value="therapy"><span><b>טיפול רגשי</b><small>50 דקות · למי שכבר נפגש/ה עם לילך</small></span></label>
       </fieldset>
       <fieldset class="seg"><legend>איך תרצו להיפגש?</legend>
-        <label><input type="radio" name="meetingMode" value="clinic" checked><span><b><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg>בקליניקה</b><small>הכישור 30, חולון</small></span></label>
+        <label><input type="radio" name="meetingMode" value="clinic" checked><span><b><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg>בקליניקה</b><small><a href="#" class="address-link address-link--booking" data-nav-picker>הכישור 30, חולון</a></small></span></label>
         <label><input type="radio" name="meetingMode" value="zoom"><span><b><svg class="ico" aria-hidden="true"><use href="#i-cam"/></svg>אונליין (Zoom)</b><small>קישור יישלח סמוך למועד</small></span></label>
       </fieldset>
       <div class="bk__days" id="dateStrip" role="group" aria-label="בחירת יום"></div>
@@ -299,14 +299,27 @@
 
 <footer class="foot">
   <div class="foot__in">
-    <div><b>לילך פבון</b><span>CBT · NLP · טיפול רגשי</span><span><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg>הכישור 30, חולון</span></div>
+    <div><b>לילך פבון</b><span>CBT · NLP · טיפול רגשי</span><span><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg><a href="#" class="address-link address-link--footer" data-nav-picker>הכישור 30, חולון</a></span></div>
     <nav class="footer-links" aria-label="קישורי תחתית"><a href="/privacy">מדיניות פרטיות</a><a href="/terms">תנאי שימוש</a><a href="/cancellations">מדיניות ביטולים</a><a href="/accessibility">הצהרת נגישות</a></nav>
     <small>© <span id="year"></span> לילך פבון</small>
   </div>
 </footer>
+<div id="navigationPicker" class="nav-picker hidden" role="dialog" aria-modal="true" aria-labelledby="navigationPickerTitle">
+  <button class="nav-picker__backdrop" type="button" data-nav-close aria-label="סגירת חלון הניווט"></button>
+  <div class="nav-picker__card" role="document">
+    <button class="nav-picker__close" type="button" data-nav-close aria-label="סגירה">×</button>
+    <span class="eyebrow">ניווט לקליניקה</span>
+    <h2 id="navigationPickerTitle">איך תרצו להגיע?</h2>
+    <p class="nav-picker__address"><svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg>הכישור 30, חולון</p>
+    <div class="nav-picker__actions">
+      <a class="btn btn--primary btn--full" href="https://www.google.com/maps/search/?api=1&amp;query=%D7%94%D7%9B%D7%99%D7%A9%D7%95%D7%A8%2030%2C%20%D7%97%D7%95%D7%9C%D7%95%D7%9F" target="_blank" rel="noopener">Google Maps</a>
+      <a class="btn btn--ghost btn--full" href="https://waze.com/ul?q=%D7%94%D7%9B%D7%99%D7%A9%D7%95%D7%A8%2030%2C%20%D7%97%D7%95%D7%9C%D7%95%D7%9F&amp;navigate=yes" target="_blank" rel="noopener">Waze</a>
+    </div>
+  </div>
+</div>
 <script type="module" src="./zip-visual.js?v=20261008-1"></script>
 <script src="./config.js?v=20261011-contact1"></script>
-<script src="./app.js?v=20261011-contact1"></script>
+<script src="./app.js?v=20261011-nav1"></script>
 <script src="./accessibility.js?v=20261003-0013"></script>
 </body>
 </html>
