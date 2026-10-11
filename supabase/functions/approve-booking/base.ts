@@ -125,7 +125,7 @@ async function sendClientConfirmationEmail(booking: {
   const cancelUrl = `${cancelPageBase}?bookingId=${encodeURIComponent(booking.id)}&token=${encodeURIComponent(cancelToken)}`;
 
   const html = `
-    <div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7;color:#263126;width:100%;max-width:640px;margin:0 auto;box-sizing:border-box;padding:0 12px;overflow-wrap:anywhere;word-break:break-word">
+    <div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7;color:#263126;max-width:600px;margin:0 auto;padding:0;overflow:hidden;overflow-wrap:anywhere;word-break:break-word">
       <h2 style="margin-bottom:8px">הפגישה שלך עם לילך אושרה</h2>
       <p>${firstName ? `שלום ${escapeHtml(firstName)},` : "שלום,"}</p>
       <p>הפגישה שלך אושרה ונשמרה ביומן.</p>
@@ -153,7 +153,7 @@ async function sendClientConfirmationEmail(booking: {
       <p>הפגישה אושרה ונקבעה בהצלחה.</p>
       <p style="margin-top:22px;color:#667066;font-size:13px;text-align:center">לתשומת לבך: הודעה זו נשלחה ממערכת אוטומטית, ואין אפשרות להשיב להודעה זו במייל.</p>
       <div style="margin-top:24px;text-align:center;background:#ffffff">
-        <img src="cid:lilach-signature" alt="לילך פבון | טיפול רגשי | CBT | NLP" style="display:block;width:100%;max-width:480px;height:auto;margin:0 auto;border:0;background:#ffffff" />
+        <img src="cid:lilach-signature" alt="לילך פבון | טיפול רגשי | CBT | NLP" width="480" style="display:block;width:480px;max-width:100%;height:auto;margin:0 auto;border:0;background:#ffffff" />
       </div>
     </div>`;
 
