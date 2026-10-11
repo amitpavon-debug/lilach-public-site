@@ -39,3 +39,6 @@
   .booking-context-note{text-align:center}
   #dateStrip .date-btn small{font-size:10.5px}
 }
+
+.det-form__error{min-height:22px;margin:10px 0 0;text-align:center;color:#b23a48;font-size:13px;font-weight:700}
+.contact-hp{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;pointer-events:none!important}
