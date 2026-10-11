@@ -22,42 +22,100 @@
     el.textContent = text;
     el.className = `form-message ${ok ? "ok" : "err"}`;
   };
-  const heDays=["א׳","ב׳","ג׳","ד׳","ה׳","ו׳","ש׳"];
+  const HE_DAYS=["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
   const RETURNING_CLIENT_VALUE="כבר נפגשתי בעבר עם לילך";
-  let startOffset=1;
+  let visibleDates=[];
+  let dateCursor=new Date();
+  dateCursor.setHours(12,0,0,0);
   let selectedDate=null;
   let selectedTime=null;
   let pendingBooking=null;
 
   function iso(d){return d.toISOString().slice(0,10)}
-  function dateAt(offset){
-    const d=new Date();
-    d.setHours(12,0,0,0);
-    d.setDate(d.getDate()+offset);
-    return d;
-  }
+  function cloneDate(d){return new Date(d.getTime())}
+  function isBookableWeekday(d){return d.getDay()!==5 && d.getDay()!==6}
   function formatBookingDate(dateStr){
     try{
-      const d=new Date(`${dateStr}T12:00:00`);
+      const d=new Date(dateStr+"T12:00:00");
       return new Intl.DateTimeFormat("he-IL",{weekday:"long",day:"numeric",month:"long",year:"numeric"}).format(d);
     }catch(_){
       return dateStr;
     }
   }
 
+  function appointmentType(){
+    return document.querySelector('input[name="appointmentType"]:checked')?.value||"intake";
+  }
+
   function renderDates(){
     const strip=$("dateStrip");
+    if(!strip) return;
     strip.innerHTML="";
-    for(let i=0;i<5;i++){
-      const d=dateAt(startOffset+i);
+    visibleDates.forEach((d)=>{
+      const key=iso(d);
       const b=document.createElement("button");
-      b.className="date-btn"+(selectedDate===iso(d)?" active":"");
-      b.innerHTML=`<small>${heDays[d.getDay()]}</small><b>${d.getDate()}.${d.getMonth()+1}</b>`;
+      b.type="button";
+      b.className="bk-day date-btn"+(selectedDate===key?" active is-selected":"");
+      b.dataset.date=key;
+      b.innerHTML="<b>"+d.getDate()+"."+(d.getMonth()+1)+"</b><small>"+HE_DAYS[d.getDay()]+"</small>";
       b.onclick=()=>selectDate(d);
       strip.appendChild(b);
+    });
+  }
+
+  function appendMoreDates(count=5){
+    let d=cloneDate(dateCursor);
+    let added=0;
+    while(added<count){
+      d.setDate(d.getDate()+1);
+      if(!isBookableWeekday(d)) continue;
+      visibleDates.push(cloneDate(d));
+      added++;
     }
-    const first=dateAt(startOffset),last=dateAt(startOffset+4);
-    $("bookingRange").textContent=`${first.getDate()}.${first.getMonth()+1}–${last.getDate()}.${last.getMonth()+1}`;
+    dateCursor=cloneDate(d);
+    renderDates();
+  }
+
+  function resetDateWindow(){
+    visibleDates=[];
+    dateCursor=new Date();
+    dateCursor.setHours(12,0,0,0);
+    selectedDate=null;
+    selectedTime=null;
+    appendMoreDates(5);
+    if($("slots")) $("slots").innerHTML='<p class="muted">בחרו יום להצגת השעות הפנויות.</p>';
+    $("bookingFormWrap")?.classList.add("hidden");
+    $("bookingFormWrap")?.classList.remove("is-open");
+  }
+
+  function syncAppointmentTypeFields(){
+    const intake=appointmentType()==="intake";
+    const group=$("firstVisitFields");
+    const reason=$("bookReason");
+    const referral=$("bookReferral");
+    const note=$("bookingContextNote");
+    const required=$("bookingRequiredNote");
+    if(group) group.hidden=!intake;
+    if(reason){
+      reason.disabled=!intake;
+      reason.required=intake;
+      reason.setAttribute("aria-required",intake?"true":"false");
+    }
+    if(referral){
+      referral.disabled=!intake;
+      referral.required=intake;
+      referral.setAttribute("aria-required",intake?"true":"false");
+    }
+    if(note){
+      note.innerHTML=intake
+        ? "<strong>פגישת אינטייק ראשונית — פנייה ראשונה.</strong> נוסיף גם כמה פרטים קצרים כדי שלילך תוכל להתכונן לפגישה."
+        : "<strong>טיפול רגשי — למי שכבר נפגש/ה עם לילך.</strong> אין צורך למלא שוב סיבת פנייה או מאיפה הגעת ללילך.";
+    }
+    if(required){
+      required.textContent=intake
+        ? "* שם פרטי, שם משפחה, טלפון, אימייל, סיבת הפנייה, מקור ההגעה ושני האישורים הם חובה."
+        : "* שם פרטי, שם משפחה, טלפון, אימייל ושני האישורים הם חובה.";
+    }
   }
 
   function resetBookingFlow(){
@@ -68,7 +126,7 @@
     $("bookingPending").innerHTML="";
     $("bookingFinalConfirmation").innerHTML="";
     $("bookingApprovalConfirmation").innerHTML="";
-    $("bankDetails").classList.add("hidden");
+    $("bankDetails")?.classList.add("hidden");
     $("bookingMessage").textContent="";
     pendingBooking=null;
   }
@@ -78,7 +136,9 @@
     selectedTime=null;
     renderDates();
     resetBookingFlow();
-    $("bookingFormWrap").classList.add("hidden");
+    syncAppointmentTypeFields();
+    $("bookingFormWrap")?.classList.add("hidden");
+    $("bookingFormWrap")?.classList.remove("is-open");
     const slots=$("slots");
     slots.innerHTML='<p class="muted">טוען שעות פנויות...</p>';
 
@@ -104,101 +164,57 @@
     }
     times.forEach(t=>{
       const b=document.createElement("button");
-      b.className="slot-btn";
+      b.type="button";
+      b.className="bk-slot slot-btn";
       b.textContent=t;
       b.onclick=()=>{
         selectedTime=t;
-        document.querySelectorAll('.slot-btn').forEach(x=>x.classList.remove('active'));
-        b.classList.add('active');
+        document.querySelectorAll('#slots .slot-btn').forEach(x=>x.classList.remove('active','is-selected'));
+        b.classList.add('active','is-selected');
         resetBookingFlow();
-        $("bookingFormWrap").classList.remove("hidden");
+        syncAppointmentTypeFields();
+        $("bookingFormWrap")?.classList.remove("hidden");
+        $("bookingFormWrap")?.classList.add("is-open");
+        $("bookingFormWrap")?.scrollIntoView({behavior:"smooth",block:"nearest"});
       };
       slots.appendChild(b);
     });
   }
 
-  $("prevDays").onclick=()=>{
-    startOffset=Math.max(1,startOffset-5);
-    selectedDate=null;
-    renderDates();
-  };
-  $("nextDays").onclick=()=>{
-    startOffset+=5;
-    selectedDate=null;
-    renderDates();
-  };
-  renderDates();
+  $("moreDatesBtn")?.addEventListener("click",()=>{
+    appendMoreDates(5);
+    const btn=$("moreDatesBtn");
+    if(btn) btn.textContent="הצגת 5 מועדים נוספים";
+  });
+  appendMoreDates(5);
 
   document.querySelectorAll('input[name="appointmentType"]').forEach((input)=>{
     input.addEventListener("change",()=>{
       selectedTime=null;
+      syncAppointmentTypeFields();
+      $("bookingFormWrap")?.classList.add("hidden");
+      $("bookingFormWrap")?.classList.remove("is-open");
       if(selectedDate){
-        const selected=new Date(`${selectedDate}T12:00:00`);
+        const selected=new Date(selectedDate+"T12:00:00");
         selectDate(selected);
+      }else if($("slots")){
+        $("slots").innerHTML='<p class="muted">בחרו יום להצגת השעות הפנויות.</p>';
       }
     });
   });
 
-  function setupReturningClientOption(){
-    const reasonField=$("bookReason");
-    const referralField=$("bookReferral");
-    if(!reasonField || !referralField || $("bookReturningClient")) return;
-    const reasonWrapper=reasonField.closest(".booking-field");
-    if(!reasonWrapper) return;
-
-    let returningOption=Array.from(referralField.options).find(option=>option.value===RETURNING_CLIENT_VALUE);
-    if(!returningOption){
-      returningOption=document.createElement("option");
-      returningOption.value=RETURNING_CLIENT_VALUE;
-      returningOption.textContent=RETURNING_CLIENT_VALUE;
-      returningOption.hidden=true;
-      referralField.appendChild(returningOption);
-    }
-
-    const returningLabel=document.createElement("label");
-    returningLabel.className="booking-consent";
-    returningLabel.innerHTML='<input id="bookReturningClient" type="checkbox"><span><strong>כבר נפגשתי בעבר עם לילך</strong><br><small>אם כבר נפגשת בעבר עם לילך, יש לסמן כאן — אין צורך לציין שוב את סיבת הפנייה או מאיפה הגעת ללילך.</small></span>';
-    reasonWrapper.insertAdjacentElement("afterend", returningLabel);
-
-    const intro=document.querySelector("#bookingDetailsStep .booking-step-head p");
-    if(intro){
-      intro.innerHTML='בפנייה ראשונה יש למלא <strong>סיבת פנייה</strong> וגם <strong>מאיפה שמעת/הגעת ללילך</strong>. אם כבר נפגשת בעבר עם לילך, ניתן לסמן זאת ואין צורך למלא את שני השדות.';
-    }
-    const requiredNote=document.querySelector(".booking-required-note");
-    if(requiredNote){
-      requiredNote.textContent="* בפנייה ראשונה סיבת הפנייה ומקור ההגעה הם חובה. אם כבר נפגשת בעבר עם לילך, אין צורך למלא אותם.";
-    }
-
-    const returningCheckbox=$("bookReturningClient");
-    const syncReturningState=()=>{
-      const isReturning=Boolean(returningCheckbox?.checked);
-      reasonField.disabled=isReturning;
-      referralField.disabled=isReturning;
-      reasonField.required=!isReturning;
-      referralField.required=!isReturning;
-      reasonField.setAttribute("aria-disabled", isReturning ? "true" : "false");
-      referralField.setAttribute("aria-disabled", isReturning ? "true" : "false");
-      reasonField.setAttribute("aria-required", isReturning ? "false" : "true");
-      referralField.setAttribute("aria-required", isReturning ? "false" : "true");
-      reasonField.placeholder=isReturning
-        ? "אין צורך לציין סיבה מחדש"
-        : "בכמה מילים, מה מביא אותך לפנות עכשיו?";
-      if(isReturning){
-        reasonField.value="";
-        referralField.value=RETURNING_CLIENT_VALUE;
-        const therapyRadio=document.querySelector('input[name="appointmentType"][value="therapy"]');
-        if(therapyRadio && !therapyRadio.checked){
-          therapyRadio.checked=true;
-          therapyRadio.dispatchEvent(new Event("change",{bubbles:true}));
-        }
-      }else if(referralField.value===RETURNING_CLIENT_VALUE){
-        referralField.value="";
+  document.querySelectorAll("[data-book-type]").forEach((a)=>{
+    a.addEventListener("click",()=>{
+      const type=a.dataset.bookType;
+      const r=document.querySelector('input[name="appointmentType"][value="'+type+'"]');
+      if(r){
+        r.checked=true;
+        r.dispatchEvent(new Event("change",{bubbles:true}));
       }
-    };
-    returningCheckbox.addEventListener("change", syncReturningState);
-    syncReturningState();
-  }
-  setupReturningClientOption();
+    });
+  });
+  syncAppointmentTypeFields();
+
 
   if(cfg.VCITA_FALLBACK_URL && !cfg.BOOKING_HOLD_URL && !cfg.DEMO_BOOKING){
     const a=$("vcitaFallback");
@@ -215,6 +231,7 @@
 
   function configurePaymentLink(id, url){
     const a=$(id);
+    if(!a) return;
     if(url){
       a.href=url;
       a.target="_blank";
@@ -244,11 +261,8 @@
     configurePaymentLink("cardPayBtn",cardUrl);
     configurePaymentLink("payboxBtn",payboxUrl);
 
-    if(cfg.DEMO_BOOKING){
-      $("demoPaidBtn").classList.remove("hidden");
-    }else{
-      $("demoPaidBtn").classList.add("hidden");
-    }
+    const demoPaidBtn=$("demoPaidBtn");
+    if(demoPaidBtn) demoPaidBtn.classList.toggle("hidden",!cfg.DEMO_BOOKING);
     $("bookingPaymentStep").scrollIntoView({behavior:"smooth",block:"nearest"});
   }
 
@@ -260,11 +274,8 @@
     $("bookingApprovalStep").classList.remove("hidden");
     $("bookingFormWrap").classList.remove("hidden");
     $("bookingApprovalConfirmation").innerHTML=`<b>${booking.name||"הפגישה"} — הדיווח על התשלום נשלח.</b><span>${formatBookingDate(booking.date)} בשעה ${booking.time}.<br>לילך קיבלה בקשה לבדוק את התשלום ב-PayBox. בקשת אישור הפגישה תישלח אליה רק לאחר שתאמת שהתקבלו 150 ₪.</span>`;
-    if(cfg.DEMO_BOOKING){
-      $("demoApproveBtn").classList.remove("hidden");
-    }else{
-      $("demoApproveBtn").classList.add("hidden");
-    }
+    const demoApproveBtn=$("demoApproveBtn");
+    if(demoApproveBtn) demoApproveBtn.classList.toggle("hidden",!cfg.DEMO_BOOKING);
     $("bookingApprovalStep").scrollIntoView({behavior:"smooth",block:"nearest"});
   }
 
@@ -282,7 +293,8 @@
   function bookingPayload(){
     const firstName=$("bookFirstName").value.trim();
     const lastName=$("bookLastName").value.trim();
-    const returningClient=Boolean($("bookReturningClient")?.checked);
+    const type=appointmentType();
+    const returningClient=type==="therapy";
     return {
       date:selectedDate,
       time:selectedTime,
@@ -291,10 +303,10 @@
       name:`${firstName} ${lastName}`.trim(),
       phone:$("bookPhone").value.trim(),
       email:$("bookEmail").value.trim(),
-      reason:returningClient ? RETURNING_CLIENT_VALUE : $("bookReason").value.trim(),
+      reason:returningClient ? RETURNING_CLIENT_VALUE : ($("bookReason")?.value.trim()||""),
       returningClient,
-      referral:returningClient ? RETURNING_CLIENT_VALUE : $("bookReferral").value.trim(),
-      appointmentType:document.querySelector('input[name="appointmentType"]:checked')?.value||"intake",
+      referral:returningClient ? RETURNING_CLIENT_VALUE : ($("bookReferral")?.value.trim()||""),
+      appointmentType:type,
       meetingMode:document.querySelector('input[name="meetingMode"]:checked')?.value||"clinic",
       privacyConsent:Boolean($("bookPrivacyConsent")?.checked),
       whatsappConsent:false,
@@ -315,8 +327,8 @@
       msg(bm,"נא למלא שם פרטי, שם משפחה, טלפון ואימייל.");
       return;
     }
-    if(!payload.returningClient && (!payload.reason||!payload.referral)){
-      msg(bm,"בפנייה ראשונה יש למלא סיבת פנייה ומאיפה שמעת/הגעת ללילך. אם כבר נפגשת בעבר עם לילך, יש לסמן את האפשרות המתאימה.");
+    if(payload.appointmentType==="intake" && (!payload.reason||!payload.referral)){
+      msg(bm,"בפגישת אינטייק יש למלא סיבת פנייה ומאיפה שמעת/הגעת ללילך.");
       return;
     }
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)){
@@ -423,65 +435,18 @@
     };
   }
 
-    $("demoPaidBtn").onclick=async()=>{
-    if(!pendingBooking) return;
-    const btn=$("demoPaidBtn");
-    btn.disabled=true;
-    btn.textContent="מאמת תשלום...";
-    await new Promise(resolve=>setTimeout(resolve,700));
-    showAwaitingApproval({...pendingBooking,status:"awaiting_approval",paymentStatus:"paid"});
-    btn.disabled=false;
-    btn.textContent="הדמיית תשלום מוצלח";
-  };
-
-  $("demoApproveBtn").onclick=async()=>{
-    if(!pendingBooking) return;
-    const btn=$("demoApproveBtn");
-    btn.disabled=true;
-    btn.textContent="מאשר את הפגישה...";
-    await new Promise(resolve=>setTimeout(resolve,650));
-    showConfirmedBooking({...pendingBooking,status:"confirmed",approvedByLilach:true});
-    btn.disabled=false;
-    btn.textContent="הדמיית אישור לילך";
-  };
-
-  $("bankBtn").onclick=()=>{
-    const d=cfg.BANK_TRANSFER||{};
-    const box=$("bankDetails");
-    if(!d.bank&&!d.branch&&!d.account&&!d.beneficiary){
-      box.innerHTML="פרטי ההעברה עדיין לא הוגדרו. לאחר העברה בנקאית הפגישה תישאר בהמתנה עד לאימות התשלום. לאחר האימות תישלח ללילך בקשת אישור במייל.";
-    }else{
-      box.innerHTML=`<b>${d.beneficiary||"לילך פבון"}</b><br>בנק: ${d.bank||"—"}<br>סניף: ${d.branch||"—"}<br>חשבון: ${d.account||"—"}<br><small>לאחר אימות ההעברה לילך תקבל בקשת אישור במייל.</small>`;
-    }
-    box.classList.toggle("hidden");
-  };
-
   $("newBookingBtn").onclick=()=>{
-    selectedDate=null;
-    selectedTime=null;
     resetBookingFlow();
-    $("bookingFormWrap").classList.add("hidden");
-    $("slots").innerHTML='<p class="muted">בחרו יום להצגת השעות הפנויות.</p>';
-    document.querySelectorAll('.date-btn,.slot-btn').forEach(x=>x.classList.remove('active'));
+    resetDateWindow();
+    ["bookFirstName","bookLastName","bookPhone","bookEmail","bookReason"].forEach((id)=>{
+      if($(id)) $(id).value="";
+    });
+    if($("bookReferral")) $("bookReferral").value="";
     if($("bookPrivacyConsent")) $("bookPrivacyConsent").checked=false;
-    if($("bookWhatsappConsent")) $("bookWhatsappConsent").checked=false;
     if($("bookPolicyAccepted")) $("bookPolicyAccepted").checked=false;
-    if($("bookReturningClient")) $("bookReturningClient").checked=false;
-    if($("bookReason")){
-      $("bookReason").disabled=false;
-      $("bookReason").required=true;
-      $("bookReason").setAttribute("aria-disabled","false");
-      $("bookReason").setAttribute("aria-required","true");
-      $("bookReason").placeholder="בכמה מילים, מה מביא אותך לפנות עכשיו?";
-      $("bookReason").value="";
-    }
-    if($("bookReferral")){
-      $("bookReferral").disabled=false;
-      $("bookReferral").required=true;
-      $("bookReferral").setAttribute("aria-disabled","false");
-      $("bookReferral").setAttribute("aria-required","true");
-      if($("bookReferral").value===RETURNING_CLIENT_VALUE) $("bookReferral").value="";
-    }
+    const intake=document.querySelector('input[name="appointmentType"][value="intake"]');
+    if(intake) intake.checked=true;
+    syncAppointmentTypeFields();
     location.hash="#booking";
   };
 
