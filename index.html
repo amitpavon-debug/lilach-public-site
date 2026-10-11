@@ -267,7 +267,34 @@
 </section>
 
 <!-- 8. השארת פרטים: טופס קצר, ללא חיבור -->
-<section id="details" class="sec sec--soft" aria-labelledby="details-title"><div class="wrap wrap--narrow"><header class="sec__head" data-reveal><span class="eyebrow">רוצים להתחיל?</span><h2 id="details-title">אפשר לקבוע פגישה ישירות באתר</h2><p>בחרו מועד שמתאים לכם והמשיכו לתהליך הקביעה המאובטח.</p></header><div class="det-form det-form--cta" data-reveal><svg class="ico ico--lg" aria-hidden="true"><use href="#i-heart"/></svg><p>כל התהליך — בחירת מועד, פרטים ותשלום מקדמה — נמצא כאן באתר.</p><a class="btn btn--primary btn--full" href="#booking" data-book-type="therapy" data-booking-type="therapy">לקביעת פגישה</a></div></div></section>
+<section id="details" class="sec sec--soft" aria-labelledby="details-title">
+  <div class="wrap wrap--narrow">
+    <header class="sec__head" data-reveal>
+      <span class="eyebrow">השארת פרטים</span>
+      <h2 id="details-title">עוד לא מוכנים לקבוע?</h2>
+      <p>השאירו שם וטלפון, ולילך תחזור אליכם.</p>
+    </header>
+
+    <form class="det-form" id="det-form" data-reveal novalidate>
+      <div class="det-form__fields">
+        <div class="two">
+          <label>שם *<input id="contactName" name="n" autocomplete="name"></label>
+          <label>טלפון *<input id="contactPhone" name="t" inputmode="tel" autocomplete="tel"></label>
+        </div>
+        <label>הודעה קצרה (לא חובה)<textarea id="contactMessage" name="m" rows="3"></textarea></label>
+        <label class="contact-hp" aria-hidden="true">אתר<input id="contactWebsite" name="website" tabindex="-1" autocomplete="off"></label>
+        <label class="chk"><input id="contactPrivacyConsent" type="checkbox" required><span>קראתי את <a href="/privacy" target="_blank" rel="noopener">מדיניות הפרטיות</a> ואני מסכים/ה שיחזרו אליי</span></label>
+        <button id="contactSubmitBtn" class="btn btn--primary btn--full" type="submit">שליחה</button>
+        <p id="contactFormError" class="det-form__error" role="status" aria-live="polite"></p>
+      </div>
+      <p class="det-form__done" role="status">
+        <svg class="ico ico--lg" aria-hidden="true"><use href="#i-check"/></svg>
+        <b>תודה, הפרטים התקבלו</b>
+        <span>לילך תחזור אליך בהקדם.</span>
+      </p>
+    </form>
+  </div>
+</section>
 </main>
 
 <footer class="foot">
@@ -278,8 +305,8 @@
   </div>
 </footer>
 <script type="module" src="./zip-visual.js?v=20261008-1"></script>
-<script src="./config.js?v=20261004-1725"></script>
-<script src="./app.js?v=20261011-booking-v2"></script>
+<script src="./config.js?v=20261011-contact1"></script>
+<script src="./app.js?v=20261011-contact1"></script>
 <script src="./accessibility.js?v=20261003-0013"></script>
 </body>
 </html>
