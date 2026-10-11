@@ -276,6 +276,7 @@ Deno.serve(async (req) => {
     const dateHe = formatDateHe(booking.booking_date);
     const time = String(booking.booking_time || "").slice(0, 5);
     const firstName = String(booking.first_name || "").trim();
+    const fullName = [booking.first_name, booking.last_name].filter(Boolean).join(" ");
     const feeNotice = lateCancellation
       ? `<div style="background:#fff4df;border-radius:12px;padding:14px;margin:18px 0"><b>לתשומת לבך:</b> בהתאם למדיניות הביטולים, ביטול בטווח של פחות מ־24 שעות מהמועד כרוך בתשלום של 150 ₪.</div>`
       : "";
@@ -317,7 +318,6 @@ Deno.serve(async (req) => {
     const clientEmail = await sendEmail(String(booking.email || "").trim(), "אישור ביטול הפגישה עם לילך", clientHtml);
 
     const lilachEmail = Deno.env.get("LILACH_NOTIFICATION_EMAIL") || "";
-    const fullName = [booking.first_name, booking.last_name].filter(Boolean).join(" ");
     const lilachHtml = `
       <div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7;color:#263126;max-width:600px;margin:0 auto;padding:0;overflow:hidden;overflow-wrap:anywhere;word-break:break-word">
         <h2>פגישה בוטלה דרך האתר</h2>
