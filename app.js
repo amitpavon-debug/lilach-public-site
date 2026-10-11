@@ -17,6 +17,74 @@
     }
   } catch (_) {}
 
+  const contactForm = $("det-form");
+  if(contactForm){
+    contactForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const name = $("contactName")?.value.trim() || "";
+      const phone = $("contactPhone")?.value.trim() || "";
+      const message = $("contactMessage")?.value.trim() || "";
+      const website = $("contactWebsite")?.value.trim() || "";
+      const privacyConsent = Boolean($("contactPrivacyConsent")?.checked);
+      const errorEl = $("contactFormError");
+      const submitBtn = $("contactSubmitBtn");
+
+      if(errorEl){
+        errorEl.textContent = "";
+        errorEl.className = "det-form__error";
+      }
+
+      if(name.length < 2){
+        if(errorEl) errorEl.textContent = "נא למלא שם.";
+        $("contactName")?.focus();
+        return;
+      }
+      if(phone.length < 7){
+        if(errorEl) errorEl.textContent = "נא למלא מספר טלפון תקין.";
+        $("contactPhone")?.focus();
+        return;
+      }
+      if(!privacyConsent){
+        if(errorEl) errorEl.textContent = "כדי לשלוח יש לאשר את מדיניות הפרטיות.";
+        $("contactPrivacyConsent")?.focus();
+        return;
+      }
+      if(!cfg.CONTACT_REQUEST_URL){
+        if(errorEl) errorEl.textContent = "לא ניתן לשלוח כרגע. נסו שוב מאוחר יותר.";
+        return;
+      }
+
+      if(submitBtn){
+        submitBtn.disabled = true;
+        submitBtn.textContent = "שולח...";
+      }
+
+      try{
+        const response = await fetch(cfg.CONTACT_REQUEST_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, phone, message, privacyConsent, website })
+        });
+        const result = await response.json().catch(() => ({}));
+        if(!response.ok || !result.ok) throw new Error(result.error || "contact_failed");
+
+        contactForm.classList.add("is-sent");
+        contactForm.reset();
+      }catch(error){
+        console.error(error);
+        if(errorEl){
+          errorEl.textContent = "לא הצלחנו לשלוח את הפרטים כרגע. נסו שוב בעוד רגע.";
+          errorEl.className = "det-form__error is-on";
+        }
+      }finally{
+        if(submitBtn){
+          submitBtn.disabled = false;
+          submitBtn.textContent = "שליחה";
+        }
+      }
+    });
+  }
+
 
   const msg = (el, text, ok=false) => {
     el.textContent = text;
