@@ -42,3 +42,23 @@
 
 .det-form__error{min-height:22px;margin:10px 0 0;text-align:center;color:#b23a48;font-size:13px;font-weight:700}
 .contact-hp{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;pointer-events:none!important}
+
+/* One address link, two navigation choices */
+.address-link{color:inherit;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;cursor:pointer}
+.address-link:hover{color:var(--rose-deep)}
+.address-link--booking{font-size:inherit;font-weight:inherit}
+.address-link--footer{display:inline}
+.nav-picker-open{overflow:hidden}
+.nav-picker{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:18px}
+.nav-picker.hidden{display:none!important}
+.nav-picker__backdrop{position:absolute;inset:0;width:100%;height:100%;border:0;background:rgba(36,44,34,.46);backdrop-filter:blur(3px);cursor:default}
+.nav-picker__card{position:relative;z-index:1;width:min(92vw,430px);padding:28px 24px 24px;border:1px solid var(--line);border-radius:28px;background:#fffdfb;box-shadow:0 24px 70px rgba(51,61,47,.22);text-align:center}
+.nav-picker__close{position:absolute;top:10px;left:12px;width:38px;height:38px;border:0;border-radius:50%;background:transparent;color:var(--sage-dark);font-size:30px;line-height:1;cursor:pointer}
+.nav-picker__close:hover{background:var(--sage-soft)}
+.nav-picker__card h2{margin:5px 0 10px;color:var(--sage-dark);font-family:Rubik,sans-serif;font-size:clamp(24px,6vw,32px)}
+.nav-picker__address{display:flex;justify-content:center;align-items:center;gap:7px;margin:0 0 20px;color:var(--muted)}
+.nav-picker__actions{display:grid;gap:10px}
+@media(max-width:559px){
+  .nav-picker{align-items:end;padding:12px}
+  .nav-picker__card{width:100%;border-radius:24px;padding:26px 18px 20px}
+}
