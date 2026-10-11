@@ -1,0 +1,26 @@
+{
+  "name": "קביעת פגישה עם לילך פבון",
+  "short_name": "פגישה עם לילך",
+  "description": "קיצור דרך למטופלים קיימים לקביעת פגישה עם לילך פבון.",
+  "start_url": "/returning",
+  "scope": "/",
+  "display": "standalone",
+  "dir": "rtl",
+  "lang": "he-IL",
+  "background_color": "#f7f2ed",
+  "theme_color": "#f7f2ed",
+  "icons": [
+    {
+      "src": "https://lilach-assistant.vercel.app/icons/lilach-logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://lilach-assistant.vercel.app/icons/lilach-logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
