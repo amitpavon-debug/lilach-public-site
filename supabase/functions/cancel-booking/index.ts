@@ -9,7 +9,7 @@ const corsHeaders = {
 
 const SIGNATURE_URL = "https://taafqwplvzcceoynhvve.supabase.co/functions/v1/email-signature-image";
 const NO_REPLY_NOTE = `<p style="margin-top:22px;color:#667066;font-size:13px;text-align:center">לתשומת לבך: הודעה זו נשלחה ממערכת אוטומטית, ואין אפשרות להשיב להודעה זו במייל.</p>`;
-const SIGNATURE_HTML = `<div style="margin-top:24px;text-align:center;background:#ffffff"><img src="${SIGNATURE_URL}" alt="לילך פבון | טיפול רגשי | CBT | NLP" width="600" height="200" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;background:#ffffff" /></div>`;
+const SIGNATURE_HTML = `<div style="margin-top:24px;text-align:center;background:#ffffff"><img src="${SIGNATURE_URL}" alt="לילך פבון | טיפול רגשי | CBT | NLP" style="display:block;width:100%;max-width:480px;height:auto;margin:0 auto;border:0;background:#ffffff" /></div>`;
 
 function escapeHtml(value: unknown) {
   return String(value ?? "")
@@ -207,7 +207,7 @@ Deno.serve(async (req) => {
       : "";
 
     const clientHtml = `
-      <div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7;color:#263126;max-width:640px;margin:auto">
+      <div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7;color:#263126;width:100%;max-width:640px;margin:0 auto;box-sizing:border-box;padding:0 12px;overflow-wrap:anywhere;word-break:break-word">
         <h2>הפגישה עם לילך בוטלה</h2>
         <p>${firstName ? `שלום ${escapeHtml(firstName)},` : "שלום,"}</p>
         <p>בקשת הביטול התקבלה והפגישה בוטלה.</p>
@@ -225,7 +225,7 @@ Deno.serve(async (req) => {
     const lilachEmail = Deno.env.get("LILACH_NOTIFICATION_EMAIL") || "";
     const fullName = [booking.first_name, booking.last_name].filter(Boolean).join(" ");
     const lilachHtml = `
-      <div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7;color:#263126;max-width:640px;margin:auto">
+      <div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.7;color:#263126;width:100%;max-width:640px;margin:0 auto;box-sizing:border-box;padding:0 12px;overflow-wrap:anywhere;word-break:break-word">
         <h2>פגישה בוטלה דרך האתר</h2>
         <p><b>שם:</b> ${escapeHtml(fullName)}</p>
         <p><b>מועד:</b> ${escapeHtml(dateHe)} · ${escapeHtml(time)}</p>
