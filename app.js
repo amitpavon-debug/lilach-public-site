@@ -17,6 +17,36 @@
     }
   } catch (_) {}
 
+  const navigationPicker = $("navigationPicker");
+  const openNavigationPicker = (event) => {
+    event?.preventDefault();
+    event?.stopPropagation();
+    if(!navigationPicker) return;
+    navigationPicker.classList.remove("hidden");
+    document.documentElement.classList.add("nav-picker-open");
+    navigationPicker.querySelector(".nav-picker__close")?.focus();
+  };
+  const closeNavigationPicker = () => {
+    if(!navigationPicker) return;
+    navigationPicker.classList.add("hidden");
+    document.documentElement.classList.remove("nav-picker-open");
+  };
+
+  document.querySelectorAll("[data-nav-picker]").forEach((el) => {
+    el.addEventListener("click", openNavigationPicker);
+  });
+  navigationPicker?.querySelectorAll("[data-nav-close]").forEach((el) => {
+    el.addEventListener("click", closeNavigationPicker);
+  });
+  navigationPicker?.addEventListener("click", (event) => {
+    if(event.target === navigationPicker) closeNavigationPicker();
+  });
+  document.addEventListener("keydown", (event) => {
+    if(event.key === "Escape" && navigationPicker && !navigationPicker.classList.contains("hidden")){
+      closeNavigationPicker();
+    }
+  });
+
   const contactForm = $("det-form");
   if(contactForm){
     contactForm.addEventListener("submit", async (event) => {
