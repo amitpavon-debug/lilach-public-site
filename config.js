@@ -6,6 +6,7 @@ window.LILACH_SITE_CONFIG = {
   BOOKING_STATUS_URL: "https://taafqwplvzcceoynhvve.supabase.co/functions/v1/booking-status",
   PAYMENT_REVIEW_URL: "https://taafqwplvzcceoynhvve.supabase.co/functions/v1/payment-review",
   SITE_ANALYTICS_URL: "https://taafqwplvzcceoynhvve.supabase.co/functions/v1/site-analytics",
+  CONTACT_REQUEST_URL: "https://taafqwplvzcceoynhvve.supabase.co/functions/v1/contact-request",
   VCITA_FALLBACK_URL: "",
   CARD_PAYMENT_URL: "",
   PAYBOX_URL: "https://links.payboxapp.com/7rvI3BpGZUb",
