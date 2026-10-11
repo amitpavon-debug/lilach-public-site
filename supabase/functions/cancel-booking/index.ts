@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import webpush from "npm:web-push@3.6.7";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -112,6 +113,79 @@ async function googleToken() {
   return data.access_token;
 }
 
+function israelToday() {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Jerusalem",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+async function sendLilachPush(supabase: any, title: string, body: string) {
+  const publicKey = Deno.env.get("VAPID_PUBLIC_KEY") || "";
+  const privateKey = Deno.env.get("VAPID_PRIVATE_KEY") || "";
+  const email = Deno.env.get("VAPID_EMAIL") || "mailto:lilach.pavon@gmail.com";
+  if (!publicKey || !privateKey) return { sent: 0, skipped: true };
+
+  try {
+    webpush.setVapidDetails(email, publicKey, privateKey);
+    const { data: subscriptions, error } = await supabase
+      .from("push_subscriptions")
+      .select("id,subscription")
+      .eq("enabled", true);
+    if (error) throw error;
+
+    let sent = 0;
+    for (const row of subscriptions || []) {
+      try {
+        await webpush.sendNotification(
+          row.subscription as webpush.PushSubscription,
+          JSON.stringify({ title, body, url: "/" }),
+        );
+        sent += 1;
+      } catch (error: any) {
+        console.error("CANCELLATION PUSH ERROR:", error);
+        if ([404, 410].includes(Number(error?.statusCode))) {
+          await supabase.from("push_subscriptions").update({ enabled: false }).eq("id", row.id);
+        }
+      }
+    }
+    return { sent, skipped: false };
+  } catch (error) {
+    console.error("CANCELLATION PUSH SETUP ERROR:", error);
+    return { sent: 0, skipped: false };
+  }
+}
+
+async function createFinanceTaskAndPush(
+  supabase: any,
+  opts: { title: string; description: string; pushBody: string },
+) {
+  const { data: task, error } = await supabase
+    .from("tasks")
+    .insert({
+      title: opts.title,
+      description: opts.description,
+      category: "כספים",
+      priority: "גבוה",
+      status: "פתוח",
+      due_date: israelToday(),
+      client_id: null,
+      hidden: false,
+    })
+    .select("id")
+    .single();
+
+  if (error) {
+    console.error("CANCELLATION FINANCE TASK ERROR:", error);
+    return { taskCreated: false, taskId: null, pushSent: 0 };
+  }
+
+  const push = await sendLilachPush(supabase, "נדרשת פעולה בעקבות ביטול", opts.pushBody);
+  return { taskCreated: true, taskId: task?.id || null, pushSent: push.sent || 0 };
+}
+
 async function sendEmail(to: string, subject: string, html: string) {
   const apiKey = Deno.env.get("RESEND_API_KEY") || "";
   if (!apiKey || !to) return { sent: false, skipped: true };
@@ -152,7 +226,7 @@ Deno.serve(async (req) => {
 
     const { data: booking, error: bookingError } = await supabase
       .from("intake_bookings")
-      .select("id,booking_date,booking_time,first_name,last_name,email,phone,status,google_event_id")
+      .select("id,booking_date,booking_time,first_name,last_name,email,phone,status,google_event_id,payment_status,payment_amount,payment_method,payment_verified_at")
       .eq("id", bookingId)
       .maybeSingle();
     if (bookingError) throw bookingError;
@@ -220,6 +294,26 @@ Deno.serve(async (req) => {
         ${SIGNATURE_HTML}
       </div>`;
 
+    let financeReminder = { taskCreated: false, taskId: null as number | null, pushSent: 0 };
+    const paidAmount = Number(booking.payment_amount || 0) || 150;
+    const paymentWasVerified = booking.payment_status === "paid" || Boolean(booking.payment_verified_at);
+
+    if (paymentWasVerified) {
+      if (lateCancellation) {
+        financeReminder = await createFinanceTaskAndPush(supabase, {
+          title: `להוציא קבלה על דמי ביטול ${paidAmount} ₪ – ${fullName || "מטופל/ת"}`,
+          description: `הלקוח/ה ביטל/ה פחות מ־24 שעות לפני הפגישה (${dateHe} בשעה ${time}). המקדמה נשארת כדמי ביטול. יש להוציא קבלה ב-YPAY על ${paidAmount} ₪. אמצעי תשלום: ${booking.payment_method || "PayBox"}.`,
+          pushBody: `${fullName || "מטופל/ת"} ביטל/ה בתוך 24 שעות. יש להוציא קבלה על דמי ביטול בסך ${paidAmount} ₪.`,
+        });
+      } else {
+        financeReminder = await createFinanceTaskAndPush(supabase, {
+          title: `לזכות ${paidAmount} ₪ – ${fullName || "מטופל/ת"}`,
+          description: `הלקוח/ה ביטל/ה יותר מ־24 שעות לפני הפגישה (${dateHe} בשעה ${time}). יש להחזיר/לזכות את המקדמה בסך ${paidAmount} ₪ באמצעות ${booking.payment_method || "PayBox"}.`,
+          pushBody: `${fullName || "מטופל/ת"} ביטל/ה יותר מ־24 שעות מראש. יש לזכות ${paidAmount} ₪.`,
+        });
+      }
+    }
+
     const clientEmail = await sendEmail(String(booking.email || "").trim(), "אישור ביטול הפגישה עם לילך", clientHtml);
 
     const lilachEmail = Deno.env.get("LILACH_NOTIFICATION_EMAIL") || "";
@@ -240,6 +334,9 @@ Deno.serve(async (req) => {
       feeAmount,
       clientEmailSent: clientEmail.sent,
       lilachEmailSent: lilachNotification.sent,
+      financeTaskCreated: financeReminder.taskCreated,
+      financeTaskId: financeReminder.taskId,
+      pushSent: financeReminder.pushSent,
     }, { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (error) {
     console.error("CANCEL BOOKING ERROR:", error);
