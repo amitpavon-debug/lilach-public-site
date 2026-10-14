@@ -3,9 +3,19 @@ const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 
 /* ── ספירת שנות ניסיון: פעם אחת, כשהמספר נחשף ─────────────────────────── */
+function experienceYears(el) {
+  const startYear = Number(el.dataset.startYear);
+  if (!startYear) return Number(el.dataset.to) || 0;
+  return Math.max(0, new Date().getFullYear() - startYear);
+}
+
 function countUp(el) {
-  const to = Number(el.dataset.to);
-  if (reduce || !to) return;
+  const to = experienceYears(el);
+  if (!to) return;
+  if (reduce) {
+    el.textContent = String(to);
+    return;
+  }
   const t0 = performance.now();
   const dur = 1300;
   const tick = (t) => {
@@ -29,7 +39,8 @@ const COUNT_LINE = 0.7;
 const targets = $$('[data-reveal]');
 const reveal = (el) => el.classList.add('is-in');
 const revealAll = () => targets.forEach(reveal);
-const counters = $$('.count');
+const counters = $('.count');
+counters.forEach((c) => { c.textContent = String(experienceYears(c)); });
 
 if (reduce || !('IntersectionObserver' in window)) {
   revealAll();
