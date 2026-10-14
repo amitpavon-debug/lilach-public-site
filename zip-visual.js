@@ -39,7 +39,7 @@ const COUNT_LINE = 0.7;
 const targets = $$('[data-reveal]');
 const reveal = (el) => el.classList.add('is-in');
 const revealAll = () => targets.forEach(reveal);
-const counters = $('.count');
+const counters = $$('.count');
 counters.forEach((c) => { c.textContent = String(experienceYears(c)); });
 
 if (reduce || !('IntersectionObserver' in window)) {
