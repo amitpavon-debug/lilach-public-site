@@ -57,6 +57,18 @@
     {
       "source": "/returning",
       "destination": "/returning.html"
+    },
+    {
+      "source": "/tipul-rigshi-holon",
+      "destination": "/tipul-rigshi-holon.html"
+    },
+    {
+      "source": "/cbt-holon",
+      "destination": "/cbt-holon.html"
+    },
+    {
+      "source": "/tipul-beharada-holon",
+      "destination": "/tipul-beharada-holon.html"
     }
   ],
   "headers": [
