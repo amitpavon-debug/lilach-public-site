@@ -21,7 +21,7 @@
 
 .hero__mark{
   position:relative;
-  width:clamp(118px,33vw,140px);
+  width:clamp(150px,38vw,180px);
   aspect-ratio:1;
   margin:0 auto 22px
 }
@@ -40,7 +40,7 @@
   position:absolute;
   inset:0;
   border-radius:50%;
-  box-shadow:0 14px 36px rgba(79,93,72,.20)
+  box-shadow:0 16px 44px rgba(79,93,72,.28),0 0 0 1px rgba(123,135,111,.14)
 }
 
 .hero__logo img{
@@ -49,6 +49,7 @@
   -o-object-fit:contain;
      object-fit:contain;
   border-radius:50%;
+  filter:saturate(1.04) contrast(1.03);
 }
 
 /* בלי העיגול הרחב: הקשת שלו חצתה את הלוגו, בנייד וגם במחשב */

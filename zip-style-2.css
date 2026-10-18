@@ -340,11 +340,13 @@ button,input,select,textarea{
 }
 
 .brand img{
-  width:44px;
-  height:44px;
+  width:52px;
+  height:52px;
   border-radius:50%;
-  border:1px solid var(--line);
-  background:#fff
+  border:1px solid rgba(123,135,111,.32);
+  background:#fff;
+  box-shadow:0 5px 16px rgba(79,93,72,.18);
+  object-fit:cover
 }
 
 .brand span{
