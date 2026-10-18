@@ -48,8 +48,9 @@
   height:100%;
   -o-object-fit:contain;
      object-fit:contain;
+  object-position:center;
   border-radius:50%;
-  filter:contrast(1.38) saturate(1.22) brightness(.88);
+  filter:none;
 }
 
 /* בלי העיגול הרחב: הקשת שלו חצתה את הלוגו, בנייד וגם במחשב */
