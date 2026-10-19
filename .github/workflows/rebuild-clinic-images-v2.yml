@@ -1,0 +1,43 @@
+name: Rebuild clinic images v2
+on:
+  push:
+    paths:
+      - '.clinic-upload-v2/**'
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check all image chunks exist
+        id: check
+        shell: bash
+        run: |
+          test -f .clinic-upload-v2/clinic-1-003.part || { echo "ready=false" >> "$GITHUB_OUTPUT"; exit 0; }
+          test -f .clinic-upload-v2/clinic-2-002.part || { echo "ready=false" >> "$GITHUB_OUTPUT"; exit 0; }
+          test -f .clinic-upload-v2/clinic-3-003.part || { echo "ready=false" >> "$GITHUB_OUTPUT"; exit 0; }
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+      - name: Rebuild exact WebP files
+        if: steps.check.outputs.ready == 'true'
+        shell: bash
+        run: |
+          cat .clinic-upload-v2/clinic-1-*.part | tr -d '\n\r' | base64 -d > assets/clinic-1.webp
+          cat .clinic-upload-v2/clinic-2-*.part | tr -d '\n\r' | base64 -d > assets/clinic-2.webp
+          cat .clinic-upload-v2/clinic-3-*.part | tr -d '\n\r' | base64 -d > assets/clinic-3.webp
+          file assets/clinic-1.webp assets/clinic-2.webp assets/clinic-3.webp
+          test "$(stat -c%s assets/clinic-1.webp)" -eq 63266
+          test "$(stat -c%s assets/clinic-2.webp)" -eq 41624
+          test "$(stat -c%s assets/clinic-3.webp)" -eq 70440
+      - name: Commit optimized clinic originals
+        if: steps.check.outputs.ready == 'true'
+        shell: bash
+        run: |
+          rm -rf .clinic-upload-v2
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/clinic-1.webp assets/clinic-2.webp assets/clinic-3.webp .clinic-upload-v2
+          git commit -m "Replace clinic images with optimized originals"
+          git push
