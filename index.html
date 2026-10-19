@@ -166,6 +166,41 @@
   </div>
 </section>
 
+
+<!-- הקליניקה: גלריית תמונות מתחלפת -->
+<section id="clinic" class="sec clinic" aria-labelledby="clinic-title">
+  <div class="wrap">
+    <header class="sec__head clinic__head" data-reveal>
+      <span class="eyebrow">הקליניקה</span>
+      <h2 id="clinic-title">מרחב שקט ונעים בחולון</h2>
+      <p>מקום פרטי, נעים ומזמין לפגישה בקצב שמתאים לך.</p>
+    </header>
+
+    <div class="clinic-slider" data-clinic-slider tabindex="0" role="region" aria-roledescription="carousel" aria-label="תמונות מהקליניקה">
+      <div class="clinic-stage">
+        <figure class="clinic-slide is-active" aria-hidden="false">
+          <img src="/assets/clinic-1.webp?v=20261019" width="600" height="600" loading="lazy" decoding="async" alt="הקליניקה של לילך פבון בחולון – פינת הישיבה והנוף">
+        </figure>
+        <figure class="clinic-slide" aria-hidden="true">
+          <img src="/assets/clinic-2.webp?v=20261019" width="520" height="520" loading="lazy" decoding="async" alt="הקליניקה של לילך פבון בחולון – שתי כורסאות ופינת ישיבה">
+        </figure>
+        <figure class="clinic-slide" aria-hidden="true">
+          <img src="/assets/clinic-3.webp?v=20261019" width="460" height="460" loading="lazy" decoding="async" alt="הקליניקה של לילך פבון בחולון – פינת טיפול מול החלון">
+        </figure>
+      </div>
+
+      <button type="button" class="clinic-nav clinic-nav--prev" data-clinic-prev aria-label="תמונה קודמת">‹</button>
+      <button type="button" class="clinic-nav clinic-nav--next" data-clinic-next aria-label="תמונה הבאה">›</button>
+
+      <div class="clinic-dots" aria-label="בחירת תמונה">
+        <button type="button" class="is-active" data-clinic-dot="0" aria-label="תמונה 1" aria-current="true"></button>
+        <button type="button" data-clinic-dot="1" aria-label="תמונה 2"></button>
+        <button type="button" data-clinic-dot="2" aria-label="תמונה 3"></button>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ציטוט: הועבר מכרטיס ההירו -->
 <section class="quote" aria-label="ציטוט"><p data-reveal>״הדרך לשינוי מתחילה בהחלטה לעצור רגע, להקשיב לעצמך ולבקש תמיכה.״</p><i data-reveal style="--d:.15s" aria-hidden="true"></i></section>
 
@@ -324,5 +359,69 @@
 <script src="./config.js?v=20261011-contact1"></script>
 <script src="./app.js?v=20261011-new-clients-only"></script>
 <script src="./accessibility.js?v=20261003-0013"></script>
+
+<script>
+(()=>{
+  const slider=document.querySelector('[data-clinic-slider]');
+  if(!slider) return;
+  const slides=[...slider.querySelectorAll('.clinic-slide')];
+  const dots=[...slider.querySelectorAll('[data-clinic-dot]')];
+  const prev=slider.querySelector('[data-clinic-prev]');
+  const next=slider.querySelector('[data-clinic-next]');
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let index=0,timer=null,startX=null,paused=false;
+
+  const show=(n)=>{
+    index=(n+slides.length)%slides.length;
+    slides.forEach((slide,i)=>{
+      const active=i===index;
+      slide.classList.toggle('is-active',active);
+      slide.setAttribute('aria-hidden',String(!active));
+    });
+    dots.forEach((dot,i)=>{
+      const active=i===index;
+      dot.classList.toggle('is-active',active);
+      if(active) dot.setAttribute('aria-current','true');
+      else dot.removeAttribute('aria-current');
+    });
+  };
+
+  const stop=()=>{ if(timer){clearInterval(timer);timer=null;} };
+  const play=()=>{
+    if(reduce||paused) return;
+    stop();
+    timer=setInterval(()=>show(index+1),6500);
+  };
+  const go=(n)=>{ show(n); play(); };
+
+  prev?.addEventListener('click',()=>go(index-1));
+  next?.addEventListener('click',()=>go(index+1));
+  dots.forEach((dot,i)=>dot.addEventListener('click',()=>go(i)));
+
+  slider.addEventListener('mouseenter',()=>{paused=true;stop();});
+  slider.addEventListener('mouseleave',()=>{paused=false;play();});
+  slider.addEventListener('focusin',()=>{paused=true;stop();});
+  slider.addEventListener('focusout',()=>{paused=false;play();});
+
+  slider.addEventListener('keydown',(e)=>{
+    if(e.key==='ArrowLeft'){e.preventDefault();go(index+1);}
+    if(e.key==='ArrowRight'){e.preventDefault();go(index-1);}
+  });
+
+  slider.addEventListener('touchstart',(e)=>{
+    startX=e.changedTouches[0]?.clientX??null;
+  },{passive:true});
+  slider.addEventListener('touchend',(e)=>{
+    if(startX==null) return;
+    const dx=(e.changedTouches[0]?.clientX??startX)-startX;
+    startX=null;
+    if(Math.abs(dx)>45) go(dx<0?index+1:index-1);
+  },{passive:true});
+
+  document.addEventListener('visibilitychange',()=>document.hidden?stop():play());
+  show(0);
+  play();
+})();
+</script>
 </body>
 </html>
