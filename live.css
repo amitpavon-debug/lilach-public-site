@@ -62,3 +62,72 @@
   .nav-picker{align-items:end;padding:12px}
   .nav-picker__card{width:100%;border-radius:24px;padding:26px 18px 20px}
 }
+
+
+/* Clinic gallery — calm cinematic slider */
+.clinic{overflow:hidden;background:linear-gradient(180deg,#fffaf7 0,#f7f3ef 100%)}
+.clinic__head{margin-bottom:30px}
+.clinic-slider{position:relative;max-width:980px;margin:0 auto;outline:none}
+.clinic-stage{
+  position:relative;overflow:hidden;border-radius:32px;aspect-ratio:16/10;
+  background:#e9ece6;box-shadow:0 24px 60px rgba(54,65,50,.16)
+}
+.clinic-stage::before{
+  content:"";position:absolute;inset:0;z-index:3;pointer-events:none;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.38);
+  border-radius:inherit
+}
+.clinic-slide{
+  position:absolute;inset:0;margin:0;opacity:0;pointer-events:none;
+  transform:scale(1.055) translateX(1.5%);
+  transition:opacity 1.25s ease,transform 7s cubic-bezier(.2,.65,.25,1)
+}
+.clinic-slide:nth-child(even){transform:scale(1.055) translateX(-1.5%)}
+.clinic-slide.is-active{opacity:1;transform:scale(1) translateX(0);pointer-events:auto;z-index:1}
+.clinic-slide img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.clinic-slider::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:28%;z-index:2;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(29,38,29,.16));
+  border-radius:0 0 32px 32px
+}
+.clinic-nav{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:4;
+  width:48px;height:48px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.7);
+  background:rgba(255,255,255,.84);backdrop-filter:blur(8px);
+  color:var(--sage-dark);font:400 32px/1 Arial,sans-serif;
+  display:grid;place-items:center;cursor:pointer;
+  box-shadow:0 8px 24px rgba(0,0,0,.13);
+  transition:transform .25s ease,background .25s ease,box-shadow .25s ease
+}
+.clinic-nav:hover{background:#fff;box-shadow:0 10px 28px rgba(0,0,0,.18);transform:translateY(-50%) scale(1.06)}
+.clinic-nav--prev{right:18px}
+.clinic-nav--next{left:18px}
+.clinic-dots{
+  position:absolute;z-index:4;bottom:18px;left:50%;transform:translateX(-50%);
+  display:flex;gap:8px;padding:7px 10px;border-radius:999px;
+  background:rgba(255,255,255,.75);backdrop-filter:blur(8px);
+  box-shadow:0 6px 20px rgba(0,0,0,.10)
+}
+.clinic-dots button{
+  width:8px;height:8px;padding:0;border:0;border-radius:50%;
+  background:rgba(79,93,72,.35);cursor:pointer;
+  transition:width .3s ease,background .3s ease,border-radius .3s ease
+}
+.clinic-dots button.is-active{width:26px;border-radius:999px;background:var(--sage-dark)}
+.clinic-slider:focus-visible{outline:3px solid rgba(123,135,111,.45);outline-offset:7px;border-radius:32px}
+
+@media(max-width:699px){
+  .clinic__head{margin-bottom:22px}
+  .clinic-stage{aspect-ratio:4/5;border-radius:24px}
+  .clinic-slider::after{border-radius:0 0 24px 24px}
+  .clinic-nav{width:42px;height:42px;font-size:28px}
+  .clinic-nav--prev{right:10px}
+  .clinic-nav--next{left:10px}
+  .clinic-dots{bottom:12px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .clinic-slide{transition:opacity .25s linear;transform:none!important}
+  .clinic-nav{transition:none}
+}
