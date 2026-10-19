@@ -64,36 +64,58 @@
 }
 
 
-/* Clinic gallery — clean automatic slideshow */
+/* Clinic gallery — lightweight card grid */
 .clinic{overflow:hidden;background:linear-gradient(180deg,#fffaf7 0,#f7f3ef 100%)}
-.clinic__head{margin-bottom:30px}
-.clinic-slider{position:relative;width:min(100%,980px);margin:0 auto}
-.clinic-stage{
-  position:relative;overflow:hidden;border-radius:30px;aspect-ratio:16/9;
-  background:#eceee9;box-shadow:0 22px 54px rgba(54,65,50,.14)
+.clinic__head{margin-bottom:26px}
+.clinic-gallery{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px;
+  max-width:980px;
+  margin:0 auto;
+  align-items:start
 }
-.clinic-stage::before{
-  content:"";position:absolute;inset:0;z-index:3;pointer-events:none;
-  border:1px solid rgba(79,93,72,.10);border-radius:inherit
+.clinic-card{
+  margin:0;
+  overflow:hidden;
+  border-radius:24px;
+  aspect-ratio:4/3;
+  background:#eceee9;
+  box-shadow:0 14px 34px rgba(54,65,50,.10);
+  transform:translateZ(0)
 }
-.clinic-slide{
-  position:absolute;inset:0;margin:0;opacity:0;pointer-events:none;
-  transition:opacity 1.6s cubic-bezier(.22,.61,.36,1);
-  will-change:opacity
+.clinic-card:nth-child(3){
+  grid-column:1 / -1;
+  width:calc(50% - 9px);
+  justify-self:center
 }
-.clinic-slide.is-active{opacity:1;pointer-events:auto;z-index:1}
-.clinic-slide img{
-  display:block;width:100%;height:100%;
-  object-fit:cover;object-position:center 48%;
-  image-rendering:auto;filter:none;transform:none
+.clinic-card img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+  image-rendering:auto;
+  filter:none;
+  transform:none
 }
-
+@media(hover:hover){
+  .clinic-card{transition:transform .28s ease,box-shadow .28s ease}
+  .clinic-card:hover{transform:translateY(-4px);box-shadow:0 18px 42px rgba(54,65,50,.14)}
+}
 @media(max-width:699px){
-  .clinic__head{margin-bottom:22px}
-  .clinic-slider{width:100%}
-  .clinic-stage{border-radius:22px}
-}
-
-@media(prefers-reduced-motion:reduce){
-  .clinic-slide{transition:none}
+  .clinic__head{margin-bottom:20px}
+  .clinic-gallery{
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    overflow:hidden
+  }
+  .clinic-card{
+    aspect-ratio:4/5;
+    border-radius:18px
+  }
+  .clinic-card:nth-child(3){
+    grid-column:1 / -1;
+    width:calc(50% - 5px)
+  }
 }
