@@ -67,9 +67,9 @@
 /* Clinic gallery — clean automatic slideshow */
 .clinic{overflow:hidden;background:linear-gradient(180deg,#fffaf7 0,#f7f3ef 100%)}
 .clinic__head{margin-bottom:30px}
-.clinic-slider{position:relative;width:min(100%,820px);margin:0 auto}
+.clinic-slider{position:relative;width:min(100%,980px);margin:0 auto}
 .clinic-stage{
-  position:relative;overflow:hidden;border-radius:30px;aspect-ratio:1/1;
+  position:relative;overflow:hidden;border-radius:30px;aspect-ratio:16/9;
   background:#eceee9;box-shadow:0 22px 54px rgba(54,65,50,.14)
 }
 .clinic-stage::before{
@@ -84,7 +84,7 @@
 .clinic-slide.is-active{opacity:1;pointer-events:auto;z-index:1}
 .clinic-slide img{
   display:block;width:100%;height:100%;
-  object-fit:cover;object-position:center;
+  object-fit:cover;object-position:center 48%;
   image-rendering:auto;filter:none;transform:none
 }
 
