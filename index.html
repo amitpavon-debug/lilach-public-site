@@ -167,27 +167,25 @@
 </section>
 
 
-<!-- הקליניקה: גלריית תמונות מתחלפת -->
+<!-- הקליניקה: גלריה קלה בסגנון כרטיסים -->
 <section id="clinic" class="sec clinic" aria-labelledby="clinic-title">
   <div class="wrap">
     <header class="sec__head clinic__head" data-reveal>
       <span class="eyebrow">הקליניקה</span>
-      <h2 id="clinic-title">מרחב שקט ונעים בחולון</h2>
-      <p>מקום פרטי, נעים ומזמין לפגישה בקצב שמתאים לך.</p>
+      <h2 id="clinic-title">הקליניקה</h2>
+      <p>מרחב נעים, שקט ומזמין לפגישות.</p>
     </header>
 
-    <div class="clinic-slider" data-clinic-slider role="region" aria-roledescription="carousel" aria-label="תמונות מהקליניקה">
-      <div class="clinic-stage">
-        <figure class="clinic-slide is-active" aria-hidden="false">
-          <img src="/assets/clinic-1.webp?v=20261019-clean2" loading="lazy" decoding="async" alt="הקליניקה של לילך פבון בחולון – פינת הישיבה והנוף">
-        </figure>
-        <figure class="clinic-slide" aria-hidden="true">
-          <img src="/assets/clinic-2.webp?v=20261019-clean2" loading="lazy" decoding="async" alt="הקליניקה של לילך פבון בחולון – שתי כורסאות ופינת ישיבה">
-        </figure>
-        <figure class="clinic-slide" aria-hidden="true">
-          <img src="/assets/clinic-3.webp?v=20261019-clean2" loading="lazy" decoding="async" alt="הקליניקה של לילך פבון בחולון – פינת טיפול מול החלון">
-        </figure>
-      </div>
+    <div class="clinic-gallery" aria-label="תמונות מהקליניקה">
+      <figure class="clinic-card">
+        <img src="/assets/clinic-1.webp?v=20261019-gallery" width="640" height="640" loading="lazy" decoding="async" alt="פינת הישיבה בקליניקה">
+      </figure>
+      <figure class="clinic-card">
+        <img src="/assets/clinic-2.webp?v=20261019-gallery" width="640" height="640" loading="lazy" decoding="async" alt="פינת הישיבה והנוף מהקליניקה">
+      </figure>
+      <figure class="clinic-card">
+        <img src="/assets/clinic-3.webp?v=20261019-gallery" width="640" height="640" loading="lazy" decoding="async" alt="פינת הטיפול בקליניקה">
+      </figure>
     </div>
   </div>
 </section>
@@ -351,34 +349,5 @@
 <script src="./app.js?v=20261011-new-clients-only"></script>
 <script src="./accessibility.js?v=20261003-0013"></script>
 
-<script>
-(()=>{
-  const slider=document.querySelector('[data-clinic-slider]');
-  if(!slider) return;
-  const slides=[...slider.querySelectorAll('.clinic-slide')];
-  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let index=0,timer=null;
-
-  const show=(n)=>{
-    index=(n+slides.length)%slides.length;
-    slides.forEach((slide,i)=>{
-      const active=i===index;
-      slide.classList.toggle('is-active',active);
-      slide.setAttribute('aria-hidden',String(!active));
-    });
-  };
-
-  const stop=()=>{ if(timer){ clearInterval(timer); timer=null; } };
-  const play=()=>{
-    if(reduce || slides.length<2) return;
-    stop();
-    timer=setInterval(()=>show(index+1),7000);
-  };
-
-  document.addEventListener('visibilitychange',()=>document.hidden?stop():play());
-  show(0);
-  play();
-})();
-</script>
 </body>
 </html>
