@@ -63,137 +63,43 @@
   .nav-picker__card{width:100%;border-radius:24px;padding:26px 18px 20px}
 }
 
-
-/* Clinic slider — lightweight CSS-only motion */
+/* Clinic slider — final lightweight CSS-only version */
 .clinic{overflow:hidden;background:linear-gradient(180deg,#fffaf7 0,#f7f3ef 100%)}
-.clinic__head{margin-bottom:26px}
+.clinic__head{margin-bottom:24px}
 .clinic-marquee{
-  position:relative;
-  width:100%;
-  overflow:hidden;
-  padding:4px 0 14px;
-  direction:ltr;
+  position:relative;width:100%;overflow:hidden;padding:4px 0 14px;direction:ltr;
   -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 4%,#000 96%,transparent 100%);
   mask-image:linear-gradient(90deg,transparent 0,#000 4%,#000 96%,transparent 100%)
 }
 .clinic-track{
-  display:flex;
-  width:max-content;
-  animation:clinicFlow 28s linear infinite;
+  display:flex;width:max-content;
+  animation:clinicFlow 30s linear infinite;
   will-change:transform
 }
 .clinic-group{display:flex;gap:16px;padding-right:16px;flex:none}
 .clinic-card{
-  flex:none;
-  width:clamp(300px,38vw,430px);
-  aspect-ratio:4/3;
-  margin:0;
-  overflow:hidden;
-  border-radius:24px;
-  background:#eceee9;
-  box-shadow:0 14px 34px rgba(54,65,50,.10)
+  flex:none;width:clamp(300px,38vw,420px);aspect-ratio:16/10;margin:0;overflow:hidden;
+  border-radius:22px;background:#eceee9;box-shadow:0 12px 28px rgba(54,65,50,.10)
 }
 .clinic-card img{
-  display:block;width:100%;height:100%;
-  object-fit:cover;object-position:center;
+  display:block;width:100%;height:100%;object-fit:cover;object-position:center;
   image-rendering:auto;filter:none;transform:none
 }
 .clinic-marquee:hover .clinic-track{animation-play-state:paused}
 @keyframes clinicFlow{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
 @media(max-width:699px){
-  .clinic__head{margin-bottom:20px}
+  .clinic__head{margin-bottom:18px}
   .clinic-marquee{
     margin-inline:-20px;width:calc(100% + 40px);
     -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 2%,#000 98%,transparent 100%);
     mask-image:linear-gradient(90deg,transparent 0,#000 2%,#000 98%,transparent 100%)
   }
-  .clinic-track{animation-duration:24s}
+  .clinic-track{animation-duration:26s}
   .clinic-group{gap:12px;padding-right:12px}
-  .clinic-card{width:78vw;max-width:360px;border-radius:20px}
+  .clinic-card{width:78vw;max-width:340px;aspect-ratio:16/10;border-radius:18px}
 }
 @media(prefers-reduced-motion:reduce){
   .clinic-marquee{overflow-x:auto;-webkit-mask-image:none;mask-image:none;scrollbar-width:none;scroll-snap-type:x mandatory}
-  .clinic-marquee::-webkit-scrollbar{display:none}
-  .clinic-track{animation:none}
-  .clinic-group[aria-hidden="true"]{display:none}
-  .clinic-card{scroll-snap-align:center}
-}
-
-
-/* Clinic slider — lightweight CSS-only cards inspired by the reference video */
-.clinic{overflow:hidden;background:linear-gradient(180deg,#fffaf7 0,#f7f3ef 100%)}
-.clinic__head{margin-bottom:24px}
-.clinic-marquee{
-  position:relative;
-  overflow:hidden;
-  width:100%;
-  padding:4px 0 14px;
-  direction:ltr;
-  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 4%,#000 96%,transparent 100%);
-  mask-image:linear-gradient(90deg,transparent 0,#000 4%,#000 96%,transparent 100%)
-}
-.clinic-track{
-  display:flex;
-  width:max-content;
-  animation:clinicFlow 30s linear infinite;
-  will-change:transform
-}
-.clinic-group{
-  display:flex;
-  gap:16px;
-  padding-right:16px;
-  flex:none
-}
-.clinic-card{
-  flex:none;
-  width:clamp(320px,42vw,460px);
-  aspect-ratio:16/10;
-  margin:0;
-  overflow:hidden;
-  border-radius:24px;
-  background:#eceee9;
-  box-shadow:0 14px 34px rgba(54,65,50,.11)
-}
-.clinic-card img{
-  display:block;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  object-position:center;
-  image-rendering:auto;
-  filter:none;
-  transform:none
-}
-.clinic-marquee:hover .clinic-track{animation-play-state:paused}
-@keyframes clinicFlow{
-  from{transform:translate3d(0,0,0)}
-  to{transform:translate3d(-50%,0,0)}
-}
-@media(max-width:699px){
-  .clinic__head{margin-bottom:18px}
-  .clinic-marquee{
-    margin-inline:-20px;
-    width:calc(100% + 40px);
-    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 2%,#000 98%,transparent 100%);
-    mask-image:linear-gradient(90deg,transparent 0,#000 2%,#000 98%,transparent 100%)
-  }
-  .clinic-track{animation-duration:26s}
-  .clinic-group{gap:12px;padding-right:12px}
-  .clinic-card{
-    width:78vw;
-    max-width:360px;
-    aspect-ratio:16/10;
-    border-radius:19px
-  }
-}
-@media(prefers-reduced-motion:reduce){
-  .clinic-marquee{
-    overflow-x:auto;
-    -webkit-mask-image:none;
-    mask-image:none;
-    scrollbar-width:none;
-    scroll-snap-type:x mandatory
-  }
   .clinic-marquee::-webkit-scrollbar{display:none}
   .clinic-track{animation:none}
   .clinic-group[aria-hidden="true"]{display:none}
