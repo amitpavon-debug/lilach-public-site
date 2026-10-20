@@ -58,7 +58,7 @@
 <link rel="stylesheet" href="./zip-style-2.css?v=20261008-1">
 <link rel="stylesheet" href="./zip-style-3.css?v=20261008-1">
 <link rel="stylesheet" href="./zip-style-4.css?v=20261008-1">
-<link rel="stylesheet" href="./live.css?v=20261020-poster-reset1">
+<link rel="stylesheet" href="./live.css?v=20261020-approved-poster1">
 <link rel="stylesheet" href="./accessibility.css?v=20261003-0013">
 </head>
 <body>
@@ -265,6 +265,44 @@
         <p>מידע על דאגה, לחץ, הימנעות והתקפי פאניקה ועל עבודה טיפולית הדרגתית.</p>
         <p style="margin-top:14px"><a href="/tipul-beharada-holon" style="font-weight:800;color:var(--rose-deep)">למידע נוסף</a></p>
       </article>
+    </div>
+  </div>
+</section>
+
+<!-- הפוסטר המאושר: התמונה המקורית + שכבת אנימציה בלבד -->
+<section id="brain-story" class="sec approved-poster-section" aria-label="הידעת? הקשר בין המוח, הגוף ותהליך השיקום">
+  <div class="wrap">
+    <div class="approved-poster" data-reveal>
+      <img
+        class="approved-poster__image"
+        src="/assets/brain-poster-approved.webp?v=20261020-approved1"
+        width="600"
+        height="900"
+        loading="lazy"
+        decoding="async"
+        alt="הידעת? מידע על הקשר בין המוח, מחשבות, כאב ותהליך השיקום"
+      >
+      <svg class="approved-poster__neuro" viewBox="0 0 600 900" aria-hidden="true" focusable="false">
+        <defs>
+          <filter id="poster-neuro-glow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="4.5" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <path id="poster-neuro-route" d="M466 280 C474 335 479 397 478 458 C477 532 479 605 466 668 C456 719 438 765 415 813"/>
+        </defs>
+        <ellipse class="approved-poster__brain-glow" cx="465" cy="292" rx="73" ry="66"/>
+        <use href="#poster-neuro-route" class="approved-poster__path"/>
+        <circle class="approved-poster__pulse" r="5">
+          <animateMotion dur="4.4s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#poster-neuro-route"/>
+          </animateMotion>
+        </circle>
+        <circle class="approved-poster__pulse approved-poster__pulse--2" r="3.8">
+          <animateMotion begin="-2.2s" dur="4.4s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#poster-neuro-route"/>
+          </animateMotion>
+        </circle>
+      </svg>
     </div>
   </div>
 </section>
