@@ -47,72 +47,45 @@
     }
   });
 
-  const contactForm = $("det-form");
-  if(contactForm){
-    contactForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const name = $("contactName")?.value.trim() || "";
-      const phone = $("contactPhone")?.value.trim() || "";
-      const message = $("contactMessage")?.value.trim() || "";
-      const website = $("contactWebsite")?.value.trim() || "";
-      const privacyConsent = Boolean($("contactPrivacyConsent")?.checked);
-      const errorEl = $("contactFormError");
-      const submitBtn = $("contactSubmitBtn");
+  const bookingModal = $("bookingModal");
+  let bookingReturnFocus = null;
 
-      if(errorEl){
-        errorEl.textContent = "";
-        errorEl.className = "det-form__error";
-      }
-
-      if(name.length < 2){
-        if(errorEl) errorEl.textContent = "נא למלא שם.";
-        $("contactName")?.focus();
-        return;
-      }
-      if(phone.length < 7){
-        if(errorEl) errorEl.textContent = "נא למלא מספר טלפון תקין.";
-        $("contactPhone")?.focus();
-        return;
-      }
-      if(!privacyConsent){
-        if(errorEl) errorEl.textContent = "כדי לשלוח יש לאשר את מדיניות הפרטיות.";
-        $("contactPrivacyConsent")?.focus();
-        return;
-      }
-      if(!cfg.CONTACT_REQUEST_URL){
-        if(errorEl) errorEl.textContent = "לא ניתן לשלוח כרגע. נסו שוב מאוחר יותר.";
-        return;
-      }
-
-      if(submitBtn){
-        submitBtn.disabled = true;
-        submitBtn.textContent = "שולח...";
-      }
-
-      try{
-        const response = await fetch(cfg.CONTACT_REQUEST_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, phone, message, privacyConsent, website })
-        });
-        const result = await response.json().catch(() => ({}));
-        if(!response.ok || !result.ok) throw new Error(result.error || "contact_failed");
-
-        contactForm.classList.add("is-sent");
-        contactForm.reset();
-      }catch(error){
-        console.error(error);
-        if(errorEl){
-          errorEl.textContent = "לא הצלחנו לשלוח את הפרטים כרגע. נסו שוב בעוד רגע.";
-          errorEl.className = "det-form__error is-on";
-        }
-      }finally{
-        if(submitBtn){
-          submitBtn.disabled = false;
-          submitBtn.textContent = "שליחה";
-        }
-      }
+  const openBookingModal = (event) => {
+    event?.preventDefault?.();
+    if(!bookingModal) return;
+    bookingReturnFocus = event?.currentTarget || document.activeElement;
+    bookingModal.classList.remove("hidden");
+    document.documentElement.classList.add("booking-modal-open");
+    requestAnimationFrame(() => {
+      bookingModal.querySelector(".booking-modal__close")?.focus();
     });
+  };
+
+  const closeBookingModal = () => {
+    if(!bookingModal) return;
+    bookingModal.classList.add("hidden");
+    document.documentElement.classList.remove("booking-modal-open");
+    if(location.hash === "#booking"){
+      history.replaceState(null, "", location.pathname + location.search);
+    }
+    if(bookingReturnFocus && typeof bookingReturnFocus.focus === "function"){
+      bookingReturnFocus.focus();
+    }
+  };
+
+  document.querySelectorAll('a[href="#booking"], [data-open-booking]').forEach((el) => {
+    el.addEventListener("click", openBookingModal);
+  });
+  bookingModal?.querySelectorAll("[data-booking-close]").forEach((el) => {
+    el.addEventListener("click", closeBookingModal);
+  });
+  document.addEventListener("keydown", (event) => {
+    if(event.key === "Escape" && bookingModal && !bookingModal.classList.contains("hidden")){
+      closeBookingModal();
+    }
+  });
+  if(location.hash === "#booking"){
+    openBookingModal();
   }
 
 
@@ -545,7 +518,7 @@
     const intake=document.querySelector('input[name="appointmentType"][value="intake"]');
     if(intake) intake.checked=true;
     syncAppointmentTypeFields();
-    location.hash="#booking";
+    openBookingModal();
   };
 
   async function resumeAfterPayment(){
@@ -554,7 +527,7 @@
     const bookingId=params.get("booking_id");
     if(payment!=="success" || !bookingId) return;
 
-    location.hash="#booking";
+    openBookingModal();
     $("bookingFormWrap").classList.remove("hidden");
     $("bookingDetailsStep").classList.add("hidden");
     $("bookingPaymentStep").classList.remove("hidden");
