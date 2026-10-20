@@ -58,7 +58,7 @@
 <link rel="stylesheet" href="./zip-style-2.css?v=20261008-1">
 <link rel="stylesheet" href="./zip-style-3.css?v=20261008-1">
 <link rel="stylesheet" href="./zip-style-4.css?v=20261008-1">
-<link rel="stylesheet" href="./live.css?v=20261020-led-flow1">
+<link rel="stylesheet" href="./live.css?v=20261020-river-heartbeat1">
 <link rel="stylesheet" href="./accessibility.css?v=20261003-0013">
 </head>
 <body>
@@ -269,7 +269,7 @@
   </div>
 </section>
 
-<!-- הפוסטר המאושר: התמונה המקורית + שכבת אור זורמת בלבד -->
+<!-- הפוסטר המאושר: התמונה המקורית + תאורת נוירונים רציפה וזורמת -->
 <section id="brain-story" class="sec approved-poster-section" aria-label="הידעת? הקשר בין המוח, הגוף ותהליך השיקום">
   <div class="wrap">
     <div class="approved-poster" data-reveal>
@@ -284,8 +284,8 @@
       >
       <svg class="approved-poster__neuro" viewBox="0 0 600 900" aria-hidden="true" focusable="false">
         <defs>
-          <filter id="poster-neuro-led-glow" x="-120%" y="-120%" width="340%" height="340%">
-            <feGaussianBlur stdDeviation="2.1" result="glow"/>
+          <filter id="poster-neuro-river-glow" x="-140%" y="-140%" width="380%" height="380%">
+            <feGaussianBlur stdDeviation="2.2" result="glow"/>
             <feMerge>
               <feMergeNode in="glow"/>
               <feMergeNode in="glow"/>
@@ -293,7 +293,7 @@
             </feMerge>
           </filter>
 
-          <!-- מסלול 3→1→3 שנשאר בדיוק על התוואי שאושר -->
+          <!-- אותו מסלול 3→1→3 שאושר -->
           <path id="poster-neuro-in-a" pathLength="100" d="M474 295
             C475 318 482 342 488 360
             C489 375 486 389 480 400"/>
@@ -315,16 +315,37 @@
 
         <ellipse class="approved-poster__brain-glow" cx="486" cy="330" rx="47" ry="55"/>
 
-        <g class="approved-poster__led" filter="url(#poster-neuro-led-glow)">
-          <use class="approved-poster__flow approved-poster__flow--in" href="#poster-neuro-in-a"/>
-          <use class="approved-poster__flow approved-poster__flow--in" href="#poster-neuro-in-b"/>
-          <use class="approved-poster__flow approved-poster__flow--in" href="#poster-neuro-in-c"/>
+        <!-- שכבת הילה רציפה: לעולם לא נעלמת -->
+        <g class="approved-poster__river-halo" filter="url(#poster-neuro-river-glow)">
+          <use class="approved-poster__river-line" href="#poster-neuro-in-a"/>
+          <use class="approved-poster__river-line" href="#poster-neuro-in-b"/>
+          <use class="approved-poster__river-line" href="#poster-neuro-in-c"/>
+          <use class="approved-poster__river-line" href="#poster-neuro-trunk"/>
+          <use class="approved-poster__river-line" href="#poster-neuro-out-a"/>
+          <use class="approved-poster__river-line" href="#poster-neuro-out-b"/>
+          <use class="approved-poster__river-line" href="#poster-neuro-out-c"/>
+        </g>
 
-          <use class="approved-poster__flow approved-poster__flow--trunk" href="#poster-neuro-trunk"/>
+        <!-- ליבה מוארת מלאה ורציפה -->
+        <g class="approved-poster__river-core">
+          <use class="approved-poster__river-line" href="#poster-neuro-in-a"/>
+          <use class="approved-poster__river-line" href="#poster-neuro-in-b"/>
+          <use class="approved-poster__river-line" href="#poster-neuro-in-c"/>
+          <use class="approved-poster__river-line" href="#poster-neuro-trunk"/>
+          <use class="approved-poster__river-line" href="#poster-neuro-out-a"/>
+          <use class="approved-poster__river-line" href="#poster-neuro-out-b"/>
+          <use class="approved-poster__river-line" href="#poster-neuro-out-c"/>
+        </g>
 
-          <use class="approved-poster__flow approved-poster__flow--out" href="#poster-neuro-out-a"/>
-          <use class="approved-poster__flow approved-poster__flow--out" href="#poster-neuro-out-b"/>
-          <use class="approved-poster__flow approved-poster__flow--out" href="#poster-neuro-out-c"/>
+        <!-- רק הבוהק הבהיר נע מעל הקו הרציף, כמו זרם מים -->
+        <g class="approved-poster__river-flow" filter="url(#poster-neuro-river-glow)">
+          <use class="approved-poster__river-highlight approved-poster__river-highlight--1" href="#poster-neuro-in-a"/>
+          <use class="approved-poster__river-highlight approved-poster__river-highlight--2" href="#poster-neuro-in-b"/>
+          <use class="approved-poster__river-highlight approved-poster__river-highlight--3" href="#poster-neuro-in-c"/>
+          <use class="approved-poster__river-highlight approved-poster__river-highlight--4" href="#poster-neuro-trunk"/>
+          <use class="approved-poster__river-highlight approved-poster__river-highlight--5" href="#poster-neuro-out-a"/>
+          <use class="approved-poster__river-highlight approved-poster__river-highlight--6" href="#poster-neuro-out-b"/>
+          <use class="approved-poster__river-highlight approved-poster__river-highlight--7" href="#poster-neuro-out-c"/>
         </g>
       </svg>
     </div>
@@ -422,22 +443,22 @@
 
 <script>
 (()=>{
-  const flows=[...document.querySelectorAll('.approved-poster__flow')];
-  if(!flows.length) return;
+  const lines=[...document.querySelectorAll('.approved-poster__river-line')];
+  const highlights=[...document.querySelectorAll('.approved-poster__river-highlight')];
+  if(!lines.length) return;
 
   const key='lilachNeuroScale';
   const params=new URLSearchParams(location.search);
   const tuning=params.get('neuro-tune')==='1';
   const saved=Number(localStorage.getItem(key));
-
-  // 160% is the permanent public default. A saved value is used only in tuning mode.
   let scale=tuning&&Number.isFinite(saved)&&saved>=70&&saved<=220?saved:160;
   const baseStroke=1.75;
 
   const apply=(value)=>{
     scale=Math.max(70,Math.min(220,Number(value)||160));
-    const width=(baseStroke*scale/100).toFixed(2);
-    flows.forEach(flow=>{ flow.style.strokeWidth=width; });
+    const width=baseStroke*scale/100;
+    lines.forEach(line=>{ line.style.strokeWidth=width.toFixed(2); });
+    highlights.forEach(line=>{ line.style.strokeWidth=(width*.72).toFixed(2); });
     const out=document.querySelector('[data-neuro-value]');
     if(out) out.textContent=scale+'%';
   };

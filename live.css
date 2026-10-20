@@ -192,7 +192,7 @@ html.booking-modal-open body{overflow:hidden}
 }
 
 
-/* Approved poster — original approved size + smooth LED-style neural flow */
+/* Approved poster — original size + continuous river-like neural illumination */
 .approved-poster-section{
   background:linear-gradient(180deg,#fffaf7 0,#f7f3ef 100%);
 }
@@ -220,68 +220,72 @@ html.booking-modal-open body{overflow:hidden}
 }
 .approved-poster__brain-glow{
   fill:#f3a36f;
-  opacity:.025;
-  filter:url(#poster-neuro-led-glow);
+  opacity:.035;
+  filter:url(#poster-neuro-river-glow);
   transform-origin:486px 330px;
-  animation:approvedBrainPulse 6.8s ease-in-out infinite;
+  animation:approvedBrainHeartbeat 1.18s ease-in-out infinite;
 }
-.approved-poster__flow{
+.approved-poster__river-line,
+.approved-poster__river-highlight{
   fill:none;
-  stroke:#fff0d4;
-  stroke-width:2.8;
   stroke-linecap:round;
   stroke-linejoin:round;
-  stroke-dasharray:16 84;
-  stroke-dashoffset:0;
-  opacity:0;
   vector-effect:non-scaling-stroke;
 }
-.approved-poster__flow--in{
-  animation:approvedLedIn 13.5s linear infinite;
+.approved-poster__river-halo{
+  stroke:#f6a46d;
+  opacity:.24;
+  animation:approvedRiverHeartbeat 1.18s ease-in-out infinite;
 }
-.approved-poster__flow--trunk{
-  animation:approvedLedTrunk 13.5s linear infinite;
+.approved-poster__river-core{
+  stroke:#ffd7b5;
+  opacity:.62;
 }
-.approved-poster__flow--out{
-  animation:approvedLedOut 13.5s linear infinite;
+.approved-poster__river-flow{
+  stroke:#fff8ea;
+  opacity:.9;
 }
-@keyframes approvedLedIn{
-  0%{stroke-dashoffset:0;opacity:0}
-  3%{opacity:.2}
-  7%{opacity:.72}
-  28%{stroke-dashoffset:-100;opacity:.78}
-  32%,100%{stroke-dashoffset:-100;opacity:0}
+.approved-poster__river-highlight{
+  stroke-dasharray:17 21;
+  stroke-dashoffset:0;
+  animation:approvedRiverFlow 3.25s linear infinite;
 }
-@keyframes approvedLedTrunk{
-  0%,27%{stroke-dashoffset:0;opacity:0}
-  32%{opacity:.24}
-  37%{opacity:.78}
-  68%{stroke-dashoffset:-100;opacity:.82}
-  73%,100%{stroke-dashoffset:-100;opacity:0}
+.approved-poster__river-highlight--2{animation-delay:-.22s}
+.approved-poster__river-highlight--3{animation-delay:-.43s}
+.approved-poster__river-highlight--4{animation-delay:-.64s}
+.approved-poster__river-highlight--5{animation-delay:-.86s}
+.approved-poster__river-highlight--6{animation-delay:-1.07s}
+.approved-poster__river-highlight--7{animation-delay:-1.28s}
+
+@keyframes approvedRiverFlow{
+  from{stroke-dashoffset:0}
+  to{stroke-dashoffset:-76}
 }
-@keyframes approvedLedOut{
-  0%,68%{stroke-dashoffset:0;opacity:0}
-  73%{opacity:.22}
-  78%{opacity:.76}
-  97%{stroke-dashoffset:-100;opacity:.78}
-  100%{stroke-dashoffset:-100;opacity:0}
+@keyframes approvedRiverHeartbeat{
+  0%,100%{opacity:.20}
+  9%{opacity:.40}
+  15%{opacity:.22}
+  23%{opacity:.34}
+  31%{opacity:.20}
+  52%{opacity:.20}
 }
-@keyframes approvedBrainPulse{
-  0%,100%{opacity:.02;transform:scale(.995)}
-  50%{opacity:.06;transform:scale(1.015)}
+@keyframes approvedBrainHeartbeat{
+  0%,100%{opacity:.028;transform:scale(.996)}
+  9%{opacity:.070;transform:scale(1.018)}
+  15%{opacity:.032;transform:scale(1.002)}
+  23%{opacity:.057;transform:scale(1.012)}
+  31%{opacity:.028;transform:scale(.998)}
+  52%{opacity:.028;transform:scale(.996)}
 }
 @media(max-width:699px){
   .approved-poster{width:min(100%,560px);border-radius:20px}
 }
 @media(prefers-reduced-motion:reduce){
-  .approved-poster__brain-glow{animation:none}
-  .approved-poster__flow{
-    animation:none;
-    opacity:.12;
-    stroke-dasharray:none;
-  }
+  .approved-poster__brain-glow,
+  .approved-poster__river-halo,
+  .approved-poster__river-highlight{animation:none}
+  .approved-poster__river-highlight{stroke-dasharray:none;opacity:.42}
 }
-
 
 /* Hidden neural-light tuner — visible only when JS creates it with ?neuro-tune=1 */
 
