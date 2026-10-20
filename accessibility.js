@@ -351,9 +351,9 @@
 
   syncChoiceState();
   const setupAccessibilityWidget = () => {
-    const STORAGE_KEY = "lilach-accessibility-preferences-v1";
+    const STORAGE_KEY = "lilach-accessibility-preferences-v2";
     const defaults = {
-      textScale: 100,
+      textScale: 160,
       highContrast: false,
       highlightLinks: false,
       readableFont: false,
@@ -395,7 +395,7 @@
             <span class="a11y-label">גודל טקסט</span>
             <div class="a11y-text-row">
               <button type="button" data-a11y-action="decrease-text" aria-label="הקטנת טקסט">−</button>
-              <strong class="a11y-scale-value" aria-live="polite">100%</strong>
+              <strong class="a11y-scale-value" aria-live="polite">160%</strong>
               <button type="button" data-a11y-action="increase-text" aria-label="הגדלת טקסט">+</button>
             </div>
           </div>
@@ -453,7 +453,7 @@
     };
 
     const applyTextScale = () => {
-      const scale = Math.max(80, Math.min(140, Number(preferences.textScale) || 100));
+      const scale = Math.max(80, Math.min(200, Number(preferences.textScale) || 160));
       preferences.textScale = scale;
       if (scale === 100) {
         restoreTextSizes();
@@ -521,7 +521,7 @@
       if (!action) return;
 
       if (action === "increase-text") {
-        preferences.textScale = Math.min(140, preferences.textScale + 10);
+        preferences.textScale = Math.min(200, preferences.textScale + 10);
         applyPreferences();
       } else if (action === "decrease-text") {
         preferences.textScale = Math.max(80, preferences.textScale - 10);
