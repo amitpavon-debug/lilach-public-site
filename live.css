@@ -73,7 +73,7 @@
 }
 .clinic-track{
   display:flex;width:max-content;
-  animation:clinicFlow 30s linear infinite;
+  animation:clinicFlow 60s linear infinite;
   will-change:transform
 }
 .clinic-group{display:flex;gap:16px;padding-right:16px;flex:none}
@@ -94,7 +94,7 @@
     -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 2%,#000 98%,transparent 100%);
     mask-image:linear-gradient(90deg,transparent 0,#000 2%,#000 98%,transparent 100%)
   }
-  .clinic-track{animation-duration:26s}
+  .clinic-track{animation-duration:52s}
   .clinic-group{gap:12px;padding-right:12px}
   .clinic-card{width:78vw;max-width:340px;aspect-ratio:16/10;border-radius:18px}
 }
