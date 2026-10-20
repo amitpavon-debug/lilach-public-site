@@ -627,10 +627,10 @@
   const params=new URLSearchParams(location.search);
   const tuning=params.get('neuro-tune')==='1';
   const saved=Number(localStorage.getItem(key));
-  let scale=Number.isFinite(saved)&&saved>=70&&saved<=220?saved:100;
+  let scale=Number.isFinite(saved)&&saved>=70&&saved<=220?saved:160;
 
   const apply=(value)=>{
-    scale=Math.max(70,Math.min(220,Number(value)||100));
+    scale=Math.max(70,Math.min(220,Number(value)||160));
     pulses.forEach(p=>{
       const base=Number(p.dataset.baseR)||1;
       p.setAttribute('r',(base*scale/100).toFixed(2));
@@ -648,7 +648,7 @@
   panel.innerHTML='<strong>גודל נקודות הנוירונים</strong>'+
     '<div class="neuro-tuner__row"><input data-neuro-range type="range" min="70" max="220" step="5" value="'+scale+'" aria-label="גודל הנקודות"><output data-neuro-value>'+scale+'%</output></div>'+
     '<small>השינוי נשמר רק בדפדפן שלך עד שנבחר את הגודל הסופי.</small>'+
-    '<button type="button" data-neuro-reset>איפוס ל־100%</button>';
+    '<button type="button" data-neuro-reset>איפוס ל־160%</button>';
   document.body.appendChild(panel);
 
   const range=panel.querySelector('[data-neuro-range]');
@@ -657,9 +657,9 @@
     localStorage.setItem(key,String(scale));
   });
   panel.querySelector('[data-neuro-reset]').addEventListener('click',()=>{
-    range.value='100';
+    range.value='160';
     localStorage.removeItem(key);
-    apply(100);
+    apply(160);
   });
 
   document.querySelector('#brain-story')?.scrollIntoView({behavior:'smooth',block:'center'});
