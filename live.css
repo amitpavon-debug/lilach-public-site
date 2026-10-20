@@ -222,7 +222,7 @@ html.booking-modal-open body{overflow:hidden}
   fill:#f5a36d;
   opacity:.045;
   filter:url(#poster-neuro-glow);
-  transform-origin:488px 305px;
+  transform-origin:468px 285px;
   animation:approvedBrainPulse 5.8s ease-in-out infinite;
 }
 .approved-poster__pulse{
@@ -235,8 +235,8 @@ html.booking-modal-open body{overflow:hidden}
 .approved-poster__pulse--2{fill:#ffe1c4;stroke:#ed9868}
 .approved-poster__pulse--3{fill:#fff6e9;stroke:#e68d5f}
 @keyframes approvedBrainPulse{
-  0%,100%{opacity:.035;transform:scale(.99)}
-  50%{opacity:.105;transform:scale(1.025)}
+  0%,100%{opacity:.025;transform:scale(.99)}
+  50%{opacity:.075;transform:scale(1.02)}
 }
 @media(max-width:699px){
   .approved-poster{width:min(100%,560px);border-radius:20px}
