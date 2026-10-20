@@ -192,25 +192,23 @@ html.booking-modal-open body{overflow:hidden}
 }
 
 
-/* Approved poster — exact approved image, animation is a separate transparent overlay */
+/* Approved poster — original approved size + smooth LED-style neural flow */
 .approved-poster-section{
   background:linear-gradient(180deg,#fffaf7 0,#f7f3ef 100%);
 }
 .approved-poster{
   position:relative;
-  width:min(100%,700px,calc(66.667dvh - 70px));
+  width:min(100%,680px);
   margin:0 auto;
   overflow:hidden;
   border-radius:26px;
   background:#d6b99f;
   box-shadow:0 24px 58px rgba(54,45,39,.15);
-  aspect-ratio:2/3;
 }
 .approved-poster__image{
   display:block;
   width:100%;
-  height:100%;
-  object-fit:contain;
+  height:auto;
 }
 .approved-poster__neuro{
   position:absolute;
@@ -221,35 +219,72 @@ html.booking-modal-open body{overflow:hidden}
   overflow:visible;
 }
 .approved-poster__brain-glow{
-  fill:#f5a36d;
-  opacity:.045;
-  filter:url(#poster-neuro-glow);
-  transform-origin:468px 285px;
-  animation:approvedBrainPulse 5.8s ease-in-out infinite;
+  fill:#f3a36f;
+  opacity:.025;
+  filter:url(#poster-neuro-led-glow);
+  transform-origin:486px 330px;
+  animation:approvedBrainPulse 6.8s ease-in-out infinite;
 }
-.approved-poster__pulse{
-  fill:#fff0dc;
-  stroke:#e98c59;
-  stroke-width:.55;
+.approved-poster__flow{
+  fill:none;
+  stroke:#fff0d4;
+  stroke-width:2.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  stroke-dasharray:16 84;
+  stroke-dashoffset:0;
   opacity:0;
-  filter:url(#poster-neuro-glow);
+  vector-effect:non-scaling-stroke;
 }
-.approved-poster__pulse--2{fill:#ffe1c4;stroke:#ed9868}
-.approved-poster__pulse--3{fill:#fff6e9;stroke:#e68d5f}
+.approved-poster__flow--in{
+  animation:approvedLedIn 13.5s linear infinite;
+}
+.approved-poster__flow--trunk{
+  animation:approvedLedTrunk 13.5s linear infinite;
+}
+.approved-poster__flow--out{
+  animation:approvedLedOut 13.5s linear infinite;
+}
+@keyframes approvedLedIn{
+  0%{stroke-dashoffset:0;opacity:0}
+  3%{opacity:.2}
+  7%{opacity:.72}
+  28%{stroke-dashoffset:-100;opacity:.78}
+  32%,100%{stroke-dashoffset:-100;opacity:0}
+}
+@keyframes approvedLedTrunk{
+  0%,27%{stroke-dashoffset:0;opacity:0}
+  32%{opacity:.24}
+  37%{opacity:.78}
+  68%{stroke-dashoffset:-100;opacity:.82}
+  73%,100%{stroke-dashoffset:-100;opacity:0}
+}
+@keyframes approvedLedOut{
+  0%,68%{stroke-dashoffset:0;opacity:0}
+  73%{opacity:.22}
+  78%{opacity:.76}
+  97%{stroke-dashoffset:-100;opacity:.78}
+  100%{stroke-dashoffset:-100;opacity:0}
+}
 @keyframes approvedBrainPulse{
-  0%,100%{opacity:.025;transform:scale(.99)}
-  50%{opacity:.075;transform:scale(1.02)}
+  0%,100%{opacity:.02;transform:scale(.995)}
+  50%{opacity:.06;transform:scale(1.015)}
 }
 @media(max-width:699px){
-  .approved-poster{width:min(100%,580px,calc(66.667dvh - 56px));border-radius:20px}
+  .approved-poster{width:min(100%,560px);border-radius:20px}
 }
 @media(prefers-reduced-motion:reduce){
   .approved-poster__brain-glow{animation:none}
-  .approved-poster__pulse{display:none}
+  .approved-poster__flow{
+    animation:none;
+    opacity:.12;
+    stroke-dasharray:none;
+  }
 }
 
 
-/* Hidden neural-dot tuner — visible only when JS creates it with ?neuro-tune=1 */
+/* Hidden neural-light tuner — visible only when JS creates it with ?neuro-tune=1 */
+
 .neuro-tuner{
   position:fixed;left:18px;bottom:18px;z-index:11050;
   width:min(360px,calc(100vw - 36px));
