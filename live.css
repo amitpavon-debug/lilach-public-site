@@ -198,17 +198,19 @@ html.booking-modal-open body{overflow:hidden}
 }
 .approved-poster{
   position:relative;
-  width:min(100%,680px);
+  width:min(100%,680px,calc(66.667dvh - 96px));
   margin:0 auto;
   overflow:hidden;
   border-radius:26px;
   background:#d6b99f;
   box-shadow:0 24px 58px rgba(54,45,39,.15);
+  aspect-ratio:2/3;
 }
 .approved-poster__image{
   display:block;
   width:100%;
-  height:auto;
+  height:100%;
+  object-fit:contain;
 }
 .approved-poster__neuro{
   position:absolute;
@@ -239,7 +241,7 @@ html.booking-modal-open body{overflow:hidden}
   50%{opacity:.075;transform:scale(1.02)}
 }
 @media(max-width:699px){
-  .approved-poster{width:min(100%,560px);border-radius:20px}
+  .approved-poster{width:min(100%,560px,calc(66.667dvh - 64px));border-radius:20px}
 }
 @media(prefers-reduced-motion:reduce){
   .approved-poster__brain-glow{animation:none}
