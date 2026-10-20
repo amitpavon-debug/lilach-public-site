@@ -58,7 +58,7 @@
 <link rel="stylesheet" href="./zip-style-2.css?v=20261008-1">
 <link rel="stylesheet" href="./zip-style-3.css?v=20261008-1">
 <link rel="stylesheet" href="./zip-style-4.css?v=20261008-1">
-<link rel="stylesheet" href="./live.css?v=20261020-approved-poster1">
+<link rel="stylesheet" href="./live.css?v=20261020-neuroflow2">
 <link rel="stylesheet" href="./accessibility.css?v=20261003-0013">
 </head>
 <body>
@@ -285,22 +285,145 @@
       <svg class="approved-poster__neuro" viewBox="0 0 600 900" aria-hidden="true" focusable="false">
         <defs>
           <filter id="poster-neuro-glow" x="-100%" y="-100%" width="300%" height="300%">
-            <feGaussianBlur stdDeviation="4.5" result="blur"/>
+            <feGaussianBlur stdDeviation="2.2" result="blur"/>
             <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
-          <path id="poster-neuro-route" d="M466 280 C474 335 479 397 478 458 C477 532 479 605 466 668 C456 719 438 765 415 813"/>
+          <!-- מסלול מדויק על הגזע העצבי המואר באיור המאושר -->
+          <path id="poster-neuro-route" d="M490 278
+            C493 316 490 348 486 382
+            C481 422 478 463 474 507
+            C470 551 466 593 459 635
+            C452 675 444 707 433 738
+            C423 765 412 790 402 814
+            C394 834 388 850 383 865"/>
         </defs>
-        <ellipse class="approved-poster__brain-glow" cx="465" cy="292" rx="73" ry="66"/>
-        <use href="#poster-neuro-route" class="approved-poster__path"/>
-        <circle class="approved-poster__pulse" r="5">
-          <animateMotion dur="4.4s" repeatCount="indefinite" rotate="auto">
+        <ellipse class="approved-poster__brain-glow" cx="488" cy="305" rx="55" ry="62"/>
+        
+        <circle class="approved-poster__pulse approved-poster__pulse--1" r="2">
+          <animateMotion begin="0.00s" dur="14s" repeatCount="indefinite" rotate="auto">
             <mpath href="#poster-neuro-route"/>
           </animateMotion>
+          <animate attributeName="opacity" begin="0.00s" dur="14s" repeatCount="indefinite"
+            values="0;.72;.58;.42;0" keyTimes="0;.07;.34;.88;1"/>
         </circle>
-        <circle class="approved-poster__pulse approved-poster__pulse--2" r="3.8">
-          <animateMotion begin="-2.2s" dur="4.4s" repeatCount="indefinite" rotate="auto">
+        <circle class="approved-poster__pulse approved-poster__pulse--2" r="2.6">
+          <animateMotion begin="-0.78s" dur="14s" repeatCount="indefinite" rotate="auto">
             <mpath href="#poster-neuro-route"/>
           </animateMotion>
+          <animate attributeName="opacity" begin="-0.78s" dur="14s" repeatCount="indefinite"
+            values="0;.72;.58;.42;0" keyTimes="0;.07;.34;.88;1"/>
+        </circle>
+        <circle class="approved-poster__pulse approved-poster__pulse--3" r="1.8">
+          <animateMotion begin="-1.56s" dur="14s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#poster-neuro-route"/>
+          </animateMotion>
+          <animate attributeName="opacity" begin="-1.56s" dur="14s" repeatCount="indefinite"
+            values="0;.72;.58;.42;0" keyTimes="0;.07;.34;.88;1"/>
+        </circle>
+        <circle class="approved-poster__pulse approved-poster__pulse--1" r="2.3">
+          <animateMotion begin="-2.33s" dur="14s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#poster-neuro-route"/>
+          </animateMotion>
+          <animate attributeName="opacity" begin="-2.33s" dur="14s" repeatCount="indefinite"
+            values="0;.72;.58;.42;0" keyTimes="0;.07;.34;.88;1"/>
+        </circle>
+        <circle class="approved-poster__pulse approved-poster__pulse--2" r="1.6">
+          <animateMotion begin="-3.11s" dur="14s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#poster-neuro-route"/>
+          </animateMotion>
+          <animate attributeName="opacity" begin="-3.11s" dur="14s" repeatCount="indefinite"
+            values="0;.72;.58;.42;0" keyTimes="0;.07;.34;.88;1"/>
+        </circle>
+        <circle class="approved-poster__pulse approved-poster__pulse--3" r="2.8">
+          <animateMotion begin="-3.89s" dur="14s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#poster-neuro-route"/>
+          </animateMotion>
+          <animate attributeName="opacity" begin="-3.89s" dur="14s" repeatCount="indefinite"
+            values="0;.72;.58;.42;0" keyTimes="0;.07;.34;.88;1"/>
+        </circle>
+        <circle class="approved-poster__pulse approved-poster__pulse--1" r="1.9">
+          <animateMotion begin="-4.67s" dur="14s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#poster-neuro-route"/>
+          </animateMotion>
+          <animate attributeName="opacity" begin="-4.67s" dur="14s" repeatCount="indefinite"
+            values="0;.72;.58;.42;0" keyTimes="0;.07;.34;.88;1"/>
+        </circle>
+        <circle class="approved-poster__pulse approved-poster__pulse--2" r="2.4">
+          <animateMotion begin="-5.44s" dur="14s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#poster-neuro-route"/>
+          </animateMotion>
+          <animate attributeName="opacity" begin="-5.44s" dur="14s" repeatCount="indefinite"
+            values="0;.72;.58;.42;0" keyTimes="0;.07;.34;.88;1"/>
+        </circle>
+        <circle class="approved-poster__pulse approved-poster__pulse--3" r="1.7">
+          <animateMotion begin="-6.22s" dur="14s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#poster-neuro-route"/>
+          </animateMotion>
+          <animate attributeName="opacity" begin="-6.22s" dur="14s" repeatCount="indefinite"
+            values="0;.72;.58;.42;0" keyTimes="0;.07;.34;.88;1"/>
+        </circle>
+        <circle class="approved-poster__pulse approved-poster__pulse--1" r="2.5">
+          <animateMotion begin="-7.00s" dur="14s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#poster-neuro-route"/>
+          </animateMotion>
+          <animate attributeName="opacity" begin="-7.00s" dur="14s" repeatCount="indefinite"
+            values="0;.72;.58;.42;0" keyTimes="0;.07;.34;.88;1"/>
+        </circle>
+        <circle class="approved-poster__pulse approved-poster__pulse--2" r="1.8">
+          <animateMotion begin="-7.78s" dur="14s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#poster-neuro-route"/>
+          </animateMotion>
+          <animate attributeName="opacity" begin="-7.78s" dur="14s" repeatCount="indefinite"
+            values="0;.72;.58;.42;0" keyTimes="0;.07;.34;.88;1"/>
+        </circle>
+        <circle class="approved-poster__pulse approved-poster__pulse--3" r="2.7">
+          <animateMotion begin="-8.56s" dur="14s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#poster-neuro-route"/>
+          </animateMotion>
+          <animate attributeName="opacity" begin="-8.56s" dur="14s" repeatCount="indefinite"
+            values="0;.72;.58;.42;0" keyTimes="0;.07;.34;.88;1"/>
+        </circle>
+        <circle class="approved-poster__pulse approved-poster__pulse--1" r="1.6">
+          <animateMotion begin="-9.33s" dur="14s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#poster-neuro-route"/>
+          </animateMotion>
+          <animate attributeName="opacity" begin="-9.33s" dur="14s" repeatCount="indefinite"
+            values="0;.72;.58;.42;0" keyTimes="0;.07;.34;.88;1"/>
+        </circle>
+        <circle class="approved-poster__pulse approved-poster__pulse--2" r="2.2">
+          <animateMotion begin="-10.11s" dur="14s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#poster-neuro-route"/>
+          </animateMotion>
+          <animate attributeName="opacity" begin="-10.11s" dur="14s" repeatCount="indefinite"
+            values="0;.72;.58;.42;0" keyTimes="0;.07;.34;.88;1"/>
+        </circle>
+        <circle class="approved-poster__pulse approved-poster__pulse--3" r="1.9">
+          <animateMotion begin="-10.89s" dur="14s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#poster-neuro-route"/>
+          </animateMotion>
+          <animate attributeName="opacity" begin="-10.89s" dur="14s" repeatCount="indefinite"
+            values="0;.72;.58;.42;0" keyTimes="0;.07;.34;.88;1"/>
+        </circle>
+        <circle class="approved-poster__pulse approved-poster__pulse--1" r="2.5">
+          <animateMotion begin="-11.67s" dur="14s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#poster-neuro-route"/>
+          </animateMotion>
+          <animate attributeName="opacity" begin="-11.67s" dur="14s" repeatCount="indefinite"
+            values="0;.72;.58;.42;0" keyTimes="0;.07;.34;.88;1"/>
+        </circle>
+        <circle class="approved-poster__pulse approved-poster__pulse--2" r="1.7">
+          <animateMotion begin="-12.44s" dur="14s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#poster-neuro-route"/>
+          </animateMotion>
+          <animate attributeName="opacity" begin="-12.44s" dur="14s" repeatCount="indefinite"
+            values="0;.72;.58;.42;0" keyTimes="0;.07;.34;.88;1"/>
+        </circle>
+        <circle class="approved-poster__pulse approved-poster__pulse--3" r="2.3">
+          <animateMotion begin="-13.22s" dur="14s" repeatCount="indefinite" rotate="auto">
+            <mpath href="#poster-neuro-route"/>
+          </animateMotion>
+          <animate attributeName="opacity" begin="-13.22s" dur="14s" repeatCount="indefinite"
+            values="0;.72;.58;.42;0" keyTimes="0;.07;.34;.88;1"/>
         </circle>
       </svg>
     </div>
