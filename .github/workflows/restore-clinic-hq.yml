@@ -1,0 +1,91 @@
+name: Restore clinic photos from originals
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/restore-clinic-hq.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download full-resolution Canva originals
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/clinic-src assets
+          curl -fL --retry 3 -o /tmp/clinic-src/4.jpg 'https://media.canva.com/v2/image-resize/format:JPG/height:2048/quality:95/uri:ifs%3A%2F%2FM%2Fb5e2752a-8cd8-4710-a812-0e1c95abde9c/watermark:F/width:2048?csig=AAAAAAAAAAAAAAAAAAAAADtRe_808-y5cxHAbD1AFJddLdtd84UhJ6uu_IRlnOwh&exp=1792499921&osig=AAAAAAAAAAAAAAAAAAAAAD5SKWcM-flwJKd3FOKqyy46WJmWyXRqs1p6BR9mY8zz&signer=media-rpc&token=AAIAAU0AJGI1ZTI3NTJhLThjZDgtNDcxMC1hODEyLTBlMWM5NWFiZGU5YwAAAAABoVlSMGg-wNY2M8yRq617CehY8eXKFpFd85HmKid0a-i4usfj5g&x-canva-quality=thumbnail'
+          curl -fL --retry 3 -o /tmp/clinic-src/5.jpg 'https://media.canva.com/v2/image-resize/format:JPG/height:1600/quality:95/uri:ifs%3A%2F%2FM%2F0494b379-8cba-41cc-98e4-f65429b8bda1/watermark:F/width:739?csig=AAAAAAAAAAAAAAAAAAAAAPIRFtkiPvRweU01lm-tkE2ouQmLngLV_JorDom3JWOL&exp=1792502311&osig=AAAAAAAAAAAAAAAAAAAAAFSSrgTkEq8ljw92BlhHvHy2V1Kekaun6bdoIXiKIk6b&signer=media-rpc&token=AAIAAU0AJDA0OTRiMzc5LThjYmEtNDFjYy05OGU0LWY2NTQyOWI4YmRhMQAAAAABoVl2qFhF7ptDtDhjqV-eUYTVSf3O29f7542-yvIPLhMiFjMMrg&x-canva-quality=thumbnail'
+          curl -fL --retry 3 -o /tmp/clinic-src/6.jpg 'https://media.canva.com/v2/image-resize/format:JPG/height:899/quality:95/uri:ifs%3A%2F%2FM%2F2356285f-ec26-4bce-82e4-cb8e15ead33c/watermark:F/width:1599?csig=AAAAAAAAAAAAAAAAAAAAAGwpZGncOA6nQjHKm-i0nI--4t9aI8te3pKku4_60h-T&exp=1792501103&osig=AAAAAAAAAAAAAAAAAAAAAHt6UskOzbCpHb1gncbfLu430s-M66gkZVX_GoTPYTH7&signer=media-rpc&token=AAIAAU0AJDIzNTYyODVmLWVjMjYtNGJjZS04MmU0LWNiOGUxNWVhZDMzYwAAAAABoVlkOZidH4TyPaIm1tQa_00jsFdXKc7Su5yBUnWoVciqB01fmg&x-canva-quality=thumbnail'
+          curl -fL --retry 3 -o /tmp/clinic-src/7.jpg 'https://media.canva.com/v2/image-resize/format:JPG/height:1394/quality:95/uri:ifs%3A%2F%2FM%2F4de15ae5-0b5b-4c51-97a5-98a52f3213f1/watermark:F/width:1128?csig=AAAAAAAAAAAAAAAAAAAAAC_H3gv4JqZWsowzxmyvcO7VIgq5Grkx5TFtrBhio-35&exp=1792499468&osig=AAAAAAAAAAAAAAAAAAAAAPOd25yaFSTBpXZxV62ZYgs5o5fPzf6uImcp44xeLh2F&signer=media-rpc&token=AAIAAU0AJDRkZTE1YWU1LTBiNWItNGM1MS05N2E1LTk4YTUyZjMyMTNmMQAAAAABoVlLRuBNUqHgF7Jv0rfyNLnRZIRCzxKhVyxJiHoFB8099NjgbA&x-canva-quality=thumbnail'
+
+      - name: Build high-quality gallery files and verify source resolution
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet pillow
+          python - <<'PY'
+          from PIL import Image, ImageFilter, ImageOps
+          from pathlib import Path
+
+          src=Path('/tmp/clinic-src')
+          out=Path('assets')
+
+          expected={
+              '4.jpg': (1500,1500),
+              '5.jpg': (700,1400),
+              '6.jpg': (1400,800),
+              '7.jpg': (1000,1200),
+          }
+          for name,(minw,minh) in expected.items():
+              im=Image.open(src/name)
+              print(name, im.size)
+              if im.width < minw or im.height < minh:
+                  raise SystemExit(f'{name} is not full resolution: {im.size}')
+
+          def full_bleed(im, size):
+              return ImageOps.fit(im.convert('RGB'), size, method=Image.Resampling.LANCZOS, centering=(.5,.5))
+
+          def portrait_canvas(im, size):
+              im=im.convert('RGB')
+              bg=ImageOps.fit(im,size,method=Image.Resampling.LANCZOS,centering=(.5,.5)).filter(ImageFilter.GaussianBlur(28))
+              bg=Image.blend(bg, Image.new('RGB',size,(238,233,226)), .10)
+              fg=ImageOps.contain(im,(int(size[0]*.74),size[1]),method=Image.Resampling.LANCZOS)
+              x=(size[0]-fg.width)//2
+              y=(size[1]-fg.height)//2
+              bg.paste(fg,(x,y))
+              return bg
+
+          images={
+              4: full_bleed(Image.open(src/'4.jpg'),(1600,1000)),
+              5: portrait_canvas(Image.open(src/'5.jpg'),(1600,1000)),
+              6: full_bleed(Image.open(src/'6.jpg'),(1600,1000)),
+              7: portrait_canvas(Image.open(src/'7.jpg'),(1200,750)),
+          }
+          for n,im in images.items():
+              path=out/f'clinic-{n}-hq.webp'
+              im.save(path,'WEBP',quality=94,method=6)
+              check=Image.open(path)
+              if check.size != im.size:
+                  raise SystemExit(f'bad output {path}: {check.size}')
+              print(path, path.stat().st_size, check.size)
+          PY
+
+      - name: Commit verified originals
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/restore-clinic-hq.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/clinic-4-hq.webp assets/clinic-5-hq.webp assets/clinic-6-hq.webp assets/clinic-7-hq.webp .github/workflows/restore-clinic-hq.yml
+          git commit -m "Restore clinic gallery from full-resolution originals"
+          git push
