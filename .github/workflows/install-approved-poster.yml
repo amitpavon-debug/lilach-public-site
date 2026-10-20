@@ -21,8 +21,8 @@ jobs:
         run: |
           set -euo pipefail
           count=$(find tmp-poster -maxdepth 1 -name 'part*.txt' 2>/dev/null | wc -l | tr -d ' ')
-          if [ "$count" != "10" ]; then
-            echo "Waiting for all 10 poster parts; found $count."
+          if [ "$count" != "13" ]; then
+            echo "Waiting for all 13 poster parts; found $count."
             exit 0
           fi
           mkdir -p assets
