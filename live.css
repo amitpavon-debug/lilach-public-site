@@ -190,3 +190,70 @@ html.booking-modal-open body{overflow:hidden}
 @media(prefers-reduced-motion:reduce){
   .booking-modal__backdrop{backdrop-filter:none;-webkit-backdrop-filter:none}
 }
+
+
+/* Approved poster — exact approved image, animation is a separate transparent overlay */
+.approved-poster-section{
+  background:linear-gradient(180deg,#fffaf7 0,#f7f3ef 100%);
+}
+.approved-poster{
+  position:relative;
+  width:min(100%,680px);
+  margin:0 auto;
+  overflow:hidden;
+  border-radius:26px;
+  background:#d6b99f;
+  box-shadow:0 24px 58px rgba(54,45,39,.15);
+}
+.approved-poster__image{
+  display:block;
+  width:100%;
+  height:auto;
+}
+.approved-poster__neuro{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  overflow:visible;
+}
+.approved-poster__path{
+  fill:none;
+  stroke:#ffd0a8;
+  stroke-width:2.6;
+  stroke-linecap:round;
+  stroke-dasharray:8 16;
+  opacity:.48;
+  filter:url(#poster-neuro-glow);
+  animation:approvedNeuroFlow 2.1s linear infinite;
+}
+.approved-poster__brain-glow{
+  fill:#f6aa76;
+  opacity:.07;
+  filter:url(#poster-neuro-glow);
+  transform-origin:465px 292px;
+  animation:approvedBrainPulse 3.2s ease-in-out infinite;
+}
+.approved-poster__pulse{
+  fill:#fff2df;
+  stroke:#f2a06f;
+  stroke-width:1.2;
+  opacity:.92;
+  filter:url(#poster-neuro-glow);
+}
+.approved-poster__pulse--2{opacity:.62}
+@keyframes approvedNeuroFlow{
+  to{stroke-dashoffset:-48}
+}
+@keyframes approvedBrainPulse{
+  0%,100%{opacity:.05;transform:scale(.98)}
+  50%{opacity:.18;transform:scale(1.06)}
+}
+@media(max-width:699px){
+  .approved-poster{width:min(100%,560px);border-radius:20px}
+}
+@media(prefers-reduced-motion:reduce){
+  .approved-poster__path,.approved-poster__brain-glow{animation:none}
+  .approved-poster__pulse{display:none}
+}
