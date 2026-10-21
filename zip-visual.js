@@ -9,18 +9,33 @@ function experienceYears(el) {
   return Math.max(0, new Date().getFullYear() - startYear);
 }
 
+function showCounterFinal(el) {
+  el.textContent = String(experienceYears(el));
+  el.style.visibility = 'visible';
+}
+
 function countUp(el) {
   const to = experienceYears(el);
-  if (!to) return;
-  if (reduce) {
-    el.textContent = String(to);
+  if (!to) {
+    el.style.visibility = 'visible';
     return;
   }
+  if (reduce) {
+    showCounterFinal(el);
+    return;
+  }
+
+  // המספר נשאר מוסתר עד רגע ההפעלה, ואז מתחיל מ־1 — לעולם לא מוצג 0.
+  el.textContent = '1';
+  el.style.visibility = 'visible';
+
+  const from = 1;
   const t0 = performance.now();
   const dur = 1300;
   const tick = (t) => {
     const k = Math.min(1, (t - t0) / dur);
-    el.textContent = String(Math.round(to * (1 - Math.pow(1 - k, 3))));
+    const eased = 1 - Math.pow(1 - k, 3);
+    el.textContent = String(Math.max(1, Math.round(from + (to - from) * eased)));
     if (k < 1) requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
@@ -32,18 +47,22 @@ function countUp(el) {
    - בגלילה: אלמנט נחשף כשהקצה העליון שלו עובר את קו ההפעלה. קו נמוך מדי (78%)
      השאיר רבע מסך ריק בזמן גלילה; קו בתחתית ממש (100%) גרם לאלמנטים להיגמר לפני
      שמגיעים אליהם. REVEAL_LINE הוא האחוז מגובה המסך, מלמעלה.
-   - המספר 13 סופר רק כשהוא עובר את COUNT_LINE, כדי שיראו אותו סופר.
+   - המספר נשאר מוסתר עד שהוא נכנס לאזור החשיפה ואז סופר מיד מ־1 לערך הנוכחי.
    רשת הביטחון מותנית: אם ולו אלמנט אחד נחשף, המשקיף עובד ואסור לגעת בשאר. */
 const REVEAL_LINE = 0.9;
-const COUNT_LINE = 0.7;
+const COUNT_LINE = 0.9;
 const targets = $$('[data-reveal]');
 const reveal = (el) => el.classList.add('is-in');
 const revealAll = () => targets.forEach(reveal);
-const counters = $$('.count');
-counters.forEach((c) => { c.textContent = String(experienceYears(c)); });
+const counters = $('.count');
+counters.forEach((c) => {
+  c.textContent = '1';
+  c.style.visibility = 'hidden';
+});
 
 if (reduce || !('IntersectionObserver' in window)) {
   revealAll();
+  counters.forEach(showCounterFinal);
 } else {
   let observerWorks = false;
   const io = new IntersectionObserver(
@@ -88,6 +107,11 @@ if (reduce || !('IntersectionObserver' in window)) {
   window.addEventListener('scroll', atEnd, { passive: true });
   setTimeout(() => {
     if (!observerWorks) revealAll();
+    counters.forEach((c) => {
+      if (c.style.visibility === 'hidden' && c.getBoundingClientRect().top < window.innerHeight) {
+        showCounterFinal(c);
+      }
+    });
   }, 3000);
 }
 
