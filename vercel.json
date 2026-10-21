@@ -12,7 +12,7 @@
   "rewrites": [
     {
       "source": "/favicon.ico",
-      "destination": "/favicon-48.png"
+      "destination": "/favicon-heart-48.png"
     },
     {
       "source": "/refresh-site",
