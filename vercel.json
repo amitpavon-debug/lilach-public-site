@@ -12,7 +12,7 @@
   "rewrites": [
     {
       "source": "/favicon.ico",
-      "destination": "/apple-touch-icon-bold.png"
+      "destination": "/favicon.svg"
     },
     {
       "source": "/refresh-site",
