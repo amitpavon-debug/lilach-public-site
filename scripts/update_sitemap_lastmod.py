@@ -25,6 +25,7 @@ PAGES = {
     "/accessibility": "accessibility.html",
     "/tipul-rigshi-holon": "tipul-rigshi-holon.html",
     "/cbt-holon": "cbt-holon.html",
+    "/nlp-holon": "nlp-holon.html",
     "/tipul-beharada-holon": "tipul-beharada-holon.html",
 }
 

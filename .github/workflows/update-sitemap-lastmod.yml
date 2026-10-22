@@ -12,6 +12,7 @@ on:
       - 'accessibility.html'
       - 'tipul-rigshi-holon.html'
       - 'cbt-holon.html'
+      - 'nlp-holon.html'
       - 'tipul-beharada-holon.html'
       - 'scripts/update_sitemap_lastmod.py'
       - '.github/workflows/update-sitemap-lastmod.yml'

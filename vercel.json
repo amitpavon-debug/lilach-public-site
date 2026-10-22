@@ -67,6 +67,10 @@
       "destination": "/cbt-holon.html"
     },
     {
+      "source": "/nlp-holon",
+      "destination": "/nlp-holon.html"
+    },
+    {
       "source": "/tipul-beharada-holon",
       "destination": "/tipul-beharada-holon.html"
     }
