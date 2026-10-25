@@ -271,7 +271,7 @@
   </div>
 </section>
 
-<!-- הפוסטר המאושר: התמונה המקורית + תאורת נוירונים רציפה וזורמת -->
+<!-- הפוסטר המאושר: התמונה המקורית ללא שכבת SVG או אפקט חיצוני -->
 <section id="brain-story" class="sec approved-poster-section" aria-label="הידעת? הקשר בין המוח, הגוף ותהליך השיקום">
   <div class="wrap">
     <div class="approved-poster" data-reveal>
@@ -284,72 +284,6 @@
         decoding="async"
         alt="הידעת? מידע על הקשר בין המוח, מחשבות, כאב ותהליך השיקום"
       >
-      <svg class="approved-poster__neuro" viewBox="0 0 600 900" aria-hidden="true" focusable="false">
-        <defs>
-          <filter id="poster-neuro-river-glow" x="-140%" y="-140%" width="380%" height="380%">
-            <feGaussianBlur stdDeviation="2.2" result="glow"/>
-            <feMerge>
-              <feMergeNode in="glow"/>
-              <feMergeNode in="glow"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-
-          <!-- אותו מסלול 3→1→3 שאושר -->
-          <path id="poster-neuro-in-a" pathLength="100" d="M474 295
-            C475 318 482 342 488 360
-            C489 375 486 389 480 400"/>
-          <path id="poster-neuro-in-b" pathLength="100" d="M507 332
-            C502 342 495 352 488 360
-            C488 376 485 390 480 400"/>
-          <path id="poster-neuro-in-c" pathLength="100" d="M462 368
-            C469 376 476 389 480 400"/>
-
-          <path id="poster-neuro-trunk" pathLength="100" d="M480 400
-            C480 440 479 480 477 520
-            C476 546 472 563 466 577
-            C458 593 451 609 445 624"/>
-
-          <path id="poster-neuro-out-a" pathLength="100" d="M445 624 C432 627 418 635 404 640"/>
-          <path id="poster-neuro-out-b" pathLength="100" d="M445 624 C444 640 445 656 447 672"/>
-          <path id="poster-neuro-out-c" pathLength="100" d="M445 624 C436 644 421 668 402 688"/>
-        </defs>
-
-        <ellipse class="approved-poster__brain-glow" cx="486" cy="330" rx="47" ry="55"/>
-
-        <!-- שכבת הילה רציפה: לעולם לא נעלמת -->
-        <g class="approved-poster__river-halo" filter="url(#poster-neuro-river-glow)">
-          <use class="approved-poster__river-line" href="#poster-neuro-in-a"/>
-          <use class="approved-poster__river-line" href="#poster-neuro-in-b"/>
-          <use class="approved-poster__river-line" href="#poster-neuro-in-c"/>
-          <use class="approved-poster__river-line" href="#poster-neuro-trunk"/>
-          <use class="approved-poster__river-line" href="#poster-neuro-out-a"/>
-          <use class="approved-poster__river-line" href="#poster-neuro-out-b"/>
-          <use class="approved-poster__river-line" href="#poster-neuro-out-c"/>
-        </g>
-
-        <!-- ליבה מוארת מלאה ורציפה -->
-        <g class="approved-poster__river-core">
-          <use class="approved-poster__river-line" href="#poster-neuro-in-a"/>
-          <use class="approved-poster__river-line" href="#poster-neuro-in-b"/>
-          <use class="approved-poster__river-line" href="#poster-neuro-in-c"/>
-          <use class="approved-poster__river-line" href="#poster-neuro-trunk"/>
-          <use class="approved-poster__river-line" href="#poster-neuro-out-a"/>
-          <use class="approved-poster__river-line" href="#poster-neuro-out-b"/>
-          <use class="approved-poster__river-line" href="#poster-neuro-out-c"/>
-        </g>
-
-        <!-- רק הבוהק הבהיר נע מעל הקו הרציף, כמו זרם מים -->
-        <g class="approved-poster__river-flow" filter="url(#poster-neuro-river-glow)">
-          <use class="approved-poster__river-highlight approved-poster__river-highlight--1" href="#poster-neuro-in-a"/>
-          <use class="approved-poster__river-highlight approved-poster__river-highlight--2" href="#poster-neuro-in-b"/>
-          <use class="approved-poster__river-highlight approved-poster__river-highlight--3" href="#poster-neuro-in-c"/>
-          <use class="approved-poster__river-highlight approved-poster__river-highlight--4" href="#poster-neuro-trunk"/>
-          <use class="approved-poster__river-highlight approved-poster__river-highlight--5" href="#poster-neuro-out-a"/>
-          <use class="approved-poster__river-highlight approved-poster__river-highlight--6" href="#poster-neuro-out-b"/>
-          <use class="approved-poster__river-highlight approved-poster__river-highlight--7" href="#poster-neuro-out-c"/>
-        </g>
-      </svg>
     </div>
   </div>
 </section>
