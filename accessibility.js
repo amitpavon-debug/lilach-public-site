@@ -471,12 +471,96 @@
       scaleValue.textContent = String(scale) + "%";
     };
 
+    // CSS rules can stop CSS animations, but animated GIFs ignore them.
+    // Freeze same-origin GIFs to the frame currently visible while the setting is on.
+    const frozenGifs = new Map();
+    const pendingGifs = new WeakSet();
+    const pausedMedia = new Set();
+
+    const isGif = (image) => {
+      const source = image.currentSrc || image.src || "";
+      try {
+        const url = new URL(source, window.location.href);
+        return url.origin === window.location.origin && /\.gif$/i.test(url.pathname);
+      } catch (_) {
+        return false;
+      }
+    };
+
+    const freezeGif = (image) => {
+      if (!image.isConnected || frozenGifs.has(image) || !isGif(image)) return;
+      if (!image.complete || !image.naturalWidth || !image.naturalHeight) {
+        if (!pendingGifs.has(image)) {
+          pendingGifs.add(image);
+          image.addEventListener("load", () => {
+            pendingGifs.delete(image);
+            if (preferences.pauseAnimations) freezeGif(image);
+          }, { once: true });
+        }
+        return;
+      }
+
+      try {
+        const sourceAttributes = {
+          src: image.getAttribute("src"),
+          srcset: image.getAttribute("srcset"),
+          sizes: image.getAttribute("sizes")
+        };
+        const maxDimension = 1800;
+        const scale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+        canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+        const context = canvas.getContext("2d");
+        if (!context) return;
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+        frozenGifs.set(image, sourceAttributes);
+        image.removeAttribute("srcset");
+        image.removeAttribute("sizes");
+        image.src = canvas.toDataURL("image/png");
+      } catch (error) {
+        // A cross-origin or unsupported image should not break the accessibility menu.
+        console.warn("Could not freeze animated image:", error);
+      }
+    };
+
+    const applyAnimationPreference = () => {
+      if (preferences.pauseAnimations) {
+        document.querySelectorAll("img").forEach(freezeGif);
+        document.querySelectorAll("video, audio").forEach((media) => {
+          if (!media.paused && !media.ended) {
+            media.pause();
+            pausedMedia.add(media);
+          }
+        });
+        return;
+      }
+
+      frozenGifs.forEach((sourceAttributes, image) => {
+        if (!image.isConnected) return;
+        if (sourceAttributes.src === null) image.removeAttribute("src");
+        else image.setAttribute("src", sourceAttributes.src);
+        if (sourceAttributes.srcset === null) image.removeAttribute("srcset");
+        else image.setAttribute("srcset", sourceAttributes.srcset);
+        if (sourceAttributes.sizes === null) image.removeAttribute("sizes");
+        else image.setAttribute("sizes", sourceAttributes.sizes);
+      });
+      frozenGifs.clear();
+
+      pausedMedia.forEach((media) => {
+        if (media.isConnected) media.play().catch(() => {});
+      });
+      pausedMedia.clear();
+    };
+
     const applyPreferences = () => {
       const root = document.documentElement;
       root.classList.toggle("a11y-high-contrast", Boolean(preferences.highContrast));
       root.classList.toggle("a11y-highlight-links", Boolean(preferences.highlightLinks));
       root.classList.toggle("a11y-readable-font", Boolean(preferences.readableFont));
       root.classList.toggle("a11y-pause-animations", Boolean(preferences.pauseAnimations));
+      applyAnimationPreference();
 
       widget.querySelectorAll("[data-a11y-toggle]").forEach((button) => {
         const key = button.getAttribute("data-a11y-toggle");
@@ -545,9 +629,24 @@
     });
 
     const dynamicContentObserver = new MutationObserver((mutations) => {
-      if (preferences.textScale === 100) return;
-      if (!mutations.some((mutation) => mutation.addedNodes.length)) return;
-      requestAnimationFrame(applyTextScale);
+      const addedNodes = mutations.flatMap((mutation) => Array.from(mutation.addedNodes));
+      if (!addedNodes.length) return;
+
+      if (preferences.pauseAnimations) {
+        requestAnimationFrame(() => {
+          applyAnimationPreference();
+          addedNodes.forEach((node) => {
+            if (!(node instanceof Element)) return;
+            node.querySelectorAll?.("img").forEach(freezeGif);
+            if (node.matches?.("video, audio") && !node.paused && !node.ended) {
+              node.pause();
+              pausedMedia.add(node);
+            }
+          });
+        });
+      }
+
+      if (preferences.textScale !== 100) requestAnimationFrame(applyTextScale);
     });
     dynamicContentObserver.observe(document.body, { childList: true, subtree: true });
 
