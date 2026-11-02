@@ -134,17 +134,44 @@
     });
   }
 
+  function bookingWindowEnd(){
+    const end=new Date();
+    end.setHours(12,0,0,0);
+    end.setDate(end.getDate()+21);
+    return end;
+  }
+
+  function hasMoreBookableDates(){
+    const end=bookingWindowEnd();
+    const candidate=cloneDate(dateCursor);
+    while(candidate<end){
+      candidate.setDate(candidate.getDate()+1);
+      if(candidate<=end && isBookableWeekday(candidate)) return true;
+    }
+    return false;
+  }
+
+  function syncMoreDatesButton(){
+    const button=$("moreDatesBtn");
+    if(!button) return;
+    button.hidden=!hasMoreBookableDates();
+    button.textContent="הצגת מועדים נוספים";
+  }
+
   function appendMoreDates(count=5){
     let d=cloneDate(dateCursor);
+    const end=bookingWindowEnd();
     let added=0;
-    while(added<count){
+    while(added<count && d<end){
       d.setDate(d.getDate()+1);
+      if(d>end) break;
       if(!isBookableWeekday(d)) continue;
       visibleDates.push(cloneDate(d));
       added++;
     }
     dateCursor=cloneDate(d);
     renderDates();
+    syncMoreDatesButton();
   }
 
   function resetDateWindow(){
@@ -254,8 +281,6 @@
 
   $("moreDatesBtn")?.addEventListener("click",()=>{
     appendMoreDates(5);
-    const btn=$("moreDatesBtn");
-    if(btn) btn.textContent="הצגת 5 מועדים נוספים";
   });
   appendMoreDates(5);
 
