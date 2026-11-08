@@ -100,6 +100,7 @@
   dateCursor.setHours(12,0,0,0);
   let selectedDate=null;
   let selectedTime=null;
+  let availabilityRequestId=0;
   let pendingBooking=null;
 
   function iso(d){return d.toISOString().slice(0,10)}
@@ -230,7 +231,9 @@
   }
 
   async function selectDate(d){
-    selectedDate=iso(d);
+    const requestId=++availabilityRequestId;
+    const date=iso(d);
+    selectedDate=date;
     selectedTime=null;
     renderDates();
     resetBookingFlow();
@@ -244,7 +247,7 @@
     try{
       if(cfg.BOOKING_AVAILABILITY_URL){
         const appointmentType=document.querySelector('input[name="appointmentType"]:checked')?.value||"intake";
-        const r=await fetch(`${cfg.BOOKING_AVAILABILITY_URL}?date=${selectedDate}&appointmentType=${encodeURIComponent(appointmentType)}`);
+        const r=await fetch(`${cfg.BOOKING_AVAILABILITY_URL}?date=${date}&appointmentType=${encodeURIComponent(appointmentType)}`);
         if(!r.ok)throw new Error();
         const j=await r.json();
         times=j.slots||[];
@@ -254,6 +257,8 @@
     }catch(_){
       times=[];
     }
+
+    if(requestId!==availabilityRequestId || selectedDate!==date)return;
 
     slots.innerHTML="";
     if(!times.length){
